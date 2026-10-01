@@ -1,3 +1,4 @@
+import type { StockLine } from '@/domain/inventory/shortage'
 import type { OrderAction, OrderStatus } from '@/domain/orders/state-machine'
 import type { AppSupabaseClient } from '@/lib/supabase'
 import type { Database } from '@/types/database.generated'
@@ -92,6 +93,29 @@ export interface StatusHistoryEntry {
   actor: { full_name: string } | null
 }
 
+/** RES-009: what is held and what is missing for an order. */
+export interface OrderStockStatus {
+  order_id: string
+  status: OrderStatus
+  location_id: string
+  reservation_expires_at: string | null
+  lines: StockLine[]
+}
+
+export interface AllocationResult {
+  location_id: string
+  fully_allocated: boolean
+  shortage_total: number
+  lines: {
+    order_item_id: string
+    product_id: string
+    quantity: number
+    requested: number
+    reserved_now: number
+    shortage: number
+  }[]
+}
+
 export const ORDER_PAGE_SIZE = 25
 
 export interface OrderSearch {
@@ -151,6 +175,33 @@ export function createOrderService(client: AppSupabaseClient) {
           p_reason: reason ?? undefined,
         }) as never,
       ) as Promise<Order>
+    },
+
+    /** RES-009: stock situation of one order (holds, shortage, where to get missing stock). */
+    async stockStatus(orderId: string): Promise<OrderStockStatus> {
+      return call(
+        client.rpc('order_stock_status', { p_order_id: orderId }) as never,
+      ) as Promise<OrderStockStatus>
+    },
+
+    /** Before saving: is there enough sellable stock at this location? Same shape per product line. */
+    async checkStock(locationId: string, items: OrderLineInput[]): Promise<StockLine[]> {
+      return call(
+        client.rpc('check_stock', {
+          p_location_id: locationId,
+          p_items: toItemsJson(items),
+        }) as never,
+      ) as Promise<StockLine[]>
+    },
+
+    /** RES-007: physical allocation by FEFO (Admin or Warehouse). */
+    async allocate(orderId: string, allowBelowSafety = false): Promise<AllocationResult> {
+      return call(
+        client.rpc('allocate_order', {
+          p_order_id: orderId,
+          p_allow_below_safety: allowBelowSafety,
+        }) as never,
+      ) as Promise<AllocationResult>
     },
 
     /** ORD-011: the signed-in user's orders (RLS limits what is visible); Admin sees all. */
