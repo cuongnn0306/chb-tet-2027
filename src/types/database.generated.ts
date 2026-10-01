@@ -501,6 +501,9 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"import_opening_stock":
+{ Args: { "p_dry_run"?: boolean,"p_rows": Json }; Returns: Json
+                           },
 "inventory_summary":
 { Args: { "p_location_id"?: string }; Returns: {
               "available_qty": number,"damaged_qty": number,"expired_qty": number,"gift_qty": number,"in_transfer_qty": number,"location_id": string,"pending_inspection_qty": number,"product_id": string,"reserved_qty": number,"safety_stock_qty": number,"sample_qty": number,"sellable_qty": number

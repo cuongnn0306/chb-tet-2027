@@ -503,7 +503,15 @@ describe('inventory summary (INV-007)', () => {
     expect(after.find((r: any) => r.product_id === product).available_qty).toBe(was + 11)
     // A safety-stock rule for a product with no stock anywhere is still listed, with sellable 0.
     const svc = serviceClient()
-    const { data: noStock } = await svc.from('products').select('id').eq('sku', 'DG-TUI').single()
+    const { data: noStock } = await svc
+      .from('products')
+      .insert({
+        sku: `P-NS-${randomUUID().slice(0, 6).toUpperCase()}`,
+        name: 'Sản phẩm chưa có tồn',
+        list_price: 1000,
+      })
+      .select('id')
+      .single()
     await svc
       .from('safety_stock_rules')
       .upsert(
