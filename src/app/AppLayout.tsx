@@ -25,6 +25,11 @@ const MAIN_NAV: MainNavItem[] = [
     label: 'Khách hàng',
     visible: (role) => hasPermission(role, 'create_order'),
   },
+  {
+    to: ROUTES.deliveries,
+    label: 'Lịch giao hàng',
+    visible: (role) => role !== 'PRODUCTION',
+  },
   { to: ROUTES.inventory, label: 'Tồn kho', visible: () => true },
   {
     to: ROUTES.inventoryBatches,

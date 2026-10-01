@@ -10,6 +10,7 @@ import { useAuth } from '@/features/auth/auth-context'
 import { Button } from '@/components/ui/Button'
 import { ACTION_COPY } from '../action-copy'
 import { OrderActionDialog } from '../components/OrderActionDialog'
+import { OrderDeliveryPanel } from '@/features/deliveries/components/OrderDeliveryPanel'
 import { OrderPaymentPanel } from '@/features/payments/components/OrderPaymentPanel'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
 import { OrderStockPanel } from '../components/OrderStockPanel'
@@ -22,6 +23,8 @@ export function OrderDetailPage() {
   const queryClient = useQueryClient()
   const { access } = useAuth()
   const isAdmin = access.status === 'active' && access.user.roleCode === 'ADMIN'
+  const isWarehouseStaff =
+    access.status === 'active' && ['ADMIN', 'WAREHOUSE'].includes(access.user.roleCode)
   const [action, setAction] = useState<OrderAction | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
@@ -249,6 +252,30 @@ export function OrderDetailPage() {
         onAllocated={() => {
           void queryClient.invalidateQueries({ queryKey: ['order', orderId] })
           void queryClient.invalidateQueries({ queryKey: ['order-history', orderId] })
+          void queryClient.invalidateQueries({ queryKey: ['orders'] })
+        }}
+      />
+
+      <OrderDeliveryPanel
+        orderId={data.id}
+        orderStatus={data.status}
+        creationLocationId={data.creation_location_id}
+        items={items.map((i) => ({
+          id: i.id,
+          name: i.products?.name ?? '—',
+          sku: i.products?.sku ?? '',
+          quantity: i.quantity,
+        }))}
+        isPlanner={
+          isAdmin ||
+          (access.status === 'active' &&
+            (data.owner_user_id === access.user.id || data.created_by === access.user.id))
+        }
+        isWarehouseStaff={isWarehouseStaff}
+        onChanged={() => {
+          void queryClient.invalidateQueries({ queryKey: ['order', orderId] })
+          void queryClient.invalidateQueries({ queryKey: ['order-history', orderId] })
+          void queryClient.invalidateQueries({ queryKey: ['order-stock', orderId] })
           void queryClient.invalidateQueries({ queryKey: ['orders'] })
         }}
       />
