@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { CheckboxField, SelectField, TextAreaField } from '@/components/ui/fields'
 import { TextField } from '@/components/ui/TextField'
 import { validateOrderForm, type LineInput } from '@/domain/orders/form'
+import { shortageMessage } from '@/domain/inventory/shortage'
 import { baseCommission, orderGross, type PricedLine } from '@/domain/orders/pricing'
 import { useAuth } from '@/features/auth/auth-context'
 import { CustomerPicker } from '@/features/customers/components/CustomerPicker'
@@ -179,6 +180,14 @@ function OrderFormBody({
     placeholderData: (previous) => previous,
   })
 
+  // RES-009: warn (never block) when the chosen location cannot cover the lines, and say where to get stock.
+  const stockCheck = useQuery({
+    queryKey: ['order-form-stock', locationId, JSON.stringify(debouncedItems)],
+    enabled: debouncedItems.length > 0 && locationId !== '',
+    queryFn: () => service.checkStock(locationId, debouncedItems),
+    placeholderData: (previous) => previous,
+  })
+
   // Effect-free derived totals from what is typed now, using the rates of the latest quote.
   const pricedLines: PricedLine[] = useMemo(() => {
     const rates = new Map(
@@ -294,6 +303,20 @@ function OrderFormBody({
           onChange={setLines}
           errors={errors}
         />
+        {(stockCheck.data ?? []).map((line) => {
+          const message = shortageMessage(line)
+          if (!message) return null
+          const name = productById.get(line.product_id)?.name ?? 'Sản phẩm'
+          return (
+            <p
+              key={line.product_id}
+              role="status"
+              className="rounded-md bg-amber-50 p-3 text-sm text-amber-900"
+            >
+              <strong>{name}:</strong> {message} Bạn vẫn có thể lưu đơn.
+            </p>
+          )
+        })}
       </Section>
 
       <Section title="3. Thông tin đơn">

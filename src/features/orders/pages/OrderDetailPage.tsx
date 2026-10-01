@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { ACTION_COPY } from '../action-copy'
 import { OrderActionDialog } from '../components/OrderActionDialog'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
+import { OrderStockPanel } from '../components/OrderStockPanel'
 import { OrderTimeline } from '../components/OrderTimeline'
 import { useOrderService } from '../hooks/useOrderService'
 
@@ -227,6 +228,18 @@ export function OrderDetailPage() {
         </dl>
       </section>
 
+      <OrderStockPanel
+        orderId={data.id}
+        orderCode={data.order_code}
+        status={data.status}
+        canAllocate={isAdmin}
+        onAllocated={() => {
+          void queryClient.invalidateQueries({ queryKey: ['order', orderId] })
+          void queryClient.invalidateQueries({ queryKey: ['order-history', orderId] })
+          void queryClient.invalidateQueries({ queryKey: ['orders'] })
+        }}
+      />
+
       <section className="rounded-lg border border-slate-200 bg-white p-4 print:hidden">
         <h2 className="mb-3 font-semibold text-slate-900">Lịch sử đơn hàng</h2>
         {history.isPending ? <LoadingState /> : null}
@@ -245,6 +258,7 @@ export function OrderDetailPage() {
           void queryClient.invalidateQueries({ queryKey: ['order', orderId] })
           void queryClient.invalidateQueries({ queryKey: ['order-history', orderId] })
           void queryClient.invalidateQueries({ queryKey: ['orders'] })
+          void queryClient.invalidateQueries({ queryKey: ['order-stock', orderId] })
         }}
       />
     </article>
