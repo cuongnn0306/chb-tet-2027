@@ -33,3 +33,13 @@ Staging được phép seed dữ liệu test có kiểm soát; không dùng dump
 ## Cổng staging
 
 Migration apply thành công, smoke test, E2E luồng chính, RLS tests. SePay chỉ dùng Test Mode với endpoint staging (E06).
+
+## Tự động đẩy migration lên staging (GitHub Actions)
+
+`.github/workflows/staging.yml` đã sẵn sàng nhưng **tắt** cho tới khi bạn cấu hình. Sau khi tạo project staging:
+
+1. Tạo GitHub environment tên `staging`.
+2. Thêm secrets (trong environment đó): `SUPABASE_ACCESS_TOKEN`, `STAGING_PROJECT_REF`, `STAGING_DB_PASSWORD`.
+3. Đặt repository variable `STAGING_CONFIGURED=true`.
+
+Khi đó mỗi lần `develop` thay đổi, workflow chạy `db push --dry-run` rồi `db push`. Không dùng chung giá trị với production.
