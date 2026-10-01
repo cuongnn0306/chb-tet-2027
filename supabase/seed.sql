@@ -149,3 +149,44 @@ from (values
   ('INDIVIDUAL', 'Khách của cửa hàng', '0900000004', 'Địa chỉ giả D', null, null, null, null, null, null, 'Nhân viên cửa hàng Test', false),
   ('INDIVIDUAL', 'Khách đã lưu trữ', '0900000006', 'Địa chỉ giả E', null, null, null, null, null, null, 'Sale B2B Test', true)
 ) as v(customer_type, name, phone, address, company_name, tax_code, contact_name, contact_title, email, company_address, creator, is_archived);
+
+-- Test batches and opening stock (fake). Stock is posted through the real posting function so the
+-- ledger (inventory_movements) and the balance cache agree from the start.
+-- Dates are relative to the run date: B-OLD expires first (FEFO), B-EXPIRED is already expired.
+insert into public.product_batches (batch_code, product_id, manufactured_date, expiry_date)
+select v.batch_code, p.id, current_date + v.mfd_offset, current_date + v.exp_offset
+from (values
+  ('TT-1200', 'B-OLD', -20, 10), ('TT-1200', 'B-NEW', -5, 40),
+  ('TT-800',  'B-OLD', -20, 10), ('TT-800',  'B-NEW', -5, 40),
+  ('TT-500',  'B-NEW', -5, 40),  ('TT-500',  'B-EXPIRED', -60, -5),
+  ('COM-800', 'B-NEW', -5, 40),  ('COM-500', 'B-NEW', -5, 40),
+  ('HQ-A',    'B-NEW', -5, 40)
+) as v(sku, batch_code, mfd_offset, exp_offset)
+join public.products p on p.sku = v.sku;
+
+do $$
+declare
+  r record;
+begin
+  for r in
+    select l.id as location_id, p.id as product_id, b.id as batch_id, v.qty
+    from (values
+      ('HN-BEP',  'TT-1200', 'B-OLD',  60), ('HN-BEP',  'TT-1200', 'B-NEW', 120),
+      ('HN-VP',   'TT-1200', 'B-NEW',  40), ('HN-CH1',  'TT-1200', 'B-NEW',  25),
+      ('HN-BEP',  'TT-800',  'B-OLD',  80), ('HN-BEP',  'TT-800',  'B-NEW', 100),
+      ('HN-CH2',  'TT-800',  'B-NEW',  20),
+      ('HN-BEP',  'TT-500',  'B-NEW',  50), ('HN-BEP',  'TT-500',  'B-EXPIRED', 10),
+      ('HN-BEP',  'COM-800', 'B-NEW',  70), ('HN-CH1',  'COM-800', 'B-NEW',  15),
+      ('HN-BEP',  'COM-500', 'B-NEW',  30),
+      ('HN-BEP',  'HQ-A',    'B-NEW',  40), ('HCM-FR1', 'HQ-A',    'B-NEW',   6)
+    ) as v(location_code, sku, batch_code, qty)
+    join public.locations l on l.code = v.location_code
+    join public.products p on p.sku = v.sku
+    join public.product_batches b on b.product_id = p.id and b.batch_code = v.batch_code
+  loop
+    perform private.post_inventory_movement(
+      'ADJUSTMENT_IN', r.product_id, r.batch_id, null, r.location_id, r.qty, 'Tồn đầu kỳ (dữ liệu test)'
+    );
+  end loop;
+end;
+$$;

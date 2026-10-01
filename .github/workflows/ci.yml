@@ -32,6 +32,7 @@ jobs:
       # Rebuilds the local DB from migrations + seed; fails if the repo is not reproducible.
       - run: npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector
       - run: npx supabase db reset
+      - run: npm run test:db
       - run: npm run test:integration
       - if: always()
         run: npx supabase stop --no-backup
