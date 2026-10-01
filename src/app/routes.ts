@@ -6,6 +6,7 @@ export const ROUTES = {
     salesChannels: '/admin/sales-channels',
     leadSources: '/admin/lead-sources',
     products: '/admin/products',
+    commissionRules: '/admin/commission-rules',
   },
 } as const
 
@@ -15,4 +16,5 @@ export const ADMIN_NAV = [
   { to: ROUTES.admin.salesChannels, label: 'Kênh bán' },
   { to: ROUTES.admin.leadSources, label: 'Nguồn khách' },
   { to: ROUTES.admin.products, label: 'Sản phẩm' },
+  { to: ROUTES.admin.commissionRules, label: 'Hoa hồng' },
 ] as const

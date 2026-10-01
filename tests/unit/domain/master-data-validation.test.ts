@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   normalizeCode,
   parseInteger,
+  isIsoDate,
   parsePercent,
+  validateCommissionRule,
   validateProduct,
   validateCode,
   validateLocation,
@@ -118,5 +120,41 @@ describe('validateProduct', () => {
       'sku',
       'weight_gram',
     ])
+  })
+})
+
+describe('commission rule validation', () => {
+  const valid = {
+    userId: 'u1',
+    roleId: '',
+    rate: '5',
+    effectiveFrom: '2026-12-01',
+    effectiveTo: '',
+  }
+
+  it('recognises real ISO dates only', () => {
+    expect(isIsoDate('2027-02-06')).toBe(true)
+    expect(isIsoDate('2027-02-30')).toBe(false)
+    expect(isIsoDate('06/02/2027')).toBe(false)
+    expect(isIsoDate('')).toBe(false)
+  })
+
+  it('accepts a user rule or a role rule, with or without an end date', () => {
+    expect(validateCommissionRule(valid)).toEqual({})
+    expect(validateCommissionRule({ ...valid, userId: '', roleId: 'r1' })).toEqual({})
+    expect(validateCommissionRule({ ...valid, effectiveTo: '2027-02-28' })).toEqual({})
+  })
+
+  it('requires exactly one of user or role', () => {
+    expect(validateCommissionRule({ ...valid, userId: '', roleId: '' })).toHaveProperty('user_id')
+    expect(validateCommissionRule({ ...valid, roleId: 'r1' })).toHaveProperty('user_id')
+  })
+
+  it('validates rate and period', () => {
+    expect(validateCommissionRule({ ...valid, rate: '101' })).toHaveProperty('rate_percent')
+    expect(validateCommissionRule({ ...valid, effectiveFrom: '' })).toHaveProperty('effective_from')
+    expect(
+      validateCommissionRule({ ...valid, effectiveFrom: '2027-03-01', effectiveTo: '2027-02-01' }),
+    ).toHaveProperty('effective_to')
   })
 })
