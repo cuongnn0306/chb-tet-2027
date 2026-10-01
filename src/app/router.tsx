@@ -1,5 +1,8 @@
 import { createBrowserRouter } from 'react-router'
 import { CustomerListPage } from '@/features/customers/pages/CustomerListPage'
+import { BatchStockPage } from '@/features/inventory/pages/BatchStockPage'
+import { InventorySummaryPage } from '@/features/inventory/pages/InventorySummaryPage'
+import { MovementHistoryPage } from '@/features/inventory/pages/MovementHistoryPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { HomePage } from '@/features/dashboard/pages/HomePage'
 import { CommissionRulesPage } from '@/features/master-data/pages/CommissionRulesPage'
@@ -16,6 +19,7 @@ import { OrderFormPage } from '@/features/orders/pages/OrderFormPage'
 import { OrderListPage } from '@/features/orders/pages/OrderListPage'
 import { OrderPrintPage } from '@/features/orders/pages/OrderPrintPage'
 import { PermissionRoute } from './PermissionRoute'
+import { RoleRoute } from './RoleRoute'
 import { ROUTES } from './routes'
 
 export const router = createBrowserRouter([
@@ -27,6 +31,15 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { path: ROUTES.home, element: <HomePage /> },
+          { path: ROUTES.inventory, element: <InventorySummaryPage /> },
+          {
+            element: <RoleRoute roles={['ADMIN', 'WAREHOUSE', 'PRODUCTION']} />,
+            children: [{ path: ROUTES.inventoryBatches, element: <BatchStockPage /> }],
+          },
+          {
+            element: <RoleRoute roles={['ADMIN', 'WAREHOUSE']} />,
+            children: [{ path: ROUTES.inventoryMovements, element: <MovementHistoryPage /> }],
+          },
           {
             element: <PermissionRoute permission="create_order" />,
             children: [
