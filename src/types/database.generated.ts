@@ -162,6 +162,37 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"safety_stock_rules": {
+                  Row: {
+                    "id": string,"location_id": string,"minimum_qty": number,"product_id": string,"updated_at": string,"updated_by": string | null
+                  }
+                  Insert: {
+                    "id"?: string,"location_id": string,"minimum_qty": number,"product_id": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "id"?: string,"location_id"?: string,"minimum_qty"?: number,"product_id"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "safety_stock_rules_location_id_fkey"
+      columns: ["location_id"]
+isOneToOne: false
+      referencedRelation: "locations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_stock_rules_product_id_fkey"
+      columns: ["product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_stock_rules_updated_by_fkey"
+      columns: ["updated_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"sales_channels": {
                   Row: {
                     "code": string,"id": string,"is_active": boolean,"name": string,"sort_order": number

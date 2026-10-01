@@ -54,6 +54,19 @@ insert into public.commission_rules (role_id, product_id, rate_percent, effectiv
 select r.id, p.id, 12, date '2026-10-01'
 from public.roles r, public.products p where r.code = 'SALE_B2B' and p.sku = 'HQ-A';
 
+-- Example safety stock (PRD §13 examples), per Location x SKU.
+insert into public.safety_stock_rules (location_id, product_id, minimum_qty)
+select l.id, p.id, v.qty
+from (values
+  ('HN-VP',   'TT-1200', 50),
+  ('HN-CH1',  'TT-1200', 20),
+  ('HN-CH1',  'COM-800', 10),
+  ('HN-CH2',  'TT-800',  15),
+  ('HCM-FR1', 'HQ-A',     5)
+) as v(location_code, sku, qty)
+join public.locations l on l.code = v.location_code
+join public.products p on p.sku = v.sku;
+
 -- Test accounts: one per role + one inactive user.
 -- The on_auth_user_created trigger creates each profile from app_metadata.role_code.
 do $$

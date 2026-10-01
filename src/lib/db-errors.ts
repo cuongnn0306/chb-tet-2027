@@ -7,7 +7,7 @@ interface ErrorLike {
 export function describeDbError(error: ErrorLike): string {
   switch (error.code) {
     case '23505':
-      return 'Mã này đã tồn tại. Vui lòng chọn mã khác.'
+      return 'Dữ liệu này đã tồn tại (trùng mã hoặc trùng lựa chọn). Vui lòng kiểm tra lại.'
     case '23503':
       return 'Dữ liệu liên quan không còn tồn tại hoặc đang được sử dụng. Vui lòng tải lại trang.'
     case '23514':
