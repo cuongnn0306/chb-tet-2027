@@ -92,6 +92,25 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"customers": {
+                  Row: {
+                    "address": string | null,"company_address": string | null,"company_name": string | null,"contact_name": string | null,"contact_title": string | null,"created_at": string,"created_by": string,"customer_type": string,"email": string | null,"id": string,"is_archived": boolean,"name": string | null,"phone": string | null,"phone_normalized": string | null,"tax_code": string | null,"updated_at": string
+                  }
+                  Insert: {
+                    "address"?: string | null,"company_address"?: string | null,"company_name"?: string | null,"contact_name"?: string | null,"contact_title"?: string | null,"created_at"?: string,"created_by": string,"customer_type": string,"email"?: string | null,"id"?: string,"is_archived"?: boolean,"name"?: string | null,"phone"?: string | null,"phone_normalized"?: never,"tax_code"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "address"?: string | null,"company_address"?: string | null,"company_name"?: string | null,"contact_name"?: string | null,"contact_title"?: string | null,"created_at"?: string,"created_by"?: string,"customer_type"?: string,"email"?: string | null,"id"?: string,"is_archived"?: boolean,"name"?: string | null,"phone"?: string | null,"phone_normalized"?: never,"tax_code"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "customers_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"lead_sources": {
                   Row: {
                     "code": string,"id": string,"is_active": boolean,"name": string,"sort_order": number
@@ -231,7 +250,59 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            [_ in never]: never
+            "find_similar_customers":
+{ Args: { "p_exclude_id"?: string,"p_phone"?: string,"p_tax_code"?: string }; Returns: {
+              "address": string | null,
+"company_address": string | null,
+"company_name": string | null,
+"contact_name": string | null,
+"contact_title": string | null,
+"created_at": string,
+"created_by": string,
+"customer_type": string,
+"email": string | null,
+"id": string,
+"is_archived": boolean,
+"name": string | null,
+"phone": string | null,
+"phone_normalized": string | null,
+"tax_code": string | null,
+"updated_at": string
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "customers"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
+"normalize_phone":
+{ Args: { "p_phone": string }; Returns: string
+                           },
+"search_customers":
+{ Args: { "p_customer_type"?: string,"p_include_archived"?: boolean,"p_limit"?: number,"p_offset"?: number,"p_query"?: string }; Returns: {
+              "address": string | null,
+"company_address": string | null,
+"company_name": string | null,
+"contact_name": string | null,
+"contact_title": string | null,
+"created_at": string,
+"created_by": string,
+"customer_type": string,
+"email": string | null,
+"id": string,
+"is_archived": boolean,
+"name": string | null,
+"phone": string | null,
+"phone_normalized": string | null,
+"tax_code": string | null,
+"updated_at": string
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "customers"
+        isOneToOne: false
+        isSetofReturn: true
+      } }
           }
           Enums: {
             [_ in never]: never
