@@ -1,10 +1,15 @@
-import { useMemo, type ReactNode } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useMemo, useState, type ReactNode } from 'react'
 import { ErrorState } from '@/components/shared/PageState'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { getSupabase } from '@/lib/supabase'
 import { createAuthService } from '@/services/auth.service'
 
 export function Providers({ children }: { children: ReactNode }) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } } }),
+  )
   const service = useMemo(() => {
     try {
       return createAuthService(getSupabase())
@@ -24,5 +29,9 @@ export function Providers({ children }: { children: ReactNode }) {
       </div>
     )
   }
-  return <AuthProvider service={service}>{children}</AuthProvider>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider service={service}>{children}</AuthProvider>
+    </QueryClientProvider>
+  )
 }
