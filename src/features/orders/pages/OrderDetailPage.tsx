@@ -10,6 +10,7 @@ import { useAuth } from '@/features/auth/auth-context'
 import { Button } from '@/components/ui/Button'
 import { ACTION_COPY } from '../action-copy'
 import { OrderActionDialog } from '../components/OrderActionDialog'
+import { OrderPaymentPanel } from '@/features/payments/components/OrderPaymentPanel'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
 import { OrderStockPanel } from '../components/OrderStockPanel'
 import { OrderTimeline } from '../components/OrderTimeline'
@@ -227,6 +228,18 @@ export function OrderDetailPage() {
           </dd>
         </dl>
       </section>
+
+      <OrderPaymentPanel
+        orderId={data.id}
+        status={data.status}
+        isAdmin={isAdmin}
+        onChanged={() => {
+          void queryClient.invalidateQueries({ queryKey: ['order', orderId] })
+          void queryClient.invalidateQueries({ queryKey: ['order-history', orderId] })
+          void queryClient.invalidateQueries({ queryKey: ['order-stock', orderId] })
+          void queryClient.invalidateQueries({ queryKey: ['orders'] })
+        }}
+      />
 
       <OrderStockPanel
         orderId={data.id}
