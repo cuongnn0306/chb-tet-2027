@@ -4,6 +4,7 @@ import { BatchStockPage } from '@/features/inventory/pages/BatchStockPage'
 import { ImportOpeningStockPage } from '@/features/inventory/pages/ImportOpeningStockPage'
 import { InventorySummaryPage } from '@/features/inventory/pages/InventorySummaryPage'
 import { MovementHistoryPage } from '@/features/inventory/pages/MovementHistoryPage'
+import { PaymentReviewPage } from '@/features/payments/pages/PaymentReviewPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { HomePage } from '@/features/dashboard/pages/HomePage'
 import { CommissionRulesPage } from '@/features/master-data/pages/CommissionRulesPage'
@@ -39,7 +40,10 @@ export const router = createBrowserRouter([
           },
           {
             element: <RoleRoute roles={['ADMIN']} />,
-            children: [{ path: ROUTES.inventoryImport, element: <ImportOpeningStockPage /> }],
+            children: [
+              { path: ROUTES.inventoryImport, element: <ImportOpeningStockPage /> },
+              { path: ROUTES.paymentReview, element: <PaymentReviewPage /> },
+            ],
           },
           {
             element: <RoleRoute roles={['ADMIN', 'WAREHOUSE']} />,

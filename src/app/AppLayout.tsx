@@ -37,6 +37,7 @@ const MAIN_NAV: MainNavItem[] = [
     visible: (role) => (LEDGER_VIEW_ROLES as readonly string[]).includes(role),
   },
   { to: ROUTES.inventoryImport, label: 'Nhập tồn đầu kỳ', visible: (role) => role === 'ADMIN' },
+  { to: ROUTES.paymentReview, label: 'Thanh toán cần xử lý', visible: (role) => role === 'ADMIN' },
 ]
 
 export function AppLayout() {
