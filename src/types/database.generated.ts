@@ -349,7 +349,12 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "find_similar_customers":
+            "customer_order_summary":
+{ Args: { "p_customer_ids": (string)[] }; Returns: {
+              "customer_id": string,"last_order_at": string,"order_count": number,"total_gross": number
+            }[]
+                           },
+"find_similar_customers":
 { Args: { "p_exclude_id"?: string,"p_phone"?: string,"p_tax_code"?: string }; Returns: {
               "address": string | null,
 "company_address": string | null,

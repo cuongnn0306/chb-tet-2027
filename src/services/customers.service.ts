@@ -15,6 +15,13 @@ export interface CustomerSearch {
 
 export const CUSTOMER_PAGE_SIZE = 25
 
+/** CUS-005: purchase history of a customer (orders past draft, not cancelled/voided). */
+export interface CustomerHistory {
+  orderCount: number
+  totalGross: number
+  lastOrderAt: string | null
+}
+
 const blankToNull = (value: string) => (value.trim() === '' ? null : value.trim())
 
 /** Form fields -> columns. Fields of the other customer type are cleared so data stays consistent. */
@@ -62,6 +69,23 @@ export function createCustomerService(client: AppSupabaseClient) {
       })
       if (error) throw new DbError(error)
       return data ?? []
+    },
+
+    /** CUS-005: history for several customers at once. Customers without orders are absent from the map. */
+    async orderSummaries(ids: string[]): Promise<Map<string, CustomerHistory>> {
+      if (ids.length === 0) return new Map()
+      const { data, error } = await client.rpc('customer_order_summary', { p_customer_ids: ids })
+      if (error) throw new DbError(error)
+      return new Map(
+        (data ?? []).map((row) => [
+          row.customer_id,
+          {
+            orderCount: row.order_count,
+            totalGross: row.total_gross,
+            lastOrderAt: row.last_order_at,
+          },
+        ]),
+      )
     },
 
     async get(id: string): Promise<Customer | null> {
