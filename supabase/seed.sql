@@ -67,6 +67,17 @@ from (values
 join public.locations l on l.code = v.location_code
 join public.products p on p.sku = v.sku;
 
+-- Example app settings (test data). TTL 24h and prefix TET come from PRD §9 / plan §11.2;
+-- the other values are made-up examples. In production an Admin sets them in the app.
+insert into public.app_settings (key, value, description) values
+  ('reservation_ttl_hours',   '24'::jsonb,            'Thời gian giữ hàng tạm (giờ)'),
+  ('allocation_lead_days',    '5'::jsonb,             'Số ngày khóa tồn trước ngày giao'),
+  ('default_deposit_type',    '"PERCENT"'::jsonb,     'Kiểu tiền cọc mặc định'),
+  ('default_deposit_value',   '30'::jsonb,            'Giá trị tiền cọc mặc định'),
+  ('batch_expiry_alert_days', '14'::jsonb,            'Cảnh báo lô sắp hết hạn (ngày)'),
+  ('forecast_window_days',    '14'::jsonb,            'Cửa sổ dự báo (ngày)'),
+  ('order_prefix',            '"TET"'::jsonb,         'Tiền tố mã đơn');
+
 -- Test accounts: one per role + one inactive user.
 -- The on_auth_user_created trigger creates each profile from app_metadata.role_code.
 do $$
