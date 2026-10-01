@@ -14,6 +14,7 @@ import { describeDbError } from '@/lib/db-errors'
 import type { Customer } from '@/services/customers.service'
 import { customerToFields } from '../customer-fields'
 import { useCustomerService } from '../hooks/useCustomerService'
+import { useCustomerHistory } from '../hooks/useCustomerHistory'
 import { useSimilarCustomers } from '../hooks/useSimilarCustomers'
 import { DuplicateSuggestion } from './DuplicateSuggestion'
 
@@ -46,6 +47,7 @@ export function CustomerForm({
     taxCode: company ? fields.taxCode : '',
     excludeId: customer?.id,
   })
+  const similarHistory = useCustomerHistory(similar.map((c) => c.id))
   const similarKey = `${fields.phone}|${company ? fields.taxCode : ''}`
 
   const mutation = useMutation({
@@ -122,6 +124,7 @@ export function CustomerForm({
       {dismissedFor !== similarKey ? (
         <DuplicateSuggestion
           matches={similar}
+          history={similarHistory}
           useLabel={existingLabel}
           onUse={onOpenExisting}
           onDismiss={() => setDismissedFor(similarKey)}

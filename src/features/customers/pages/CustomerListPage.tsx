@@ -11,11 +11,13 @@ import {
   customerDisplayName,
   type CustomerType,
 } from '@/domain/customers/validation'
+import { describeHistory, lastOrderDate } from '@/domain/customers/history'
 import { useAuth } from '@/features/auth/auth-context'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { describeDbError } from '@/lib/db-errors'
 import { CUSTOMER_PAGE_SIZE, type Customer } from '@/services/customers.service'
 import { CustomerForm } from '../components/CustomerForm'
+import { useCustomerHistory } from '../hooks/useCustomerHistory'
 import { useCustomerService } from '../hooks/useCustomerService'
 
 type Editor =
@@ -69,6 +71,7 @@ export function CustomerListPage() {
   const rows = list.data ?? []
   const visible = rows.slice(0, CUSTOMER_PAGE_SIZE)
   const hasNext = rows.length > CUSTOMER_PAGE_SIZE
+  const history = useCustomerHistory(visible.map((customer) => customer.id))
 
   return (
     <section className="flex flex-col gap-4">
@@ -149,6 +152,7 @@ export function CustomerListPage() {
                 <th className="px-3 py-2 font-medium">Loại</th>
                 <th className="px-3 py-2 font-medium">Số điện thoại</th>
                 <th className="px-3 py-2 font-medium">Địa chỉ / MST</th>
+                <th className="px-3 py-2 font-medium">Lịch sử mua</th>
                 <th className="px-3 py-2" />
               </tr>
             </thead>
@@ -178,6 +182,14 @@ export function CustomerListPage() {
                     {customer.customer_type === 'COMPANY'
                       ? (customer.tax_code ?? '')
                       : (customer.address ?? '')}
+                  </td>
+                  <td className="px-3 py-2">
+                    {describeHistory(history.get(customer.id))}
+                    {lastOrderDate(history.get(customer.id)) ? (
+                      <span className="block text-xs text-slate-500">
+                        Gần nhất {lastOrderDate(history.get(customer.id))}
+                      </span>
+                    ) : null}
                   </td>
                   <td className="px-3 py-2 text-right">
                     {canEdit(customer) ? (

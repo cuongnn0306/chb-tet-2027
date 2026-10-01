@@ -1,9 +1,12 @@
 import { Button } from '@/components/ui/Button'
 import { customerDisplayName } from '@/domain/customers/validation'
-import type { Customer } from '@/services/customers.service'
+import { describeHistory } from '@/domain/customers/history'
+import type { Customer, CustomerHistory } from '@/services/customers.service'
 
 interface Props {
   matches: Customer[]
+  /** CUS-005 history per customer id ("3 đơn · 4.800.000 ₫"). */
+  history?: Map<string, CustomerHistory>
   /** Label of the action that picks an existing customer ("Dùng khách này" in order entry). */
   useLabel: string
   onUse: (customer: Customer) => void
@@ -12,7 +15,7 @@ interface Props {
 }
 
 /** Wireframe 04: non-blocking "this customer may already exist" suggestion. */
-export function DuplicateSuggestion({ matches, useLabel, onUse, onDismiss }: Props) {
+export function DuplicateSuggestion({ matches, history, useLabel, onUse, onDismiss }: Props) {
   if (matches.length === 0) return null
   return (
     <div
@@ -37,6 +40,9 @@ export function DuplicateSuggestion({ matches, useLabel, onUse, onDismiss }: Pro
                   .filter(Boolean)
                   .join(' · ')}
               </p>
+              {history ? (
+                <p className="text-slate-600">{describeHistory(history.get(customer.id))}</p>
+              ) : null}
             </div>
             <Button type="button" variant="secondary" onClick={() => onUse(customer)}>
               {useLabel}

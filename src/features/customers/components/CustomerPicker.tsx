@@ -3,9 +3,11 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
 import { TextField } from '@/components/ui/TextField'
+import { describeHistory } from '@/domain/customers/history'
 import { customerDisplayName } from '@/domain/customers/validation'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import type { Customer } from '@/services/customers.service'
+import { useCustomerHistory } from '../hooks/useCustomerHistory'
 import { useCustomerService } from '../hooks/useCustomerService'
 import { CustomerForm } from './CustomerForm'
 
@@ -31,6 +33,8 @@ export function CustomerPicker({ value, onChange, error }: Props) {
     queryFn: () => service.search({ query: debounced.trim(), limit: 8 }),
     enabled,
   })
+
+  const history = useCustomerHistory((matches.data ?? []).map((c) => c.id))
 
   if (value) {
     return (
@@ -87,6 +91,9 @@ export function CustomerPicker({ value, onChange, error }: Props) {
                   ]
                     .filter(Boolean)
                     .join(' · ')}
+                </span>
+                <span className="text-xs text-slate-500">
+                  {describeHistory(history.get(customer.id))}
                 </span>
               </button>
             </li>
