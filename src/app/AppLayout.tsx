@@ -14,7 +14,7 @@ export function AppLayout() {
   const name = access.status === 'active' ? access.user.fullName : ''
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
+      <header className="border-b border-slate-200 bg-white print:hidden">
         <div className="flex items-center justify-between gap-3 px-4 py-2">
           <NavLink to={ROUTES.home} className="font-semibold text-green-800">
             CHB Bánh chưng Tết 2027
@@ -31,6 +31,9 @@ export function AppLayout() {
             aria-label="Chức năng chính"
             className="flex gap-1 overflow-x-auto border-t border-slate-100 px-3 py-1"
           >
+            <NavLink to={ROUTES.orders} className={navLinkClass}>
+              Đơn hàng
+            </NavLink>
             <NavLink to={ROUTES.customers} className={navLinkClass}>
               Khách hàng
             </NavLink>
