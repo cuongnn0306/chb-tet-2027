@@ -1,0 +1,86 @@
+/** Pure input validation for master-data forms (messages are user-facing Vietnamese). */
+export type FieldErrors = Record<string, string>
+
+export const LOCATION_TYPES = ['CENTRAL_KITCHEN', 'OFFICE', 'STORE', 'FRANCHISE'] as const
+export type LocationType = (typeof LOCATION_TYPES)[number]
+
+export const LOCATION_TYPE_LABELS: Record<LocationType, string> = {
+  CENTRAL_KITCHEN: 'Bếp tổng',
+  OFFICE: 'Văn phòng',
+  STORE: 'Cửa hàng CHB',
+  FRANCHISE: 'Cơ sở nhượng quyền',
+}
+
+const CODE_PATTERN = /^[A-Z0-9][A-Z0-9_-]*$/
+const CODE_MAX_LENGTH = 32
+const NAME_MAX_LENGTH = 200
+
+/** Codes are stored trimmed and upper-case so the same code cannot exist in two spellings. */
+export function normalizeCode(raw: string): string {
+  return raw.trim().toUpperCase()
+}
+
+export function validateCode(raw: string): string | null {
+  const code = normalizeCode(raw)
+  if (code === '') return 'Vui lòng nhập mã.'
+  if (code.length > CODE_MAX_LENGTH) return `Mã tối đa ${CODE_MAX_LENGTH} ký tự.`
+  if (!CODE_PATTERN.test(code))
+    return 'Mã chỉ gồm chữ không dấu, số, dấu gạch ngang hoặc gạch dưới.'
+  return null
+}
+
+export function validateName(raw: string, label = 'tên'): string | null {
+  const name = raw.trim()
+  if (name === '') return `Vui lòng nhập ${label}.`
+  if (name.length > NAME_MAX_LENGTH) return `Tối đa ${NAME_MAX_LENGTH} ký tự.`
+  return null
+}
+
+/** Whole number >= min (e.g. sort order, safety stock). Returns the parsed value or an error. */
+export function parseInteger(
+  raw: string,
+  { min = 0, label = 'Giá trị' }: { min?: number; label?: string } = {},
+): { value: number; error: null } | { value: null; error: string } {
+  const text = raw.trim()
+  if (text === '') return { value: null, error: `${label} không được để trống.` }
+  if (!/^-?\d+$/.test(text)) return { value: null, error: `${label} phải là số nguyên.` }
+  const value = Number(text)
+  if (!Number.isSafeInteger(value)) return { value: null, error: `${label} quá lớn.` }
+  if (value < min) return { value: null, error: `${label} phải từ ${min} trở lên.` }
+  return { value, error: null }
+}
+
+function collect(errors: FieldErrors, field: string, message: string | null) {
+  if (message) errors[field] = message
+}
+
+export interface LookupInput {
+  code: string
+  name: string
+  sortOrder: string
+}
+
+/** Sales channels and lead sources share the same shape. */
+export function validateLookup(input: LookupInput): FieldErrors {
+  const errors: FieldErrors = {}
+  collect(errors, 'code', validateCode(input.code))
+  collect(errors, 'name', validateName(input.name))
+  collect(errors, 'sort_order', parseInteger(input.sortOrder, { label: 'Thứ tự' }).error)
+  return errors
+}
+
+export interface LocationInput {
+  code: string
+  name: string
+  locationType: string
+}
+
+export function validateLocation(input: LocationInput): FieldErrors {
+  const errors: FieldErrors = {}
+  collect(errors, 'code', validateCode(input.code))
+  collect(errors, 'name', validateName(input.name))
+  if (!(LOCATION_TYPES as readonly string[]).includes(input.locationType)) {
+    errors.location_type = 'Vui lòng chọn loại địa điểm.'
+  }
+  return errors
+}
