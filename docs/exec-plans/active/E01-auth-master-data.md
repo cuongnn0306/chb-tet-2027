@@ -29,8 +29,9 @@ Stacked branches (each branch starts from the previous task's branch); PRs targe
 
 ## Open items
 
-- Login field: PRD B9 says "Email/SĐT"; see AUTH-001 notes for what was implemented.
+- Login field: PRD B9 says "Email/SĐT". Phone+password login needs GoTrue's phone provider enabled (SMS settings) — a config/provider decision. Implemented email login first; phone login deferred pending that decision.
 
 ## Validation log
 
+- AUTH-002: lint, typecheck, unit (13), build, `db reset`, integration (8, rerunnable) pass. Found that GoTrue's admin API sets app_metadata after INSERT, so the profile trigger also fires on app_metadata update. Sign-up disabled in `config.toml` (needs `supabase stop/start` to apply locally).
 - AUTH-003: lint, typecheck, unit (13), build, `db reset`, integration (2) all pass.

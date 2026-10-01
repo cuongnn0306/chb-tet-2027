@@ -55,3 +55,24 @@ export function anonClient(): SupabaseClient {
   const { url, anonKey } = getLocalConfig()
   return createClient(url, anonKey, clientOptions)
 }
+
+/** Throw-away password of the seeded test accounts (supabase/seed.sql). Local/staging only. */
+export const TEST_PASSWORD = 'Test@12345'
+
+export const TEST_USERS = {
+  admin: 'admin@chb-test.local',
+  sale: 'sale@chb-test.local',
+  store: 'store@chb-test.local',
+  franchise: 'franchise@chb-test.local',
+  warehouse: 'warehouse@chb-test.local',
+  production: 'production@chb-test.local',
+  inactive: 'inactive@chb-test.local',
+} as const
+
+/** A client signed in as a seeded test user (subject to RLS). */
+export async function signedInClient(email: string): Promise<SupabaseClient> {
+  const client = anonClient()
+  const { error } = await client.auth.signInWithPassword({ email, password: TEST_PASSWORD })
+  if (error) throw new Error(`Đăng nhập test thất bại cho ${email}: ${error.message}`)
+  return client
+}
