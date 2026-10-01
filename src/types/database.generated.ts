@@ -191,6 +191,49 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"inventory_reservations": {
+                  Row: {
+                    "batch_id": string,"expires_at": string | null,"id": string,"location_id": string,"order_id": string,"order_item_id": string,"product_id": string,"quantity": number,"release_reason": string | null,"released_at": string | null,"reservation_type": string,"reserved_at": string,"status": string
+                  }
+                  Insert: {
+                    "batch_id": string,"expires_at"?: string | null,"id"?: string,"location_id": string,"order_id": string,"order_item_id": string,"product_id": string,"quantity": number,"release_reason"?: string | null,"released_at"?: string | null,"reservation_type": string,"reserved_at"?: string,"status"?: string
+                  }
+                  Update: {
+                    "batch_id"?: string,"expires_at"?: string | null,"id"?: string,"location_id"?: string,"order_id"?: string,"order_item_id"?: string,"product_id"?: string,"quantity"?: number,"release_reason"?: string | null,"released_at"?: string | null,"reservation_type"?: string,"reserved_at"?: string,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "inventory_reservations_batch_id_fkey"
+      columns: ["batch_id"]
+isOneToOne: false
+      referencedRelation: "product_batches"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "inventory_reservations_location_id_fkey"
+      columns: ["location_id"]
+isOneToOne: false
+      referencedRelation: "locations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "inventory_reservations_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "inventory_reservations_order_item_id_fkey"
+      columns: ["order_item_id"]
+isOneToOne: false
+      referencedRelation: "order_items"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "inventory_reservations_product_id_fkey"
+      columns: ["product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"lead_sources": {
                   Row: {
                     "code": string,"id": string,"is_active": boolean,"name": string,"sort_order": number
@@ -471,6 +514,17 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"allocate_order":
+{ Args: { "p_allow_below_safety"?: boolean,"p_location_id"?: string,"p_order_id": string }; Returns: Json
+                           },
+"check_stock":
+{ Args: { "p_items": Json,"p_location_id": string }; Returns: Json
+                           },
+"committed_demand":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "committed_qty": number,"order_count": number,"product_id": string
+            }[]
+                           },
 "customer_order_summary":
 { Args: { "p_customer_ids": (string)[] }; Returns: {
               "customer_id": string,"last_order_at": string,"order_count": number,"total_gross": number
@@ -511,6 +565,9 @@ isOneToOne: false
                            },
 "normalize_phone":
 { Args: { "p_phone": string }; Returns: string
+                           },
+"order_stock_status":
+{ Args: { "p_order_id": string }; Returns: Json
                            },
 "quote_order":
 { Args: { "p_items"?: Json,"p_owner_user_id"?: string }; Returns: Json
@@ -561,6 +618,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"release_expired_reservations":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
 "save_draft_order":
 { Args: { "p_creation_location_id"?: string,"p_customer_id": string,"p_discount_amount"?: number,"p_items": Json,"p_lead_source_id"?: string,"p_notes"?: string,"p_order_id": string,"p_owner_user_id"?: string,"p_requires_invoice"?: boolean,"p_sales_channel_id"?: string }; Returns: {
               "cancel_reason": string | null,
@@ -621,6 +681,11 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"suggest_transfer_sources":
+{ Args: { "p_destination_location_id": string,"p_product_id": string,"p_quantity": number }; Returns: {
+              "covers_all": boolean,"earliest_expiry": string,"location_code": string,"location_id": string,"location_name": string,"region": string,"same_region": boolean,"sellable_qty": number
+            }[]
+                           },
 "transition_order":
 { Args: { "p_action": string,"p_order_id": string,"p_reason"?: string }; Returns: {
               "cancel_reason": string | null,
