@@ -11,6 +11,10 @@ import { SettingsPage } from '@/features/master-data/pages/SettingsPage'
 import { SalesChannelsPage } from '@/features/master-data/pages/SalesChannelsPage'
 import { AppLayout } from './AppLayout'
 import { AuthGuard } from './auth-guard'
+import { OrderDetailPage } from '@/features/orders/pages/OrderDetailPage'
+import { OrderFormPage } from '@/features/orders/pages/OrderFormPage'
+import { OrderListPage } from '@/features/orders/pages/OrderListPage'
+import { OrderPrintPage } from '@/features/orders/pages/OrderPrintPage'
 import { PermissionRoute } from './PermissionRoute'
 import { ROUTES } from './routes'
 
@@ -25,7 +29,14 @@ export const router = createBrowserRouter([
           { path: ROUTES.home, element: <HomePage /> },
           {
             element: <PermissionRoute permission="create_order" />,
-            children: [{ path: ROUTES.customers, element: <CustomerListPage /> }],
+            children: [
+              { path: ROUTES.customers, element: <CustomerListPage /> },
+              { path: ROUTES.orders, element: <OrderListPage /> },
+              { path: ROUTES.orderNew, element: <OrderFormPage /> },
+              { path: '/orders/:orderId', element: <OrderDetailPage /> },
+              { path: '/orders/:orderId/edit', element: <OrderFormPage /> },
+              { path: '/orders/:orderId/print', element: <OrderPrintPage /> },
+            ],
           },
           {
             element: <PermissionRoute permission="manage_master_data" />,

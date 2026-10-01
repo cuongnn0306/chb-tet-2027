@@ -7,3 +7,22 @@ export function formatDate(isoDate: string): string {
   if (!match) return isoDate
   return `${match[3]}/${match[2]}/${match[1]}`
 }
+
+const dateTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
+  timeZone: 'Asia/Ho_Chi_Minh',
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+})
+
+/** Instant (ISO timestamp from the database) shown in Vietnam time as "dd/MM/yyyy HH:mm". */
+export function formatDateTime(isoTimestamp: string): string {
+  const date = new Date(isoTimestamp)
+  if (Number.isNaN(date.getTime())) return isoTimestamp
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    dateTimeFormatter.formatToParts(date).find((p) => p.type === type)?.value ?? ''
+  return `${part('day')}/${part('month')}/${part('year')} ${part('hour')}:${part('minute')}`
+}

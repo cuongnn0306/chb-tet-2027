@@ -23,9 +23,17 @@ interface Props {
   onSaved: (customer: Customer) => void
   /** Open another (possibly duplicate) customer instead of creating a new one. */
   onOpenExisting: (customer: Customer) => void
+  /** Label of the suggestion action: "Xem khách này" in the customer list, "Dùng khách này" in order entry. */
+  existingLabel?: string
 }
 
-export function CustomerForm({ customer, onCancel, onSaved, onOpenExisting }: Props) {
+export function CustomerForm({
+  customer,
+  onCancel,
+  onSaved,
+  onOpenExisting,
+  existingLabel = 'Xem khách này',
+}: Props) {
   const service = useCustomerService()
   const [fields, setFields] = useState<CustomerFields>(() => customerToFields(customer))
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -114,7 +122,7 @@ export function CustomerForm({ customer, onCancel, onSaved, onOpenExisting }: Pr
       {dismissedFor !== similarKey ? (
         <DuplicateSuggestion
           matches={similar}
-          useLabel="Xem khách này"
+          useLabel={existingLabel}
           onUse={onOpenExisting}
           onDismiss={() => setDismissedFor(similarKey)}
         />

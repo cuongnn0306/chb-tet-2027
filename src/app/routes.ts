@@ -2,6 +2,11 @@ export const ROUTES = {
   home: '/',
   login: '/login',
   customers: '/customers',
+  orders: '/orders',
+  orderNew: '/orders/new',
+  orderDetail: (id: string) => `/orders/${id}`,
+  orderEdit: (id: string) => `/orders/${id}/edit`,
+  orderPrint: (id: string) => `/orders/${id}/print`,
   admin: {
     locations: '/admin/locations',
     salesChannels: '/admin/sales-channels',
