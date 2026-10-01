@@ -10,5 +10,9 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/integration/**/*.test.ts'],
     passWithNoTests: true,
+    // Files share one local database: run them one at a time.
+    fileParallelism: false,
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
   },
 })
