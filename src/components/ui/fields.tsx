@@ -1,4 +1,4 @@
-import { useId, type SelectHTMLAttributes } from 'react'
+import { useId, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label: string
@@ -70,5 +70,29 @@ export function FieldError({ message }: { message: string }) {
     <p role="alert" className="text-sm text-red-700">
       {message}
     </p>
+  )
+}
+
+interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label: string
+  error?: string
+}
+
+export function TextAreaField({ label, error, className = '', ...rest }: TextAreaProps) {
+  const id = useId()
+  return (
+    <div className="flex flex-col gap-1">
+      <label htmlFor={id} className="text-sm font-medium text-slate-700">
+        {label}
+      </label>
+      <textarea
+        id={id}
+        rows={6}
+        aria-invalid={error ? true : undefined}
+        {...rest}
+        className={`rounded-md border border-slate-300 px-3 py-2 font-mono text-sm ${className}`}
+      />
+      {error ? <FieldError message={error} /> : null}
+    </div>
   )
 }

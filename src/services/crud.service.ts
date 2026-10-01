@@ -11,6 +11,7 @@ export type CrudTable =
   | 'products'
   | 'commission_rules'
   | 'safety_stock_rules'
+  | 'app_settings'
 
 export type RowOf<K extends CrudTable> = Database['public']['Tables'][K]['Row']
 export type InsertOf<K extends CrudTable> = Database['public']['Tables'][K]['Insert']

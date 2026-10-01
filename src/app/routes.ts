@@ -8,6 +8,7 @@ export const ROUTES = {
     products: '/admin/products',
     commissionRules: '/admin/commission-rules',
     safetyStock: '/admin/safety-stock',
+    settings: '/admin/settings',
   },
 } as const
 
@@ -19,4 +20,5 @@ export const ADMIN_NAV = [
   { to: ROUTES.admin.products, label: 'Sản phẩm' },
   { to: ROUTES.admin.commissionRules, label: 'Hoa hồng' },
   { to: ROUTES.admin.safetyStock, label: 'Tồn an toàn' },
+  { to: ROUTES.admin.settings, label: 'Cấu hình' },
 ] as const
