@@ -46,6 +46,14 @@ insert into public.products (sku, name, category, weight_gram, list_price, defau
   ('DG-NGUNG', '[Test] SKU ngừng bán',                 'Đóng gói khác',      null, 50000, 0);
 update public.products set is_active = false where sku = 'DG-NGUNG';
 
+-- Example commission rules (test data): role-wide, role+product, and a user+product override.
+-- Their user_id is filled after the test accounts exist (see the end of this file).
+insert into public.commission_rules (role_id, product_id, rate_percent, effective_from)
+select r.id, null, 7, date '2026-10-01' from public.roles r where r.code = 'SALE_B2B';
+insert into public.commission_rules (role_id, product_id, rate_percent, effective_from)
+select r.id, p.id, 12, date '2026-10-01'
+from public.roles r, public.products p where r.code = 'SALE_B2B' and p.sku = 'HQ-A';
+
 -- Test accounts: one per role + one inactive user.
 -- The on_auth_user_created trigger creates each profile from app_metadata.role_code.
 do $$
@@ -96,3 +104,8 @@ begin
   end loop;
 end;
 $$;
+
+insert into public.commission_rules (user_id, product_id, rate_percent, effective_from)
+select pr.id, p.id, 5, date '2026-10-01'
+from public.profiles pr, public.products p
+where pr.full_name = 'Nhân viên cửa hàng Test' and p.sku = 'TT-1200';

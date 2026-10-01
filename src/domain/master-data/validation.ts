@@ -129,3 +129,39 @@ export function validateProduct(input: ProductInput): FieldErrors {
   )
   return errors
 }
+
+/** True for a real calendar date written as YYYY-MM-DD (what <input type="date"> produces). */
+export function isIsoDate(raw: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return false
+  const date = new Date(`${raw}T00:00:00Z`)
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === raw
+}
+
+export interface CommissionRuleInput {
+  userId: string
+  roleId: string
+  rate: string
+  effectiveFrom: string
+  effectiveTo: string
+}
+
+/** A rule targets exactly one of user or role (TECH_DESIGN §3.22 priority list); product is optional. */
+export function validateCommissionRule(input: CommissionRuleInput): FieldErrors {
+  const errors: FieldErrors = {}
+  const targets = [input.userId, input.roleId].filter((value) => value !== '')
+  if (targets.length !== 1) {
+    errors.user_id =
+      'Chọn một nhân viên hoặc một vai trò (không chọn cả hai, không bỏ trống cả hai).'
+  }
+  collect(errors, 'rate_percent', parsePercent(input.rate, { label: '% hoa hồng' }).error)
+  if (!isIsoDate(input.effectiveFrom)) {
+    errors.effective_from = 'Vui lòng chọn ngày bắt đầu hiệu lực.'
+  }
+  if (input.effectiveTo !== '') {
+    if (!isIsoDate(input.effectiveTo)) errors.effective_to = 'Ngày kết thúc không hợp lệ.'
+    else if (isIsoDate(input.effectiveFrom) && input.effectiveTo < input.effectiveFrom) {
+      errors.effective_to = 'Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.'
+    }
+  }
+  return errors
+}

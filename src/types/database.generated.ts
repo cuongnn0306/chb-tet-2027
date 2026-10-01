@@ -42,6 +42,37 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"commission_rules": {
+                  Row: {
+                    "created_at": string,"effective_from": string,"effective_to": string | null,"id": string,"is_active": boolean,"product_id": string | null,"rate_percent": number,"role_id": string | null,"updated_at": string,"user_id": string | null
+                  }
+                  Insert: {
+                    "created_at"?: string,"effective_from": string,"effective_to"?: string | null,"id"?: string,"is_active"?: boolean,"product_id"?: string | null,"rate_percent": number,"role_id"?: string | null,"updated_at"?: string,"user_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"effective_from"?: string,"effective_to"?: string | null,"id"?: string,"is_active"?: boolean,"product_id"?: string | null,"rate_percent"?: number,"role_id"?: string | null,"updated_at"?: string,"user_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "commission_rules_product_id_fkey"
+      columns: ["product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "commission_rules_role_id_fkey"
+      columns: ["role_id"]
+isOneToOne: false
+      referencedRelation: "roles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "commission_rules_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"lead_sources": {
                   Row: {
                     "code": string,"id": string,"is_active": boolean,"name": string,"sort_order": number
