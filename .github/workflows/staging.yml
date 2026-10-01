@@ -1,0 +1,12 @@
+name: Staging deploy
+
+# Placeholder (INF-009/INF-011). Enable after the staging Supabase project and Vercel are provisioned.
+# See docs/runbooks/STAGING_DEPLOY.md. Do not add production secrets here.
+on:
+  workflow_dispatch:
+
+jobs:
+  not-configured:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Staging pipeline not configured yet. See docs/runbooks/STAGING_DEPLOY.md"

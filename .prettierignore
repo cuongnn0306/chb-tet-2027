@@ -1,0 +1,11 @@
+dist
+coverage
+node_modules
+package-lock.json
+src/types/database.generated.ts
+supabase/.temp
+docs/product
+docs/architecture/TECH_DESIGN_v1.0.md
+docs/architecture/PROJECT_STRUCTURE_v1.0.md
+docs/delivery
+docs/archive

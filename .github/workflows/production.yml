@@ -1,0 +1,12 @@
+name: Production deploy
+
+# Placeholder (INF-010/INF-011). Production release requires UAT sign-off, backup and approval.
+# See docs/runbooks/PRODUCTION_DEPLOY.md. Never run `supabase db reset --linked` against production.
+on:
+  workflow_dispatch:
+
+jobs:
+  not-configured:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Production pipeline not configured yet. See docs/runbooks/PRODUCTION_DEPLOY.md"

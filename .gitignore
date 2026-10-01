@@ -1,0 +1,19 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+*.log
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+.vercel/
+tmp/*
+!tmp/.gitkeep
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+# Database dumps may contain real data
+*.dump
+*.backup
