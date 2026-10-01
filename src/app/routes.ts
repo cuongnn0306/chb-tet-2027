@@ -1,6 +1,7 @@
 export const ROUTES = {
   home: '/',
   login: '/login',
+  customers: '/customers',
   admin: {
     locations: '/admin/locations',
     salesChannels: '/admin/sales-channels',
