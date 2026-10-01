@@ -6,6 +6,9 @@ interface ErrorLike {
 
 export function describeDbError(error: ErrorLike): string {
   switch (error.code) {
+    // Business-rule errors raised by our own database functions already carry a Vietnamese message.
+    case 'P0001':
+      return error.message?.trim() || 'Thao tác không hợp lệ.'
     case '23505':
       return 'Dữ liệu này đã tồn tại (trùng mã hoặc trùng lựa chọn). Vui lòng kiểm tra lại.'
     case '23503':

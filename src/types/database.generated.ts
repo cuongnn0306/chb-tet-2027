@@ -137,6 +137,105 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"order_items": {
+                  Row: {
+                    "allocated_quantity": number,"created_at": string,"delivered_quantity": number,"gross_line_amount": number,"id": string,"list_price": number,"order_id": string,"product_id": string,"quantity": number,"returned_quantity": number
+                  }
+                  Insert: {
+                    "allocated_quantity"?: number,"created_at"?: string,"delivered_quantity"?: number,"gross_line_amount": number,"id"?: string,"list_price": number,"order_id": string,"product_id": string,"quantity": number,"returned_quantity"?: number
+                  }
+                  Update: {
+                    "allocated_quantity"?: number,"created_at"?: string,"delivered_quantity"?: number,"gross_line_amount"?: number,"id"?: string,"list_price"?: number,"order_id"?: string,"product_id"?: string,"quantity"?: number,"returned_quantity"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_items_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_items_product_id_fkey"
+      columns: ["product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"order_status_history": {
+                  Row: {
+                    "actor_user_id": string | null,"created_at": string,"from_status": string | null,"id": string,"order_id": string,"reason": string | null,"to_status": string
+                  }
+                  Insert: {
+                    "actor_user_id"?: string | null,"created_at"?: string,"from_status"?: string | null,"id"?: string,"order_id": string,"reason"?: string | null,"to_status": string
+                  }
+                  Update: {
+                    "actor_user_id"?: string | null,"created_at"?: string,"from_status"?: string | null,"id"?: string,"order_id"?: string,"reason"?: string | null,"to_status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_status_history_actor_user_id_fkey"
+      columns: ["actor_user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_status_history_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"orders": {
+                  Row: {
+                    "cancel_reason": string | null,"cancelled_at": string | null,"completed_at": string | null,"confirmed_at": string | null,"created_at": string,"created_by": string,"creation_location_id": string,"customer_id": string,"deposit_required": number,"discount_amount": number,"gross_amount": number,"id": string,"lead_source_id": string,"net_amount": number,"notes": string | null,"order_code": string,"owner_user_id": string,"paid_amount": number,"remaining_amount": number | null,"requires_invoice": boolean,"reservation_expires_at": string | null,"sales_channel_id": string,"status": string,"updated_at": string,"void_reason": string | null,"voided_at": string | null
+                  }
+                  Insert: {
+                    "cancel_reason"?: string | null,"cancelled_at"?: string | null,"completed_at"?: string | null,"confirmed_at"?: string | null,"created_at"?: string,"created_by": string,"creation_location_id": string,"customer_id": string,"deposit_required"?: number,"discount_amount"?: number,"gross_amount"?: number,"id"?: string,"lead_source_id": string,"net_amount"?: number,"notes"?: string | null,"order_code": string,"owner_user_id": string,"paid_amount"?: number,"remaining_amount"?: never,"requires_invoice"?: boolean,"reservation_expires_at"?: string | null,"sales_channel_id": string,"status"?: string,"updated_at"?: string,"void_reason"?: string | null,"voided_at"?: string | null
+                  }
+                  Update: {
+                    "cancel_reason"?: string | null,"cancelled_at"?: string | null,"completed_at"?: string | null,"confirmed_at"?: string | null,"created_at"?: string,"created_by"?: string,"creation_location_id"?: string,"customer_id"?: string,"deposit_required"?: number,"discount_amount"?: number,"gross_amount"?: number,"id"?: string,"lead_source_id"?: string,"net_amount"?: number,"notes"?: string | null,"order_code"?: string,"owner_user_id"?: string,"paid_amount"?: number,"remaining_amount"?: never,"requires_invoice"?: boolean,"reservation_expires_at"?: string | null,"sales_channel_id"?: string,"status"?: string,"updated_at"?: string,"void_reason"?: string | null,"voided_at"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "orders_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "orders_creation_location_id_fkey"
+      columns: ["creation_location_id"]
+isOneToOne: false
+      referencedRelation: "locations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "orders_customer_id_fkey"
+      columns: ["customer_id"]
+isOneToOne: false
+      referencedRelation: "customers"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "orders_lead_source_id_fkey"
+      columns: ["lead_source_id"]
+isOneToOne: false
+      referencedRelation: "lead_sources"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "orders_owner_user_id_fkey"
+      columns: ["owner_user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "orders_sales_channel_id_fkey"
+      columns: ["sales_channel_id"]
+isOneToOne: false
+      referencedRelation: "sales_channels"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"products": {
                   Row: {
                     "category": string | null,"created_at": string,"default_commission_rate": number,"id": string,"is_active": boolean,"list_price": number,"name": string,"sku": string,"updated_at": string,"weight_gram": number | null
@@ -278,6 +377,44 @@ isOneToOne: false
 "normalize_phone":
 { Args: { "p_phone": string }; Returns: string
                            },
+"quote_order":
+{ Args: { "p_items"?: Json,"p_owner_user_id"?: string }; Returns: Json
+                           },
+"save_draft_order":
+{ Args: { "p_creation_location_id"?: string,"p_customer_id": string,"p_discount_amount"?: number,"p_items": Json,"p_lead_source_id"?: string,"p_notes"?: string,"p_order_id": string,"p_owner_user_id"?: string,"p_requires_invoice"?: boolean,"p_sales_channel_id"?: string }; Returns: {
+              "cancel_reason": string | null,
+"cancelled_at": string | null,
+"completed_at": string | null,
+"confirmed_at": string | null,
+"created_at": string,
+"created_by": string,
+"creation_location_id": string,
+"customer_id": string,
+"deposit_required": number,
+"discount_amount": number,
+"gross_amount": number,
+"id": string,
+"lead_source_id": string,
+"net_amount": number,
+"notes": string | null,
+"order_code": string,
+"owner_user_id": string,
+"paid_amount": number,
+"remaining_amount": number | null,
+"requires_invoice": boolean,
+"reservation_expires_at": string | null,
+"sales_channel_id": string,
+"status": string,
+"updated_at": string,
+"void_reason": string | null,
+"voided_at": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "orders"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "search_customers":
 { Args: { "p_customer_type"?: string,"p_include_archived"?: boolean,"p_limit"?: number,"p_offset"?: number,"p_query"?: string }; Returns: {
               "address": string | null,
@@ -302,6 +439,41 @@ isOneToOne: false
         to: "customers"
         isOneToOne: false
         isSetofReturn: true
+      } },
+"transition_order":
+{ Args: { "p_action": string,"p_order_id": string,"p_reason"?: string }; Returns: {
+              "cancel_reason": string | null,
+"cancelled_at": string | null,
+"completed_at": string | null,
+"confirmed_at": string | null,
+"created_at": string,
+"created_by": string,
+"creation_location_id": string,
+"customer_id": string,
+"deposit_required": number,
+"discount_amount": number,
+"gross_amount": number,
+"id": string,
+"lead_source_id": string,
+"net_amount": number,
+"notes": string | null,
+"order_code": string,
+"owner_user_id": string,
+"paid_amount": number,
+"remaining_amount": number | null,
+"requires_invoice": boolean,
+"reservation_expires_at": string | null,
+"sales_channel_id": string,
+"status": string,
+"updated_at": string,
+"void_reason": string | null,
+"voided_at": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "orders"
+        isOneToOne: true
+        isSetofReturn: false
       } }
           }
           Enums: {

@@ -11,4 +11,11 @@ describe('describeDbError', () => {
     const message = describeDbError({ code: 'XX000', message: 'relation "x" violates ...' })
     expect(message).not.toMatch(/relation|violates/)
   })
+
+  it('passes through our own business-rule messages (P0001) unchanged', () => {
+    expect(
+      describeDbError({ code: 'P0001', message: 'Giảm giá vượt mức hoa hồng cho phép.' }),
+    ).toBe('Giảm giá vượt mức hoa hồng cho phép.')
+    expect(describeDbError({ code: 'P0001', message: '  ' })).toBe('Thao tác không hợp lệ.')
+  })
 })
