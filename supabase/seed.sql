@@ -31,6 +31,21 @@ insert into public.lead_sources (code, name, sort_order) values
   ('WALK_IN',         'Walk-in',               9),
   ('OTHER',           'Khác',                 10);
 
+-- Demo SKUs (UAT needs 10-12). Names/prices are made up for testing only; commission rates are examples.
+insert into public.products (sku, name, category, weight_gram, list_price, default_commission_rate) values
+  ('TT-1200',  '[Test] Bánh chưng truyền thống 1.2kg', 'Bánh truyền thống', 1200, 180000, 8),
+  ('TT-800',   '[Test] Bánh chưng truyền thống 800g',  'Bánh truyền thống',  800, 130000, 8),
+  ('TT-500',   '[Test] Bánh chưng truyền thống 500g',  'Bánh truyền thống',  500,  90000, 8),
+  ('COM-800',  '[Test] Bánh chưng cốm 800g',           'Bánh theo vị',       800, 150000, 8),
+  ('COM-500',  '[Test] Bánh chưng cốm 500g',           'Bánh theo vị',       500, 100000, 8),
+  ('CB-2X500', '[Test] Combo 2 bánh 500g',             'Combo',             1000, 170000, 6),
+  ('HQ-A',     '[Test] Hộp quà Tết A',                 'Hộp quà',           2000, 450000, 10),
+  ('HQ-B',     '[Test] Hộp quà Tết B',                 'Hộp quà',           3000, 650000, 10),
+  ('HQ-C',     '[Test] Hộp quà Tết C',                 'Hộp quà',           4500, 950000, 10),
+  ('DG-TUI',   '[Test] Túi quà đóng gói',              'Đóng gói khác',      300,  60000, 5),
+  ('DG-NGUNG', '[Test] SKU ngừng bán',                 'Đóng gói khác',      null, 50000, 0);
+update public.products set is_active = false where sku = 'DG-NGUNG';
+
 -- Test accounts: one per role + one inactive user.
 -- The on_auth_user_created trigger creates each profile from app_metadata.role_code.
 do $$

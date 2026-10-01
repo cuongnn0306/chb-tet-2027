@@ -3,6 +3,7 @@ import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { HomePage } from '@/features/dashboard/pages/HomePage'
 import { LeadSourcesPage } from '@/features/master-data/pages/LeadSourcesPage'
 import { LocationsPage } from '@/features/master-data/pages/LocationsPage'
+import { ProductsPage } from '@/features/master-data/pages/ProductsPage'
 import { SalesChannelsPage } from '@/features/master-data/pages/SalesChannelsPage'
 import { AppLayout } from './AppLayout'
 import { AuthGuard } from './auth-guard'
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
               { path: ROUTES.admin.locations, element: <LocationsPage /> },
               { path: ROUTES.admin.salesChannels, element: <SalesChannelsPage /> },
               { path: ROUTES.admin.leadSources, element: <LeadSourcesPage /> },
+              { path: ROUTES.admin.products, element: <ProductsPage /> },
             ],
           },
         ],

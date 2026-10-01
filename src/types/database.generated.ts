@@ -68,6 +68,19 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"products": {
+                  Row: {
+                    "category": string | null,"created_at": string,"default_commission_rate": number,"id": string,"is_active": boolean,"list_price": number,"name": string,"sku": string,"updated_at": string,"weight_gram": number | null
+                  }
+                  Insert: {
+                    "category"?: string | null,"created_at"?: string,"default_commission_rate"?: number,"id"?: string,"is_active"?: boolean,"list_price": number,"name": string,"sku": string,"updated_at"?: string,"weight_gram"?: number | null
+                  }
+                  Update: {
+                    "category"?: string | null,"created_at"?: string,"default_commission_rate"?: number,"id"?: string,"is_active"?: boolean,"list_price"?: number,"name"?: string,"sku"?: string,"updated_at"?: string,"weight_gram"?: number | null
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"profiles": {
                   Row: {
                     "created_at": string,"default_lead_source_id": string | null,"default_location_id": string | null,"default_sales_channel_id": string | null,"full_name": string,"id": string,"is_active": boolean,"phone": string | null,"role_id": string,"updated_at": string
