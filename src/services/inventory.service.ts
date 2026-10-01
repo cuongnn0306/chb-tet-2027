@@ -1,4 +1,5 @@
 import type { ManualExitType, MovementType } from '@/domain/inventory/movements'
+import type { ImportRow } from '@/domain/inventory/opening-stock-import'
 import type { AppSupabaseClient } from '@/lib/supabase'
 import { DbError } from './crud.service'
 
@@ -71,6 +72,12 @@ export interface BalanceMismatch {
 }
 
 export const MOVEMENT_PAGE_SIZE = 50
+
+/** Result of the opening-stock import RPC (INV-006). `row` is the 1-based position in the sent rows. */
+export type ImportReport =
+  | { ok: false; dry_run: boolean; error_count: number; errors: { row: number; message: string }[] }
+  | { ok: true; dry_run: true; rows: number; batches_to_create: number; total_quantity: number }
+  | { ok: true; dry_run: false; rows: number; batches_created: number; total_quantity: number }
 
 export interface NewBatch {
   productId: string
@@ -230,6 +237,13 @@ export function createInventoryService(client: AppSupabaseClient) {
       if (params.productId) query = query.eq('product_id', params.productId)
       if (params.type) query = query.eq('movement_type', params.type)
       return check((await query) as never) as unknown as MovementRow[]
+    },
+
+    /** INV-006 (Admin). With `dryRun` nothing changes: the server only validates and reports. */
+    async importOpeningStock(rows: ImportRow[], dryRun: boolean): Promise<ImportReport> {
+      return check(
+        (await client.rpc('import_opening_stock', { p_rows: rows, p_dry_run: dryRun })) as never,
+      ) as ImportReport
     },
 
     /** Admin: does the cache equal the ledger? Returns mismatches only (empty = consistent). */

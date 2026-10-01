@@ -6,6 +6,7 @@ export const ROUTES = {
   inventory: '/inventory',
   inventoryBatches: '/inventory/batches',
   inventoryMovements: '/inventory/movements',
+  inventoryImport: '/inventory/import',
   orderNew: '/orders/new',
   orderDetail: (id: string) => `/orders/${id}`,
   orderEdit: (id: string) => `/orders/${id}/edit`,

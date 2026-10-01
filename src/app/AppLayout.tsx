@@ -36,6 +36,7 @@ const MAIN_NAV: MainNavItem[] = [
     label: 'Lịch sử kho',
     visible: (role) => (LEDGER_VIEW_ROLES as readonly string[]).includes(role),
   },
+  { to: ROUTES.inventoryImport, label: 'Nhập tồn đầu kỳ', visible: (role) => role === 'ADMIN' },
 ]
 
 export function AppLayout() {

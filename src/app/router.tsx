@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router'
 import { CustomerListPage } from '@/features/customers/pages/CustomerListPage'
 import { BatchStockPage } from '@/features/inventory/pages/BatchStockPage'
+import { ImportOpeningStockPage } from '@/features/inventory/pages/ImportOpeningStockPage'
 import { InventorySummaryPage } from '@/features/inventory/pages/InventorySummaryPage'
 import { MovementHistoryPage } from '@/features/inventory/pages/MovementHistoryPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
           {
             element: <RoleRoute roles={['ADMIN', 'WAREHOUSE', 'PRODUCTION']} />,
             children: [{ path: ROUTES.inventoryBatches, element: <BatchStockPage /> }],
+          },
+          {
+            element: <RoleRoute roles={['ADMIN']} />,
+            children: [{ path: ROUTES.inventoryImport, element: <ImportOpeningStockPage /> }],
           },
           {
             element: <RoleRoute roles={['ADMIN', 'WAREHOUSE']} />,

@@ -38,3 +38,9 @@ Branch: `feature/INV-001-batches-ledger` (stacked on `feature/CUS-005-customer-h
 - lint, typecheck, unit (112), build pass. pgTAP `npm run test:db`: 44 assertions (all 12 movement types, validation, guards, CHECK constraints, reconciliation + tamper detection). Integration: 163 tests (22 for inventory) stable on two runs; also added `test:db` to CI.
 - Browser-verified as Warehouse: navigation limited to Tồn kho / Tồn theo lô / Lịch sử kho, only permitted actions, damage exit with consequence text, over-take refused with an actionable message, valid exit updates available/damaged, ledger entry with actor and reason, summary with detail columns.
 - Not manually checked: Admin-only dialogs (opening stock, adjustment, reconciliation) in the browser (covered by integration tests); the simplified sales summary view; phone layout.
+
+## INV-006 notes
+
+- `import_opening_stock(rows, dry_run)` (Admin): a dry run validates every row and returns all problems (first 100, with the true count) without changing anything; applying runs the whole file in one transaction through the normal posting function, so each row is an `ADJUSTMENT_IN` ("Tồn đầu kỳ (import)") ledger movement. Existing batches are reused only when their dates match; missing batches are created; repeated rows add up; max 5000 rows per file.
+- Excel: users paste straight from the sheet (tab-separated) or upload a CSV (comma/semicolon); dates are dd/MM/yyyy. No spreadsheet library was added (`.xlsx` parsing would need a dependency); say so if native `.xlsx` upload is required.
+- Verified: unit (122, parser), integration 172 (9 import tests), browser as Admin: client-side line error, server-side error mapped to its source line, valid file reviewed, confirm dialog with consequences, applied, reconciliation matches.
