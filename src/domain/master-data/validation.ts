@@ -1,3 +1,5 @@
+import { parseVnd } from '@/lib/money'
+
 /** Pure input validation for master-data forms (messages are user-facing Vietnamese). */
 export type FieldErrors = Record<string, string>
 
@@ -82,5 +84,48 @@ export function validateLocation(input: LocationInput): FieldErrors {
   if (!(LOCATION_TYPES as readonly string[]).includes(input.locationType)) {
     errors.location_type = 'Vui lòng chọn loại địa điểm.'
   }
+  return errors
+}
+
+/** Percentage with at most two decimals, 0..100 ("12", "12.5", "12,5"). */
+export function parsePercent(
+  raw: string,
+  { label = 'Tỷ lệ' }: { label?: string } = {},
+): { value: number; error: null } | { value: null; error: string } {
+  const text = raw.trim().replace(',', '.')
+  if (text === '') return { value: null, error: `${label} không được để trống.` }
+  if (!/^\d+(\.\d{1,2})?$/.test(text)) {
+    return { value: null, error: `${label} phải là số, tối đa 2 chữ số thập phân.` }
+  }
+  const value = Number(text)
+  if (value > 100) return { value: null, error: `${label} không được vượt quá 100%.` }
+  return { value, error: null }
+}
+
+export interface ProductInput {
+  sku: string
+  name: string
+  weightGram: string
+  listPrice: string
+  commissionRate: string
+}
+
+export function validateProduct(input: ProductInput): FieldErrors {
+  const errors: FieldErrors = {}
+  collect(errors, 'sku', validateCode(input.sku))
+  collect(errors, 'name', validateName(input.name, 'tên sản phẩm'))
+  if (input.weightGram.trim() !== '') {
+    collect(
+      errors,
+      'weight_gram',
+      parseInteger(input.weightGram, { min: 1, label: 'Khối lượng' }).error,
+    )
+  }
+  collect(errors, 'list_price', parseVnd(input.listPrice, { label: 'Giá niêm yết' }).error)
+  collect(
+    errors,
+    'default_commission_rate',
+    parsePercent(input.commissionRate, { label: '% hoa hồng' }).error,
+  )
   return errors
 }

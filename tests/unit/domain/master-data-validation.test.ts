@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   normalizeCode,
   parseInteger,
+  parsePercent,
+  validateProduct,
   validateCode,
   validateLocation,
   validateLookup,
@@ -66,5 +68,55 @@ describe('form validation', () => {
     expect(
       validateLocation({ code: 'HN-VP', name: 'VP', locationType: 'WAREHOUSE' }),
     ).toHaveProperty('location_type')
+  })
+})
+
+describe('parsePercent', () => {
+  it('accepts 0..100 with up to two decimals, dot or comma', () => {
+    expect(parsePercent('0').value).toBe(0)
+    expect(parsePercent('12.5').value).toBe(12.5)
+    expect(parsePercent('12,25').value).toBe(12.25)
+    expect(parsePercent('100').value).toBe(100)
+  })
+
+  it('rejects blanks, over 100, too many decimals and text', () => {
+    expect(parsePercent('').error).not.toBeNull()
+    expect(parsePercent('100.01').error).not.toBeNull()
+    expect(parsePercent('101').error).not.toBeNull()
+    expect(parsePercent('1.234').error).not.toBeNull()
+    expect(parsePercent('-1').error).not.toBeNull()
+    expect(parsePercent('abc').error).not.toBeNull()
+  })
+})
+
+describe('validateProduct', () => {
+  const valid = {
+    sku: 'TT-1200',
+    name: 'Bánh chưng truyền thống 1.2kg',
+    weightGram: '1200',
+    listPrice: '180.000',
+    commissionRate: '8',
+  }
+
+  it('accepts a valid product, with an optional weight', () => {
+    expect(validateProduct(valid)).toEqual({})
+    expect(validateProduct({ ...valid, weightGram: '' })).toEqual({})
+  })
+
+  it('reports every invalid field', () => {
+    const errors = validateProduct({
+      sku: '',
+      name: '',
+      weightGram: '0',
+      listPrice: '12.5',
+      commissionRate: '120',
+    })
+    expect(Object.keys(errors).sort()).toEqual([
+      'default_commission_rate',
+      'list_price',
+      'name',
+      'sku',
+      'weight_gram',
+    ])
   })
 })
