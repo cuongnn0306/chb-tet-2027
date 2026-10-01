@@ -4,6 +4,8 @@ import { BatchStockPage } from '@/features/inventory/pages/BatchStockPage'
 import { ImportOpeningStockPage } from '@/features/inventory/pages/ImportOpeningStockPage'
 import { InventorySummaryPage } from '@/features/inventory/pages/InventorySummaryPage'
 import { MovementHistoryPage } from '@/features/inventory/pages/MovementHistoryPage'
+import { DeliveryBoardPage } from '@/features/deliveries/pages/DeliveryBoardPage'
+import { DeliveryPrintPage } from '@/features/deliveries/pages/DeliveryPrintPage'
 import { PaymentReviewPage } from '@/features/payments/pages/PaymentReviewPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { HomePage } from '@/features/dashboard/pages/HomePage'
@@ -47,7 +49,24 @@ export const router = createBrowserRouter([
           },
           {
             element: <RoleRoute roles={['ADMIN', 'WAREHOUSE']} />,
-            children: [{ path: ROUTES.inventoryMovements, element: <MovementHistoryPage /> }],
+            children: [
+              { path: ROUTES.inventoryMovements, element: <MovementHistoryPage /> },
+              {
+                path: '/deliveries/:deliveryId/issue',
+                element: <DeliveryPrintPage mode="issue" />,
+              },
+            ],
+          },
+          {
+            element: (
+              <RoleRoute
+                roles={['ADMIN', 'WAREHOUSE', 'SALE_B2B', 'STORE_STAFF', 'FRANCHISE_STAFF']}
+              />
+            ),
+            children: [
+              { path: ROUTES.deliveries, element: <DeliveryBoardPage /> },
+              { path: '/deliveries/:deliveryId/print', element: <DeliveryPrintPage mode="note" /> },
+            ],
           },
           {
             element: <PermissionRoute permission="create_order" />,
