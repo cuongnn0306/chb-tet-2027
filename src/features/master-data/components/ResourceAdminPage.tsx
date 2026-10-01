@@ -21,6 +21,8 @@ export interface FieldConfig {
   inputMode?: 'numeric' | 'decimal'
   /** Only shown when editing an existing record (e.g. the active flag). */
   editOnly?: boolean
+  /** Shown but read-only when editing (e.g. the key of a unique pair). */
+  lockedOnEdit?: boolean
 }
 
 export interface ColumnConfig<R> {
@@ -55,6 +57,8 @@ export function ResourceAdminPage<R extends { id: string; is_active?: boolean }>
   const [notice, setNotice] = useState<string | null>(null)
 
   const list = useQuery({ queryKey: [queryKey], queryFn: load })
+  // Some resources (e.g. safety stock) have no active flag, so they get no status column.
+  const hasStatus = list.data?.some((row) => row.is_active !== undefined) ?? false
 
   const closeForm = () => {
     setEditing(null)
@@ -102,7 +106,7 @@ export function ResourceAdminPage<R extends { id: string; is_active?: boolean }>
                     {column.header}
                   </th>
                 ))}
-                <th className="px-3 py-2 font-medium">Trạng thái</th>
+                {hasStatus ? <th className="px-3 py-2 font-medium">Trạng thái</th> : null}
                 <th className="px-3 py-2" />
               </tr>
             </thead>
@@ -114,17 +118,19 @@ export function ResourceAdminPage<R extends { id: string; is_active?: boolean }>
                       {column.render(row)}
                     </td>
                   ))}
-                  <td className="px-3 py-2">
-                    {row.is_active === false ? (
-                      <span className="rounded bg-slate-200 px-2 py-0.5 text-xs text-slate-700">
-                        Ngừng dùng
-                      </span>
-                    ) : (
-                      <span className="rounded bg-green-100 px-2 py-0.5 text-xs text-green-800">
-                        Đang dùng
-                      </span>
-                    )}
-                  </td>
+                  {hasStatus ? (
+                    <td className="px-3 py-2">
+                      {row.is_active === false ? (
+                        <span className="rounded bg-slate-200 px-2 py-0.5 text-xs text-slate-700">
+                          Ngừng dùng
+                        </span>
+                      ) : (
+                        <span className="rounded bg-green-100 px-2 py-0.5 text-xs text-green-800">
+                          Đang dùng
+                        </span>
+                      )}
+                    </td>
+                  ) : null}
                   <td className="px-3 py-2 text-right">
                     <Button variant="secondary" onClick={() => setEditing(row)}>
                       Sửa
@@ -248,6 +254,7 @@ function ResourceForm<R extends { id: string; is_active?: boolean }>({
                 options={field.options ?? []}
                 placeholder={field.placeholder}
                 error={error}
+                disabled={field.lockedOnEdit && editing !== null}
                 value={typeof value === 'string' ? value : ''}
                 onChange={(e) => setValue(field.name, e.target.value)}
               />
@@ -261,6 +268,7 @@ function ResourceForm<R extends { id: string; is_active?: boolean }>({
               error={error}
               type={field.type === 'date' ? 'date' : 'text'}
               inputMode={field.inputMode}
+              disabled={field.lockedOnEdit && editing !== null}
               value={typeof value === 'string' ? value : ''}
               onChange={(e) => setValue(field.name, e.target.value)}
             />

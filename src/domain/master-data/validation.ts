@@ -165,3 +165,17 @@ export function validateCommissionRule(input: CommissionRuleInput): FieldErrors 
   }
   return errors
 }
+
+export interface SafetyStockInput {
+  locationId: string
+  productId: string
+  minimumQty: string
+}
+
+export function validateSafetyStock(input: SafetyStockInput): FieldErrors {
+  const errors: FieldErrors = {}
+  if (input.locationId === '') errors.location_id = 'Vui lòng chọn địa điểm.'
+  if (input.productId === '') errors.product_id = 'Vui lòng chọn sản phẩm.'
+  collect(errors, 'minimum_qty', parseInteger(input.minimumQty, { label: 'Tồn an toàn' }).error)
+  return errors
+}

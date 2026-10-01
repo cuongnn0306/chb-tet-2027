@@ -5,7 +5,12 @@ import type { Database } from '@/types/database.generated'
 /** Master-data tables with plain admin CRUD (RLS decides who may write; nothing is hard-deleted). */
 /** Extend this union as each master-data table is added (products, commission_rules, ...). */
 export type CrudTable =
-  'locations' | 'sales_channels' | 'lead_sources' | 'products' | 'commission_rules'
+  | 'locations'
+  | 'sales_channels'
+  | 'lead_sources'
+  | 'products'
+  | 'commission_rules'
+  | 'safety_stock_rules'
 
 export type RowOf<K extends CrudTable> = Database['public']['Tables'][K]['Row']
 export type InsertOf<K extends CrudTable> = Database['public']['Tables'][K]['Insert']

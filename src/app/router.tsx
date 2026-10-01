@@ -5,6 +5,7 @@ import { CommissionRulesPage } from '@/features/master-data/pages/CommissionRule
 import { LeadSourcesPage } from '@/features/master-data/pages/LeadSourcesPage'
 import { LocationsPage } from '@/features/master-data/pages/LocationsPage'
 import { ProductsPage } from '@/features/master-data/pages/ProductsPage'
+import { SafetyStockPage } from '@/features/master-data/pages/SafetyStockPage'
 import { SalesChannelsPage } from '@/features/master-data/pages/SalesChannelsPage'
 import { AppLayout } from './AppLayout'
 import { AuthGuard } from './auth-guard'
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
               { path: ROUTES.admin.leadSources, element: <LeadSourcesPage /> },
               { path: ROUTES.admin.products, element: <ProductsPage /> },
               { path: ROUTES.admin.commissionRules, element: <CommissionRulesPage /> },
+              { path: ROUTES.admin.safetyStock, element: <SafetyStockPage /> },
             ],
           },
         ],

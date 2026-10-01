@@ -7,6 +7,7 @@ export const ROUTES = {
     leadSources: '/admin/lead-sources',
     products: '/admin/products',
     commissionRules: '/admin/commission-rules',
+    safetyStock: '/admin/safety-stock',
   },
 } as const
 
@@ -17,4 +18,5 @@ export const ADMIN_NAV = [
   { to: ROUTES.admin.leadSources, label: 'Nguồn khách' },
   { to: ROUTES.admin.products, label: 'Sản phẩm' },
   { to: ROUTES.admin.commissionRules, label: 'Hoa hồng' },
+  { to: ROUTES.admin.safetyStock, label: 'Tồn an toàn' },
 ] as const

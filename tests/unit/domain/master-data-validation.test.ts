@@ -5,6 +5,7 @@ import {
   isIsoDate,
   parsePercent,
   validateCommissionRule,
+  validateSafetyStock,
   validateProduct,
   validateCode,
   validateLocation,
@@ -156,5 +157,21 @@ describe('commission rule validation', () => {
     expect(
       validateCommissionRule({ ...valid, effectiveFrom: '2027-03-01', effectiveTo: '2027-02-01' }),
     ).toHaveProperty('effective_to')
+  })
+})
+
+describe('safety stock validation', () => {
+  it('accepts a location, product and non-negative whole quantity (0 allowed)', () => {
+    expect(validateSafetyStock({ locationId: 'l', productId: 'p', minimumQty: '50' })).toEqual({})
+    expect(validateSafetyStock({ locationId: 'l', productId: 'p', minimumQty: '0' })).toEqual({})
+  })
+
+  it('rejects missing selections and invalid quantities', () => {
+    expect(
+      Object.keys(validateSafetyStock({ locationId: '', productId: '', minimumQty: '-1' })).sort(),
+    ).toEqual(['location_id', 'minimum_qty', 'product_id'])
+    expect(
+      validateSafetyStock({ locationId: 'l', productId: 'p', minimumQty: '1.5' }),
+    ).toHaveProperty('minimum_qty')
   })
 })
