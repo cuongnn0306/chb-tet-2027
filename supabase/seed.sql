@@ -133,3 +133,19 @@ insert into public.commission_rules (user_id, product_id, rate_percent, effectiv
 select pr.id, p.id, 5, date '2026-10-01'
 from public.profiles pr, public.products p
 where pr.full_name = 'Nhân viên cửa hàng Test' and p.sku = 'TT-1200';
+
+-- Test customers (fake). Includes a duplicate-phone pair in different formats, two companies,
+-- one customer created by store staff, and one archived customer.
+insert into public.customers
+  (customer_type, name, phone, address, company_name, tax_code, contact_name, contact_title, email, company_address, created_by, is_archived)
+select v.customer_type, v.name, v.phone, v.address, v.company_name, v.tax_code, v.contact_name, v.contact_title, v.email, v.company_address,
+       (select id from public.profiles where full_name = v.creator), v.is_archived
+from (values
+  ('INDIVIDUAL', 'Nguyễn Văn Test', '0900000001',        'Địa chỉ giả A', null, null, null, null, null, null, 'Sale B2B Test', false),
+  ('INDIVIDUAL', 'Trần Thị Mẫu',    '+84 90 000 0002',   'Địa chỉ giả B', null, null, null, null, null, null, 'Sale B2B Test', false),
+  ('INDIVIDUAL', 'Nguyễn V. Test (trùng SĐT)', '090.000.0001', 'Địa chỉ giả C', null, null, null, null, null, null, 'Sale B2B Test', false),
+  ('COMPANY', null, '0900000003', null, 'Công ty TNHH Test ABC', '0100000001', 'Lê Văn Liên', 'Giám đốc', 'lien@abc.test', 'Địa chỉ công ty giả 1', 'Sale B2B Test', false),
+  ('COMPANY', null, '0900000005', null, 'Công ty CP Mẫu XYZ',    '0100000002-001', 'Phạm Thị Hoa', 'Kế toán', 'hoa@xyz.test', 'Địa chỉ công ty giả 2', 'Sale B2B Test', false),
+  ('INDIVIDUAL', 'Khách của cửa hàng', '0900000004', 'Địa chỉ giả D', null, null, null, null, null, null, 'Nhân viên cửa hàng Test', false),
+  ('INDIVIDUAL', 'Khách đã lưu trữ', '0900000006', 'Địa chỉ giả E', null, null, null, null, null, null, 'Sale B2B Test', true)
+) as v(customer_type, name, phone, address, company_name, tax_code, contact_name, contact_title, email, company_address, creator, is_archived);

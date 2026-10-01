@@ -26,6 +26,16 @@ export function AppLayout() {
             </Button>
           </div>
         </div>
+        <PermissionGate permission="create_order" hideWhenDenied>
+          <nav
+            aria-label="Chức năng chính"
+            className="flex gap-1 overflow-x-auto border-t border-slate-100 px-3 py-1"
+          >
+            <NavLink to={ROUTES.customers} className={navLinkClass}>
+              Khách hàng
+            </NavLink>
+          </nav>
+        </PermissionGate>
         <PermissionGate permission="manage_master_data" hideWhenDenied>
           <nav
             aria-label="Danh mục"

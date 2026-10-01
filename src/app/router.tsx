@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router'
+import { CustomerListPage } from '@/features/customers/pages/CustomerListPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { HomePage } from '@/features/dashboard/pages/HomePage'
 import { CommissionRulesPage } from '@/features/master-data/pages/CommissionRulesPage'
@@ -10,7 +11,7 @@ import { SettingsPage } from '@/features/master-data/pages/SettingsPage'
 import { SalesChannelsPage } from '@/features/master-data/pages/SalesChannelsPage'
 import { AppLayout } from './AppLayout'
 import { AuthGuard } from './auth-guard'
-import { MasterDataRoute } from './MasterDataRoute'
+import { PermissionRoute } from './PermissionRoute'
 import { ROUTES } from './routes'
 
 export const router = createBrowserRouter([
@@ -23,7 +24,11 @@ export const router = createBrowserRouter([
         children: [
           { path: ROUTES.home, element: <HomePage /> },
           {
-            element: <MasterDataRoute />,
+            element: <PermissionRoute permission="create_order" />,
+            children: [{ path: ROUTES.customers, element: <CustomerListPage /> }],
+          },
+          {
+            element: <PermissionRoute permission="manage_master_data" />,
             children: [
               { path: ROUTES.admin.locations, element: <LocationsPage /> },
               { path: ROUTES.admin.salesChannels, element: <SalesChannelsPage /> },
