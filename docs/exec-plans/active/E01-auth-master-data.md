@@ -33,5 +33,6 @@ Stacked branches (each branch starts from the previous task's branch); PRs targe
 
 ## Validation log
 
+- AUTH-004: lint, typecheck, unit, build, `db reset`, integration (44) pass. Notes: helpers live in non-exposed `private` schema (`current_role_code`, `is_active_user`, `is_admin`, `has_role`); `anon` has no table privileges (also revoked as default for future tables); `delete/truncate` revoked from `authenticated` on master tables/profiles/roles; `audit_logs` immutable (trigger, also vs service role) and fed by generic `private.audit_row_change()` — attach it to every later master/transaction table. `[auth.email] enable_signup` must stay true (it is the email provider switch); self sign-up is blocked by `[auth] enable_signup=false`.
 - AUTH-002: lint, typecheck, unit (13), build, `db reset`, integration (8, rerunnable) pass. Found that GoTrue's admin API sets app_metadata after INSERT, so the profile trigger also fires on app_metadata update. Sign-up disabled in `config.toml` (needs `supabase stop/start` to apply locally).
 - AUTH-003: lint, typecheck, unit (13), build, `db reset`, integration (2) all pass.
