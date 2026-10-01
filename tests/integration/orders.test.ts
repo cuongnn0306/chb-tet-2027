@@ -639,7 +639,15 @@ describe('cancel and void (ORD-009, ORD-010)', () => {
     const svc = serviceClient()
     const order = await newDraft(sale)
     await action(sale, order.id, 'submit')
-    await svc.from('orders').update({ paid_amount: 1000 }).eq('id', order.id)
+    expect(
+      (
+        await rpc(admin, 'record_payment', {
+          p_order_id: order.id,
+          p_method: 'CASH',
+          p_amount: 1000,
+        })
+      ).error,
+    ).toBeNull()
     expect((await action(sale, order.id, 'cancel', 'x')).error?.message).toMatch(/thanh toán/)
     expect((await action(admin, order.id, 'void', 'x')).error?.message).toMatch(/thanh toán/)
     expect((await action(sale, order.id, 'return_to_draft')).error?.message).toMatch(/thanh toán/)

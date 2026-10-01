@@ -359,6 +359,68 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"payment_events": {
+                  Row: {
+                    "id": string,"note": string | null,"order_id": string | null,"outcome": string,"payload": NonNullable<Json>,"payment_id": string | null,"provider": string,"provider_event_id": string,"received_at": string,"resolved_at": string | null,"resolved_by": string | null
+                  }
+                  Insert: {
+                    "id"?: string,"note"?: string | null,"order_id"?: string | null,"outcome"?: string,"payload": NonNullable<Json>,"payment_id"?: string | null,"provider": string,"provider_event_id": string,"received_at"?: string,"resolved_at"?: string | null,"resolved_by"?: string | null
+                  }
+                  Update: {
+                    "id"?: string,"note"?: string | null,"order_id"?: string | null,"outcome"?: string,"payload"?: NonNullable<Json>,"payment_id"?: string | null,"provider"?: string,"provider_event_id"?: string,"received_at"?: string,"resolved_at"?: string | null,"resolved_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_events_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_events_payment_id_fkey"
+      columns: ["payment_id"]
+isOneToOne: false
+      referencedRelation: "payments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_events_resolved_by_fkey"
+      columns: ["resolved_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payments": {
+                  Row: {
+                    "amount": number,"confirmed_by": string | null,"created_at": string,"created_by": string | null,"id": string,"method": string,"note": string | null,"order_id": string,"paid_at": string | null,"payment_code": string,"provider": string | null,"provider_reference": string | null,"status": string,"status_reason": string | null,"transfer_content": string | null,"updated_at": string
+                  }
+                  Insert: {
+                    "amount": number,"confirmed_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"method": string,"note"?: string | null,"order_id": string,"paid_at"?: string | null,"payment_code": string,"provider"?: string | null,"provider_reference"?: string | null,"status"?: string,"status_reason"?: string | null,"transfer_content"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "amount"?: number,"confirmed_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"method"?: string,"note"?: string | null,"order_id"?: string,"paid_at"?: string | null,"payment_code"?: string,"provider"?: string | null,"provider_reference"?: string | null,"status"?: string,"status_reason"?: string | null,"transfer_content"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payments_confirmed_by_fkey"
+      columns: ["confirmed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"product_batches": {
                   Row: {
                     "batch_code": string,"created_at": string,"expiry_date": string,"id": string,"manufactured_date": string,"product_id": string,"production_run_id": string | null,"status": string
@@ -517,6 +579,31 @@ isOneToOne: false
 "allocate_order":
 { Args: { "p_allow_below_safety"?: boolean,"p_location_id"?: string,"p_order_id": string }; Returns: Json
                            },
+"assign_payment_event":
+{ Args: { "p_event_id": string,"p_order_id": string }; Returns: {
+              "amount": number,
+"confirmed_by": string | null,
+"created_at": string,
+"created_by": string | null,
+"id": string,
+"method": string,
+"note": string | null,
+"order_id": string,
+"paid_at": string | null,
+"payment_code": string,
+"provider": string | null,
+"provider_reference": string | null,
+"status": string,
+"status_reason": string | null,
+"transfer_content": string | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "payments"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "check_stock":
 { Args: { "p_items": Json,"p_location_id": string }; Returns: Json
                            },
@@ -525,11 +612,64 @@ isOneToOne: false
               "committed_qty": number,"order_count": number,"product_id": string
             }[]
                            },
+"confirm_payment":
+{ Args: { "p_payment_id": string }; Returns: {
+              "amount": number,
+"confirmed_by": string | null,
+"created_at": string,
+"created_by": string | null,
+"id": string,
+"method": string,
+"note": string | null,
+"order_id": string,
+"paid_at": string | null,
+"payment_code": string,
+"provider": string | null,
+"provider_reference": string | null,
+"status": string,
+"status_reason": string | null,
+"transfer_content": string | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "payments"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "customer_order_summary":
 { Args: { "p_customer_ids": (string)[] }; Returns: {
               "customer_id": string,"last_order_at": string,"order_count": number,"total_gross": number
             }[]
                            },
+"dismiss_payment_event":
+{ Args: { "p_event_id": string,"p_note": string }; Returns: undefined
+                           },
+"fail_payment":
+{ Args: { "p_payment_id": string,"p_reason": string }; Returns: {
+              "amount": number,
+"confirmed_by": string | null,
+"created_at": string,
+"created_by": string | null,
+"id": string,
+"method": string,
+"note": string | null,
+"order_id": string,
+"paid_at": string | null,
+"payment_code": string,
+"provider": string | null,
+"provider_reference": string | null,
+"status": string,
+"status_reason": string | null,
+"transfer_content": string | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "payments"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "find_similar_customers":
 { Args: { "p_exclude_id"?: string,"p_phone"?: string,"p_tax_code"?: string }; Returns: {
               "address": string | null,
@@ -569,6 +709,12 @@ isOneToOne: false
 "order_stock_status":
 { Args: { "p_order_id": string }; Returns: Json
                            },
+"payment_instructions":
+{ Args: { "p_order_id": string }; Returns: Json
+                           },
+"process_sepay_webhook":
+{ Args: { "p_payload": Json }; Returns: Json
+                           },
 "quote_order":
 { Args: { "p_items"?: Json,"p_owner_user_id"?: string }; Returns: Json
                            },
@@ -595,6 +741,31 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"record_payment":
+{ Args: { "p_amount": number,"p_confirm"?: boolean,"p_method": string,"p_note"?: string,"p_order_id": string,"p_transfer_content"?: string }; Returns: {
+              "amount": number,
+"confirmed_by": string | null,
+"created_at": string,
+"created_by": string | null,
+"id": string,
+"method": string,
+"note": string | null,
+"order_id": string,
+"paid_at": string | null,
+"payment_code": string,
+"provider": string | null,
+"provider_reference": string | null,
+"status": string,
+"status_reason": string | null,
+"transfer_content": string | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "payments"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "record_stock_exit":
 { Args: { "p_batch_id": string,"p_location_id": string,"p_product_id": string,"p_quantity": number,"p_reason": string,"p_type": string }; Returns: {
               "batch_id": string,
@@ -615,6 +786,31 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "inventory_movements"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"refund_payment":
+{ Args: { "p_payment_id": string,"p_reason": string }; Returns: {
+              "amount": number,
+"confirmed_by": string | null,
+"created_at": string,
+"created_by": string | null,
+"id": string,
+"method": string,
+"note": string | null,
+"order_id": string,
+"paid_at": string | null,
+"payment_code": string,
+"provider": string | null,
+"provider_reference": string | null,
+"status": string,
+"status_reason": string | null,
+"transfer_content": string | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "payments"
         isOneToOne: true
         isSetofReturn: false
       } },
@@ -725,7 +921,32 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "batch_id": string,"cached_qty": number,"column_name": string,"ledger_qty": number,"location_id": string,"product_id": string
             }[]
-                           }
+                           },
+"void_payment":
+{ Args: { "p_payment_id": string,"p_reason": string }; Returns: {
+              "amount": number,
+"confirmed_by": string | null,
+"created_at": string,
+"created_by": string | null,
+"id": string,
+"method": string,
+"note": string | null,
+"order_id": string,
+"paid_at": string | null,
+"payment_code": string,
+"provider": string | null,
+"provider_reference": string | null,
+"status": string,
+"status_reason": string | null,
+"transfer_content": string | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "payments"
+        isOneToOne: true
+        isSetofReturn: false
+      } }
           }
           Enums: {
             [_ in never]: never
