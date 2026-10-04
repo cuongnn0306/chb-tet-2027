@@ -1,0 +1,17 @@
+{
+  "implemented": ["Mô tả thay đổi thực tế của đúng task đang thực hiện"],
+  "database": ["none, hoặc liệt kê migration/RPC/RLS và generated types đã thay đổi"],
+  "tests": ["Tên test/regression được thêm hoặc sửa; chưa chạy phải ghi rõ"],
+  "acceptance": [
+    {
+      "description": "Tiêu chí acceptance từ specification của task",
+      "status": "not_verified",
+      "evidence": "Đường dẫn test, hành vi đã kiểm chứng hoặc lý do chưa kiểm chứng"
+    }
+  ],
+  "mobile": "not verified: nêu lý do hoặc viewport/flow đã kiểm chứng",
+  "staging": "not verified: nêu lý do hoặc URL, phiên bản và kết quả",
+  "review": "not verified: nêu lý do hoặc PR/reviewer/kết quả",
+  "notes": ["Rủi ro, blocker, conflict tài liệu; không ghi secret hay dữ liệu khách thật"],
+  "nextTasks": ["Task ID tiếp theo và dependency/blocker"]
+}

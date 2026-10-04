@@ -489,3 +489,35 @@ The system succeeds when CHB can operate the Tết bánh chưng campaign without
 - What changed, by whom, and when?
 
 When uncertain, protect **inventory integrity, payment integrity, auditability, and approved business rules** first.
+
+---
+
+## 18. SHARED CODEX / CLAUDE TASK REPORTS
+
+At session start, read `docs/handoff/PROJECT_PROGRESS.md`, `docs/handoff/STATUS.md`,
+the latest report for the chosen task, and `docs/handoff/WORKFLOW.md` after the specifications above.
+Use the same pipeline regardless of agent:
+
+1. Before implementation: `npm run task:start -- <TASK-ID> codex|claude "<scope>"`.
+2. Implement one task; update its ExecPlan and record acceptance evidence.
+3. Fill a JSON summary using `docs/handoff/summary.example.json` (never include secrets).
+4. Before ending the task/session, including failed or blocked attempts:
+   `npm run task:finish -- <TASK-ID> <summary-json-path>`.
+5. Commit code together with the generated Markdown + JSON report, `tasks.json` and `STATUS.md`.
+   Reports are append-only; retry the same task with a new start/finish attempt.
+6. `validated_local` means only the local checks passed. Do not claim Done without the
+   remaining review, mobile, staging and acceptance requirements. `needs_validation` is not Done.
+7. If code changes after validation, rerun the pipeline. PR CI checks a fresh report against
+   the current source fingerprint. Read failed reports as handoff evidence, never as passed checks.
+
+No automatic merge, messaging another agent, or production deployment is authorized by this pipeline.
+
+## 19. CLAUDE QUOTA FALLBACK
+
+Follow `docs/handoff/QUOTA_WORKFLOW.md` (authorized 03/10/2026). When Claude Code
+hits a verified usage limit, preserve its tasks, sessions, workspaces and scope
+reservations. Codex may implement a different, dependency-ready, non-overlapping
+task in its own worktree through the same task pipeline. At the eligible reset
+time, resume Claude's exact lane session and verify the real outcome, then return
+to coordination without abandoning or duplicating Codex's active task. Maximum
+two implementation workers in total; all DB validation uses the shared lease.

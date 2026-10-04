@@ -1,0 +1,5 @@
+# RPT-001 definition attempt review
+
+Docs-only glossary traces formulas to TECH13 and PRD22/B21/B22. Gross/Net exclude CANCELLED/VOIDED, Cash uses confirmed payments, Units subtract returns; preserves integer VND, transfer not revenue, ledger source and safety stock Location x SKU. Spec gaps in date axis/order count/refund/demand window explicitly unresolved, not executable policies. No report query/UI/schema or Claude delivery scope changed. No Done certification.
+
+Attempt16-18-08 finished needs_validation: pipeline/lint/typecheck/unit/build/env pass; formatting fail in isolated checkout, DB reset/pgTAP/integration not_run to preserve shared DB and unfinished Claude schema. Previous reports immutable. This does not validate business KPIs against actual data or staging. Do not retry unchanged format/DB blockers. Next independent candidate: SEC003 audit RLS regression only against existing immutable Admin audit contract; confirm canonical role matrix and isolated fixture dependencies before taskstart, DB remains pending.

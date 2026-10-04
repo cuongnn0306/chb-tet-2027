@@ -1,0 +1,9 @@
+# RES-005 post-quota review (2026-10-04)
+
+The exact usage-limited session `c72f5823-5960-4bc8-b2bc-90f0f8aed57a` resumed in dispatch `RES-005-1791098953191-28347441`. The frozen runner returned exit code 0, `is_error=false`, no permission denials, complete stdout/stderr, delivered stdin, one final result as the last of 85 well-formed events, and zero live children. Claude created one fresh `task:finish --generate-types` report. This proves quota availability for that dispatch; the earlier reset timestamp alone did not.
+
+Report `RES-005-2026-10-04T07-31-40-209Z` is source-fresh for the four changed code/type/test files and is `needs_validation`. The shared DB lease, DB reset, generated types, integration suite, pipeline, lint, typecheck, unit tests, build, format, and environment checks passed. pgTAP failed 1 of 52 assertions in the new suite, so local acceptance and Done are withheld. No DB command was run outside `task:finish`.
+
+The failing assertion at `supabase/tests/delivery_auto_allocation.test.sql:114` expects `RESERVED` after a fully allocated order with an existing delivery. The allocation engine changes `CONFIRMED` to `RESERVED`, then the pre-existing `orders_zz_fulfilment_sync` trigger calls `private.sync_order_fulfilment`, which advances an order with an open delivery from `RESERVED` to `PREPARING` (`20261001200342_deliveries_workflow.sql:326-331,361-380`). TECH_DESIGN §6 lists that sequence. The observed `PREPARING` is the approved rule, so correct the test expectation and its wording, then run a new start/finish attempt. Preserve the migration and other tests. If any other behavior changes during correction, review it independently before acceptance.
+
+Staging registration/cadence of pg_cron, independent review and external acceptance remain pending. The separate Codex fallback worktree and integration conflicts remain untouched. No commit, push, merge or deployment occurred.

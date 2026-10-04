@@ -1,0 +1,7 @@
+# INF-008 / SEC-005 review — 2026-10-03 06:55 UTC
+
+INF008 run06-43-02: independent security_review confirms source fresh. P2: current-tip/latest-CI check occurs only before staging environment approval. Revalidate tip and latest required CI attempt immediately before privileged migration commands; regression approval delay + branch movement. No live GitHub validation. Format fails coordinator-owned docs/state; do not silently modify others.
+
+SEC005 run06-43-22: independent parallel_review finds docs-only corrections, no confirmed exploitable XSS. Actual file XSS_INPUT_REVIEW.md differs reserved INPUT_SECURITY_REVIEW.md; reconcile scope. Replace synthetic hard-delete cleanup with disposable fixtures or void/softdelete+audit. Pipeline21 files174 unit tests passed despite denied separate focused invocation; browser exploit tests unverified. Dry-run persists nothing, parser uppercases codes, quote CSV fixtures correctly. F8 include gateway/transferAmount runtime JSON typing; F6 avoid categorical filter-injection guarantee. Owner quota-resume inbox format failed.
+
+Both tasks remain needs_validation; no DB/cloud/commit operations. Current managed sandbox blocks dispatch into secondary workspace and new fallback worktree; review evidence stored in writable visualization directory, not canonical reports/state. Pending action: authorized controller owner dispatch same-task corrections after current slot/ownership check; do not mark reviewed/Done automatically.

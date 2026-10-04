@@ -1,0 +1,9 @@
+# DEL-010 calendar view — local review (2026-10-04)
+
+Codex implemented DEL-010 in `C:/Users/HP/.codex/worktrees/codex-cus-006/chb-ban-hang` after reserving the task in `AUTOMATION_STATE.json` and running `task:start`. Claude's TRF-001 exact session, root workspace and write scopes remain untouched while its verified quota limit is active; next eligible attempt is 2026-10-04T12:21:00Z.
+
+The scoped diff adds pure calendar date functions, a Monday-first month grid with delivery counts and stock-risk cues, and month selection in the existing delivery board. Selecting a date reuses the pre-existing detailed cards and actions. The month query uses the actual first/last calendar day. No schema, RPC, service contract, routes or configuration changed. The board's account-scope changes predated this task and remain preserved in the dirty worktree.
+
+Fresh immutable pipeline report: `C:/Users/HP/.codex/worktrees/codex-cus-006/chb-ban-hang/docs/handoff/reports/DEL-010-2026-10-04T08-46-13-542Z.json`. All four task source hashes match the current files. Pipeline, lint, typecheck, unit tests, build and environment checks passed. The focused calendar tests cover leap February, year rollover and Monday alignment. Scoped Prettier check passes. Repository-wide format check fails on 197 historical files; no broad formatting was applied. DB reset, pgTAP and integration were recorded `not_run` because this detached worktree lacks the root RES-005/TRF-001 migrations and must not reset the shared DB to an older schema. The pipeline did not acquire the DB lease for this skipped validation.
+
+Assessment: `needs_validation`, not Done. Browser/mobile/staging acceptance and an integration diff review against the root board are outstanding. Preserve this worktree and append-only report. Do not copy its board source into the active root workspace or retry Claude before its eligibility time.
