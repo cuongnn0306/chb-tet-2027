@@ -5,7 +5,9 @@ import {
   DELIVERY_STATUS_LABELS,
   DELIVERY_STATUS_TONES,
   addDays,
+  allocationOutcomeMessage,
   availableDeliveryActions,
+  canAllocateDelivery,
   boardRange,
   canPlanDelivery,
   canReschedule,
@@ -53,6 +55,14 @@ describe('available actions', () => {
     expect(availableDeliveryActions('READY', owner)).toEqual(['cancel'])
     expect(availableDeliveryActions('OUT_FOR_DELIVERY', owner)).toEqual([])
     expect(availableDeliveryActions('READY', admin)).toEqual(['dispatch', 'cancel'])
+  })
+
+  it('does not let anyone cancel a delivery whose goods are in logistics (DEL-012)', () => {
+    // a FAILED delivery rescheduled back to READY still has its goods out of the warehouse
+    expect(availableDeliveryActions('READY', owner, true)).toEqual([])
+    expect(availableDeliveryActions('READY', admin, true)).toEqual(['dispatch'])
+    expect(availableDeliveryActions('READY', owner, false)).toEqual(['cancel'])
+    expect(availableDeliveryActions('FAILED', admin, true)).toEqual([])
   })
 
   it('reschedules a failed delivery and editing is for PREPARING only', () => {
@@ -139,5 +149,41 @@ describe('dates', () => {
       ['2026-12-01', ['a']],
       ['2026-12-03', ['c', 'd']],
     ])
+  })
+})
+
+describe('allocation per delivery (DEL-005)', () => {
+  it('lets only Admin/Warehouse allocate a delivery that has not left the warehouse', () => {
+    expect(canAllocateDelivery('PREPARING', 'RESERVED', true)).toBe(true)
+    expect(canAllocateDelivery('READY', 'CONFIRMED', true)).toBe(true)
+    expect(canAllocateDelivery('READY', 'WAITING_DELIVERY', true)).toBe(true)
+    // Sales roles never allocate
+    expect(canAllocateDelivery('PREPARING', 'RESERVED', false)).toBe(false)
+    // goods already out / closed deliveries
+    for (const s of ['OUT_FOR_DELIVERY', 'DELIVERED', 'FAILED', 'CANCELLED'] as const) {
+      expect(canAllocateDelivery(s, 'RESERVED', true)).toBe(false)
+    }
+    // orders that are not confirmed yet or already closed
+    for (const o of ['DRAFT', 'WAITING_DEPOSIT', 'COMPLETED', 'CANCELLED']) {
+      expect(canAllocateDelivery('READY', o, true)).toBe(false)
+    }
+  })
+
+  it('explains the outcome in Vietnamese', () => {
+    const base = { fully_allocated: true, shortage_total: 0, allocated_total: 0, released_total: 0 }
+    expect(
+      allocationOutcomeMessage({ ...base, allocated_total: 5, released_total: 5 }, 'X'),
+    ).toEqual({
+      tone: 'success',
+      text: 'Đã giữ 5 cái tại kho X cho đợt giao này. Đã giải phóng 5 cái đơn đang giữ thừa ở kho khác.',
+    })
+    expect(allocationOutcomeMessage(base, 'X').text).toContain('không cần phân bổ thêm')
+    const short = allocationOutcomeMessage(
+      { ...base, fully_allocated: false, shortage_total: 3 },
+      'Y',
+    )
+    expect(short.tone).toBe('warning')
+    expect(short.text).toContain('thiếu 3 cái')
+    expect(short.text).toContain('các kho khác không bị ảnh hưởng')
   })
 })

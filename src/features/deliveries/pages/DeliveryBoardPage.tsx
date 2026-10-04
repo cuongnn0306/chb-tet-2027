@@ -15,6 +15,7 @@ import {
   DELIVERY_STATUS_TONES,
   availableDeliveryActions,
   boardRange,
+  canAllocateDelivery,
   canReschedule,
   groupByDate,
   vietnamToday,
@@ -25,6 +26,7 @@ import { useAuth } from '@/features/auth/auth-context'
 import { describeDbError } from '@/lib/db-errors'
 import { formatDate } from '@/lib/date'
 import type { ScheduleRow } from '@/services/deliveries.service'
+import { DeliveryAllocationDialog } from '../components/DeliveryAllocationDialog'
 import { DeliveryActionDialog, RescheduleDialog } from '../components/DeliveryDialogs'
 import { useDeliveryService } from '../hooks/useDeliveryService'
 
@@ -48,6 +50,7 @@ export function DeliveryBoardPage() {
   const [onlyOpen, setOnlyOpen] = useState(true)
   const [acting, setActing] = useState<{ row: ScheduleRow; action: DeliveryAction } | null>(null)
   const [rescheduling, setRescheduling] = useState<ScheduleRow | null>(null)
+  const [allocating, setAllocating] = useState<ScheduleRow | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
   const { from, to } = boardRange(range, today)
@@ -136,10 +139,11 @@ export function DeliveryBoardPage() {
         <div key={day} className="flex flex-col gap-2">
           <h2 className="font-semibold text-slate-900">{dayHeading(day, today)}</h2>
           {list.map((row) => {
-            const actions = availableDeliveryActions(row.status, {
-              isWarehouseStaff,
-              isPlanner: false,
-            })
+            const actions = availableDeliveryActions(
+              row.status,
+              { isWarehouseStaff, isPlanner: false },
+              row.goods_in_logistics,
+            )
             return (
               <article
                 key={row.delivery_id}
@@ -152,6 +156,9 @@ export function DeliveryBoardPage() {
                     {row.customer_name}
                   </p>
                   <div className="flex gap-1">
+                    {row.goods_in_logistics && row.status !== 'OUT_FOR_DELIVERY' ? (
+                      <StatusBadge label="Hàng đang ở logistics" tone="warning" />
+                    ) : null}
                     {row.stock_risk ? (
                       <StatusBadge label="Chưa đủ hàng phân bổ" tone="danger" />
                     ) : null}
@@ -174,6 +181,11 @@ export function DeliveryBoardPage() {
                   <MoneyText amount={row.remaining_amount} />
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
+                  {canAllocateDelivery(row.status, row.order_status, isWarehouseStaff) ? (
+                    <Button variant="secondary" onClick={() => setAllocating(row)}>
+                      Phân bổ hàng
+                    </Button>
+                  ) : null}
                   {actions.map((a) => (
                     <Button
                       key={a}
@@ -225,6 +237,13 @@ export function DeliveryBoardPage() {
           setNotice(`Đã thực hiện: ${DELIVERY_ACTION_LABELS[a]}.`)
           refresh()
         }}
+      />
+      <DeliveryAllocationDialog
+        deliveryId={allocating?.delivery_id ?? null}
+        deliveryCode={allocating?.delivery_code ?? ''}
+        isAdmin={role === 'ADMIN'}
+        onClose={() => setAllocating(null)}
+        onChanged={refresh}
       />
       <RescheduleDialog
         deliveryId={rescheduling?.delivery_id ?? null}

@@ -12,6 +12,7 @@ import {
   DELIVERY_STATUS_LABELS,
   DELIVERY_STATUS_TONES,
   availableDeliveryActions,
+  canAllocateDelivery,
   canPlanDelivery,
   canReschedule,
   isDeliveryEditable,
@@ -21,6 +22,7 @@ import {
 import { formatDate } from '@/lib/date'
 import type { OrderDelivery } from '@/services/deliveries.service'
 import { useDeliveryService } from '../hooks/useDeliveryService'
+import { DeliveryAllocationDialog } from './DeliveryAllocationDialog'
 import { DeliveryActionDialog, RescheduleDialog } from './DeliveryDialogs'
 import { DeliveryFormDialog, type PlanOrder } from './DeliveryFormDialog'
 
@@ -33,6 +35,8 @@ interface Props {
   isPlanner: boolean
   /** Admin or Warehouse. */
   isWarehouseStaff: boolean
+  /** Admin only: may allocate from safety stock. */
+  isAdmin?: boolean
   /** Called after any change so the order, its history and its stock can refresh. */
   onChanged: () => void
 }
@@ -45,6 +49,7 @@ export function OrderDeliveryPanel({
   items,
   isPlanner,
   isWarehouseStaff,
+  isAdmin = false,
   onChanged,
 }: Props) {
   const service = useDeliveryService()
@@ -58,6 +63,7 @@ export function OrderDeliveryPanel({
     null,
   )
   const [rescheduling, setRescheduling] = useState<OrderDelivery | null>(null)
+  const [allocating, setAllocating] = useState<OrderDelivery | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
   const refresh = () => {
@@ -144,7 +150,12 @@ export function OrderDeliveryPanel({
 
       <ul className="flex flex-col gap-3">
         {deliveries.data?.map((d) => {
-          const actions = availableDeliveryActions(d.status, { isWarehouseStaff, isPlanner })
+          const goodsInLogistics = d.dispatched_at !== null && d.status !== 'DELIVERED'
+          const actions = availableDeliveryActions(
+            d.status,
+            { isWarehouseStaff, isPlanner },
+            goodsInLogistics,
+          )
           return (
             <li key={d.id} className="rounded-md border border-slate-200 p-3 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -180,6 +191,12 @@ export function OrderDeliveryPanel({
               {d.failed_reason && d.status === 'FAILED' ? (
                 <p className="text-red-800">Lý do thất bại: {d.failed_reason}</p>
               ) : null}
+              {goodsInLogistics && d.status !== 'OUT_FOR_DELIVERY' ? (
+                <p className="text-amber-900">
+                  Hàng đang ở logistics, chưa được kho nhận lại: vẫn giữ cho đợt giao này, chưa thể
+                  hủy và không dùng được cho đợt giao khác từ cùng kho.
+                </p>
+              ) : null}
               {d.cancelled_reason ? (
                 <p className="text-slate-600">Lý do hủy: {d.cancelled_reason}</p>
               ) : null}
@@ -193,6 +210,11 @@ export function OrderDeliveryPanel({
                     }}
                   >
                     Sửa
+                  </Button>
+                ) : null}
+                {canAllocateDelivery(d.status, orderStatus, isWarehouseStaff) ? (
+                  <Button variant="secondary" onClick={() => setAllocating(d)}>
+                    Phân bổ hàng
                   </Button>
                 ) : null}
                 {actions.map((a) => (
@@ -254,6 +276,13 @@ export function OrderDeliveryPanel({
           setNotice(`Đã thực hiện: ${DELIVERY_ACTION_LABELS[a]}.`)
           refresh()
         }}
+      />
+      <DeliveryAllocationDialog
+        deliveryId={allocating?.id ?? null}
+        deliveryCode={allocating?.delivery_code ?? ''}
+        isAdmin={isAdmin}
+        onClose={() => setAllocating(null)}
+        onChanged={refresh}
       />
       <RescheduleDialog
         deliveryId={rescheduling?.id ?? null}

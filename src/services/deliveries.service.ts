@@ -1,9 +1,11 @@
 import type {
+  AllocationOutcome,
   DeliveryAction,
   DeliveryMethod,
   DeliveryStatus,
   ShippingPayer,
 } from '@/domain/deliveries/deliveries'
+import type { StockLine } from '@/domain/inventory/shortage'
 import type { AppSupabaseClient } from '@/lib/supabase'
 import { DbError } from './crud.service'
 
@@ -33,6 +35,8 @@ export interface Delivery {
   delivered_at: string | null
   failed_reason: string | null
   cancelled_reason: string | null
+  /** First time the goods left the warehouse; set by dispatch only. */
+  dispatched_at: string | null
   created_at: string
 }
 
@@ -64,6 +68,8 @@ export interface ScheduleRow {
   shipping_fee: number
   shipping_fee_payer: ShippingPayer
   stock_risk: boolean
+  /** The goods left the warehouse and were not delivered (also a FAILED delivery). */
+  goods_in_logistics: boolean
 }
 
 export interface DeliveryPlanInput {
@@ -103,6 +109,46 @@ export interface DeliveryDetail {
     quantity: number
     pick: { batch_code: string; expiry_date: string; quantity: number }[]
   }[]
+}
+
+/** DEL-005: what one delivery still needs at its source warehouse (Admin/Warehouse only). */
+export interface DeliveryAllocationLine extends StockLine {
+  order_item_id: string
+  sku: string
+  name: string
+  /** Quantity of this delivery line. */
+  delivery_quantity: number
+  /** Units already held for this delivery at its source. */
+  covered_for_delivery: number
+  /** Still to reserve for this delivery (the gap); `shortage` is the part the source cannot cover. */
+  quantity: number
+  /** Holds the order has at other warehouses and how much of it could be moved. */
+  held_elsewhere: {
+    location_id: string
+    code: string
+    name: string
+    quantity: number
+    releasable: number
+  }[]
+}
+
+export interface DeliveryAllocationStatus {
+  delivery_id: string
+  delivery_code: string
+  delivery_status: DeliveryStatus
+  order_id: string
+  order_status: string
+  source_location: { id: string; code: string; name: string }
+  can_allocate: boolean
+  fully_covered: boolean
+  lines: DeliveryAllocationLine[]
+}
+
+export interface DeliveryAllocationResult extends AllocationOutcome {
+  delivery_id: string
+  delivery_code: string
+  location_id: string
+  order_status: string
 }
 
 export function createDeliveryService(client: AppSupabaseClient) {
@@ -206,6 +252,24 @@ export function createDeliveryService(client: AppSupabaseClient) {
     /** DEL-014/015: data for the delivery note and the warehouse issue note. */
     async detail(deliveryId: string): Promise<DeliveryDetail> {
       return (await rpc('delivery_detail', { p_delivery_id: deliveryId })) as DeliveryDetail
+    },
+
+    /** DEL-005: coverage, shortage and holds elsewhere for one delivery (Admin/Warehouse). */
+    async allocationStatus(deliveryId: string): Promise<DeliveryAllocationStatus> {
+      return (await rpc('delivery_allocation_status', {
+        p_delivery_id: deliveryId,
+      })) as DeliveryAllocationStatus
+    },
+
+    /** DEL-005: reserve stock for this delivery only, at its own source warehouse (Admin/Warehouse). */
+    async allocate(
+      deliveryId: string,
+      allowBelowSafety = false,
+    ): Promise<DeliveryAllocationResult> {
+      return (await rpc('allocate_delivery_stock', {
+        p_delivery_id: deliveryId,
+        p_allow_below_safety: allowBelowSafety,
+      })) as DeliveryAllocationResult
     },
   }
 }
