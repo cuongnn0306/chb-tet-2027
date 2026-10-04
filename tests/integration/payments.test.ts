@@ -42,9 +42,20 @@ beforeAll(async () => {
     .eq('phone_normalized', '0900000003')
     .single()
   customer = data?.id as string
+  // The webhook only credits money received on this configured account (PAY-007).
+  await setSepayConfig(CONFIG)
 })
 
 const svc = () => serviceClient()
+
+const CONFIG = { bank: 'MBBank', account_no: '0123456789', account_name: 'CONG TY TEST' }
+async function setSepayConfig(value: Record<string, unknown> | null) {
+  if (value === null) await serviceClient().from('app_settings').delete().eq('key', 'sepay_config')
+  else
+    await serviceClient()
+      .from('app_settings')
+      .upsert({ key: 'sepay_config', value: value as never }, { onConflict: 'key' })
+}
 const act = (client: AppSupabaseClient, id: string, action: string, reason?: string) =>
   rpc(client, 'transition_order', { p_order_id: id, p_action: action, p_reason: reason ?? null })
 
@@ -633,6 +644,480 @@ describe('SePay webhook (PAY-007, PAY-008)', () => {
     expect((await orderRow(order.id))?.status).toBe('WAITING_DEPOSIT')
     await webhook(transfer(order, 50000))
     expect(await orderRow(order.id)).toMatchObject({ status: 'CONFIRMED', paid_amount: 150000 })
+  })
+})
+
+describe('SePay payload and receiving account validation (PAY-007, review RV-02)', () => {
+  /** Nothing may be credited or recorded as a payment; the event is stored with a reason. */
+  async function expectNotCredited(
+    order: { id: string },
+    event: Record<string, unknown>,
+    expected: { status: 'NEEDS_REVIEW' | 'IGNORED'; note: RegExp },
+  ) {
+    const before = (await svc().from('payments').select('id').eq('order_id', order.id)).data ?? []
+    const { data, error } = await webhook(event)
+    expect(error).toBeNull()
+    expect(data).toMatchObject({ status: expected.status })
+    expect((data as any).payment_id).toBeUndefined()
+    expect((await orderRow(order.id))?.paid_amount).toBe(0)
+    expect((await svc().from('payments').select('id').eq('order_id', order.id)).data).toHaveLength(
+      before.length,
+    )
+    const { data: row } = await svc()
+      .from('payment_events')
+      .select('outcome, note, payment_id, order_id')
+      .eq('provider_event_id', String(event.id))
+      .single()
+    expect(row).toMatchObject({ outcome: expected.status, payment_id: null, order_id: null })
+    expect(row?.note).toMatch(expected.note)
+  }
+
+  const review = (note: RegExp) => ({ status: 'NEEDS_REVIEW' as const, note })
+
+  it('credits an inbound transfer to the configured account; the bank name ignores case, spaces and dots', async () => {
+    const order = await waitingDeposit()
+    const { data } = await webhook(
+      transfer(order, 150000, { accountNumber: '0123456789', gateway: 'mb bank' }),
+    )
+    expect(data).toMatchObject({ status: 'CREDITED' })
+    expect((await orderRow(order.id))?.paid_amount).toBe(150000)
+  })
+
+  it('does not credit money received on another account', async () => {
+    const order = await waitingDeposit()
+    await expectNotCredited(
+      order,
+      transfer(order, 150000, { accountNumber: '9999999999' }),
+      review(/không khớp tài khoản đã cấu hình/),
+    )
+  })
+
+  it('does not credit when the bank (gateway) differs', async () => {
+    const order = await waitingDeposit()
+    await expectNotCredited(
+      order,
+      transfer(order, 150000, { gateway: 'Vietcombank' }),
+      review(/không khớp tài khoản đã cấu hình/),
+    )
+  })
+
+  it('does not credit when accountNumber or gateway is missing, empty or not text', async () => {
+    const order = await waitingDeposit()
+    const missing = /Thiếu hoặc sai kiểu accountNumber\/gateway/
+    for (const over of [
+      { accountNumber: undefined },
+      { gateway: undefined },
+      { accountNumber: '' },
+      { gateway: '   ' },
+      { accountNumber: null },
+      { gateway: { name: 'MBBank' } },
+      { accountNumber: ['0123456789'] },
+    ]) {
+      await expectNotCredited(order, transfer(order, 150000, over), review(missing))
+    }
+  })
+
+  it('fails closed when no receiving account is configured on the server', async () => {
+    try {
+      await setSepayConfig(null)
+      const order = await waitingDeposit()
+      await expectNotCredited(
+        order,
+        transfer(order, 150000),
+        review(/Chưa cấu hình đúng tài khoản nhận/),
+      )
+      await setSepayConfig({ bank: 'MBBank', account_name: 'thiếu số tài khoản' })
+      await expectNotCredited(
+        order,
+        transfer(order, 150000),
+        review(/Chưa cấu hình đúng tài khoản nhận/),
+      )
+    } finally {
+      await setSepayConfig(CONFIG)
+    }
+  })
+
+  it('uses sepay_config.gateway when the SePay bank name differs from the QR bank code', async () => {
+    try {
+      await setSepayConfig({ ...CONFIG, bank: 'MBB', gateway: 'MBBank' })
+      const order = await waitingDeposit()
+      expect((await webhook(transfer(order, 150000))).data).toMatchObject({ status: 'CREDITED' })
+      const other = await waitingDeposit()
+      await expectNotCredited(
+        other,
+        transfer(other, 150000, { gateway: 'MBB' }),
+        review(/không khớp tài khoản đã cấu hình/),
+      )
+    } finally {
+      await setSepayConfig(CONFIG)
+    }
+  })
+
+  it('never assumes a missing or unknown direction is incoming money', async () => {
+    const order = await waitingDeposit()
+    const bad = /Thiếu hoặc sai hướng giao dịch/
+    for (const transferType of [undefined, null, '', 'transfer', 'inbound', 5, true, ['in']]) {
+      await expectNotCredited(order, transfer(order, 150000, { transferType }), review(bad))
+    }
+  })
+
+  it('accepts "in" in any letter case and ignores outgoing money', async () => {
+    const order = await waitingDeposit()
+    expect((await webhook(transfer(order, 50000, { transferType: 'IN' }))).data).toMatchObject({
+      status: 'CREDITED',
+    })
+    const out = await waitingDeposit()
+    for (const transferType of ['out', 'OUT', ' out ']) {
+      await expectNotCredited(out, transfer(out, 150000, { transferType }), {
+        status: 'IGNORED',
+        note: /tiền ra/,
+      })
+    }
+    // an outgoing transfer to a foreign account is still just ignored, not queued for review
+    await expectNotCredited(
+      out,
+      transfer(out, 150000, { transferType: 'out', accountNumber: '1' }),
+      { status: 'IGNORED', note: /tiền ra/ },
+    )
+  })
+
+  it('rejects an invalid amount, including a missing, text or fractional one', async () => {
+    const order = await waitingDeposit()
+    const amountNote = /Số tiền không hợp lệ/
+    for (const transferAmount of [undefined, null, '150000', 0, -1, 1.5, 12345678901234, {}, [1]]) {
+      await expectNotCredited(order, transfer(order, 1, { transferAmount }), {
+        status: 'IGNORED',
+        note: amountNote,
+      })
+    }
+  })
+
+  it('rejects a bad id without storing anything, and treats "123" and 123 as the same transaction', async () => {
+    const order = await waitingDeposit()
+    for (const id of [undefined, null, '', 'abc', 1.5, -4, {}, [1], true, '12 3', 1e19]) {
+      const res = await webhook(transfer(order, 150000, { id }))
+      expect(res.error?.message).toMatch(/thiếu mã giao dịch \(id\)|không phải số nguyên/)
+    }
+    expect((await orderRow(order.id))?.paid_amount).toBe(0)
+
+    const id = sepayId()
+    expect((await webhook(transfer(order, 150000, { id: String(id) }))).data).toMatchObject({
+      status: 'CREDITED',
+    })
+    expect((await webhook(transfer(order, 150000, { id }))).data).toMatchObject({
+      status: 'DUPLICATE',
+    })
+    expect((await orderRow(order.id))?.paid_amount).toBe(150000)
+  })
+
+  it('rejects a payload that is not a JSON object', async () => {
+    for (const payload of [[], 'text', 5, null]) {
+      expect((await webhook(payload as never)).error).not.toBeNull()
+    }
+  })
+
+  it('a duplicate or concurrent delivery of a rejected event stays rejected and is stored once', async () => {
+    const order = await waitingDeposit()
+    const event = transfer(order, 150000, { accountNumber: '5555555555' })
+    const results = await Promise.all(Array.from({ length: 6 }, () => webhook(event)))
+    expect(results.every((r) => r.error === null)).toBe(true)
+    expect(results.map((r) => (r.data as any).status).sort()).toEqual([
+      'DUPLICATE',
+      'DUPLICATE',
+      'DUPLICATE',
+      'DUPLICATE',
+      'DUPLICATE',
+      'NEEDS_REVIEW',
+    ])
+    expect(
+      (await svc().from('payment_events').select('id').eq('provider_event_id', String(event.id)))
+        .data,
+    ).toHaveLength(1)
+    expect((await orderRow(order.id))?.paid_amount).toBe(0)
+    // the original (correct) event with another id is still credited normally afterwards
+    expect((await webhook(transfer(order, 150000))).data).toMatchObject({ status: 'CREDITED' })
+  })
+
+  it('concurrent duplicates of a valid event on the configured account still credit exactly once', async () => {
+    const order = await waitingDeposit()
+    const event = transfer(order, 150000)
+    const results = await Promise.all(Array.from({ length: 6 }, () => webhook(event)))
+    expect(results.map((r) => (r.data as any).status).filter((s) => s === 'CREDITED')).toHaveLength(
+      1,
+    )
+    expect((await orderRow(order.id))?.paid_amount).toBe(150000)
+  })
+
+  it('a rejected event shows in the Admin review queue only; it cannot be assigned like an unmatched one', async () => {
+    const order = await waitingDeposit()
+    const event = transfer(order, 150000, { accountNumber: '4444444444' })
+    await webhook(event)
+    const { data: row } = await admin
+      .from('payment_events')
+      .select('id, outcome, resolved_at')
+      .eq('provider_event_id', String(event.id))
+      .single()
+    expect(row).toMatchObject({ outcome: 'NEEDS_REVIEW', resolved_at: null })
+    expect(
+      (await sale.from('payment_events').select('id').eq('provider_event_id', String(event.id)))
+        .data,
+    ).toEqual([])
+    const assign = await rpc(admin, 'assign_payment_event', {
+      p_event_id: row?.id,
+      p_order_id: order.id,
+    })
+    expect(assign.error?.message).toMatch(/không còn ở trạng thái chưa khớp/)
+    expect((await orderRow(order.id))?.paid_amount).toBe(0)
+    expect(
+      (await rpc(admin, 'dismiss_payment_event', { p_event_id: row?.id, p_note: 'Đã kiểm tra' }))
+        .error,
+    ).toBeNull()
+  })
+
+  it('an unknown order code on the configured account is still UNMATCHED (assignable), not a rejection', async () => {
+    expect((await webhook(transfer({ order_code: 'TET999998' }, 50000))).data).toMatchObject({
+      status: 'UNMATCHED',
+    })
+  })
+})
+
+describe('PAY-007 correction: account identifier validation (review finding 1)', () => {
+  const noCredit = async (over: Record<string, unknown>, note: RegExp) => {
+    const order = await waitingDeposit()
+    const event = transfer(order, 150000, over)
+    const { data, error } = await webhook(event)
+    expect(error).toBeNull()
+    expect(data).toMatchObject({ status: 'NEEDS_REVIEW' })
+    expect((data as any).payment_id).toBeUndefined()
+    expect((await orderRow(order.id))?.paid_amount).toBe(0)
+    expect((await svc().from('payments').select('id').eq('order_id', order.id)).data).toEqual([])
+    const { data: row } = await svc()
+      .from('payment_events')
+      .select('note, payment_id')
+      .eq('provider_event_id', String(event.id))
+      .single()
+    expect(row?.payment_id).toBeNull()
+    expect(row?.note).toMatch(note)
+  }
+
+  const malformed = /không đúng định dạng/
+  const wrongType = /Thiếu hoặc sai kiểu/
+  const mismatch = /không khớp tài khoản đã cấu hình/
+
+  it('rejects an account number that is not a string (negative, decimal, number, boolean, array, object)', async () => {
+    for (const accountNumber of [
+      -123456789,
+      123456789,
+      123456789.5,
+      1.23456789e9,
+      true,
+      ['0123456789'],
+      {},
+    ]) {
+      await noCredit({ accountNumber }, wrongType)
+    }
+  })
+
+  it('rejects punctuation, signs, spaces and unusual characters instead of "cleaning" them into the account', async () => {
+    for (const accountNumber of [
+      '-0123456789', // sign
+      '+0123456789',
+      '0123456789.0', // decimal text
+      '012345.6789',
+      '0123 456789', // inner space
+      ' 0123456789', // surrounding whitespace is not trimmed
+      '0123456789 ',
+      '0123456789\n',
+      '0123-456789',
+      '0123_456789',
+      '٠١٢٣٤٥٦٧٨٩', // Arabic-Indic digits
+      '０１２３４５６７８９', // full-width digits
+      '0123456789​', // zero-width space
+      '0123456789 ',
+      '01234567é9', // accented letter
+      '01', // too short
+      '0'.repeat(31), // too long
+    ]) {
+      await noCredit({ accountNumber }, malformed)
+    }
+  })
+
+  it('treats leading zeros as part of the identifier', async () => {
+    await noCredit({ accountNumber: '123456789' }, mismatch) // configured: 0123456789
+    await noCredit({ accountNumber: '00123456789' }, mismatch)
+    try {
+      await setSepayConfig({ ...CONFIG, account_no: '123456789' })
+      await noCredit({ accountNumber: '0123456789' }, mismatch)
+      const order = await waitingDeposit()
+      expect(
+        (await webhook(transfer(order, 150000, { accountNumber: '123456789' }))).data,
+      ).toMatchObject({ status: 'CREDITED' })
+    } finally {
+      await setSepayConfig(CONFIG)
+    }
+  })
+
+  it('compares alphanumeric accounts case-insensitively but otherwise exactly', async () => {
+    try {
+      await setSepayConfig({ ...CONFIG, account_no: 'VA0123ABC' })
+      const order = await waitingDeposit()
+      expect(
+        (await webhook(transfer(order, 150000, { accountNumber: 'va0123abc' }))).data,
+      ).toMatchObject({ status: 'CREDITED' })
+      await noCredit({ accountNumber: 'VA0123ABD' }, mismatch)
+    } finally {
+      await setSepayConfig(CONFIG)
+    }
+  })
+
+  it('treats a configured account with separators as not configured, never as a looser match', async () => {
+    try {
+      for (const account_no of ['0123 456 789', '0123-456-789', ' 0123456789', 123456789, '']) {
+        await setSepayConfig({ ...CONFIG, account_no })
+        await noCredit({ accountNumber: '0123456789' }, /Chưa cấu hình đúng tài khoản nhận/)
+      }
+    } finally {
+      await setSepayConfig(CONFIG)
+    }
+  })
+
+  it('bank names keep only the documented alias rule (case, spaces, dots, hyphens, underscores)', async () => {
+    const ok = await waitingDeposit()
+    expect((await webhook(transfer(ok, 150000, { gateway: 'M.B-Bank_' }))).data).toMatchObject({
+      status: 'CREDITED',
+    })
+    // other characters are not stripped to manufacture a match
+    await noCredit({ gateway: 'MB/Bank' }, mismatch)
+    await noCredit({ gateway: 'MBBánk' }, mismatch)
+  })
+})
+
+describe('PAY-007 correction: one canonical transaction key (review finding 2)', () => {
+  const base = () => sepayId() // 13 digits
+  const forms = (n: number): unknown[] => [n, String(n), `0${n}`, `000${n}`]
+
+  const rowsFor = async (n: number) =>
+    (
+      await svc()
+        .from('payment_events')
+        .select('provider_event_id, payload')
+        .eq('provider', 'SEPAY')
+        .like('provider_event_id', `%${n}`)
+    ) // the key, or the same digits with leading zeros
+    .data ?? []
+
+  it('every supported representation of the same integer is the same transaction (sequential)', async () => {
+    const order = await waitingDeposit()
+    const n = base()
+    const [first, ...rest] = forms(n)
+    const created = await webhook(transfer(order, 150000, { id: first }))
+    expect(created.data).toMatchObject({ status: 'CREDITED' })
+    for (const id of rest) {
+      expect((await webhook(transfer(order, 150000, { id }))).data).toMatchObject({
+        status: 'DUPLICATE',
+        previous_outcome: 'CREDITED',
+      })
+    }
+    expect((await rowsFor(n)).map((r) => r.provider_event_id)).toEqual([String(n)])
+    const { data: payments } = await svc()
+      .from('payments')
+      .select('provider_reference, amount')
+      .eq('order_id', order.id)
+    expect(payments).toEqual([{ provider_reference: String(n), amount: 150000 }])
+    expect((await orderRow(order.id))?.paid_amount).toBe(150000)
+  })
+
+  it('concurrent deliveries in mixed representations credit exactly once', async () => {
+    const order = await waitingDeposit()
+    const n = base()
+    const ids = [...forms(n), ...forms(n)]
+    const results = await Promise.all(ids.map((id) => webhook(transfer(order, 150000, { id }))))
+    expect(results.every((r) => r.error === null)).toBe(true)
+    const statuses = results.map((r) => (r.data as any).status)
+    expect(statuses.filter((s) => s === 'CREDITED')).toHaveLength(1)
+    expect(statuses.filter((s) => s === 'DUPLICATE')).toHaveLength(ids.length - 1)
+    expect(await rowsFor(n)).toHaveLength(1)
+    expect((await svc().from('payments').select('id').eq('order_id', order.id)).data).toHaveLength(
+      1,
+    )
+    expect((await orderRow(order.id))?.paid_amount).toBe(150000)
+  })
+
+  it('also deduplicates events that were rejected or unmatched, in any representation', async () => {
+    const order = await waitingDeposit()
+    const n = base()
+    const bad = { accountNumber: '9999999999' }
+    const results = await Promise.all(
+      forms(n).map((id) => webhook(transfer(order, 150000, { id, ...bad }))),
+    )
+    expect(results.map((r) => (r.data as any).status).sort()).toEqual([
+      'DUPLICATE',
+      'DUPLICATE',
+      'DUPLICATE',
+      'NEEDS_REVIEW',
+    ])
+    expect(await rowsFor(n)).toHaveLength(1)
+    expect((await orderRow(order.id))?.paid_amount).toBe(0)
+  })
+
+  it('keeps the raw payload and stores the canonical key', async () => {
+    const order = await waitingDeposit()
+    const n = base()
+    await webhook(transfer(order, 150000, { id: `00${n}` }))
+    const rows = await rowsFor(n)
+    expect(rows).toHaveLength(1)
+    expect(rows[0]?.provider_event_id).toBe(String(n))
+    expect((rows[0]?.payload as any).id).toBe(`00${n}`) // untouched, for traceability
+  })
+
+  it('rejects ids that are not a positive integer in a supported representation', async () => {
+    const order = await waitingDeposit()
+    const before = (await svc().from('payment_events').select('id', { count: 'exact', head: true }))
+      .count
+    for (const id of [
+      0,
+      '0',
+      '000',
+      '+5',
+      ' 5',
+      '5 ',
+      '5.0',
+      '5e3',
+      '٥',
+      '-5',
+      1e19,
+      '1234567890123456789',
+      1.5,
+    ]) {
+      const res = await webhook(transfer(order, 150000, { id }))
+      expect(res.error?.message).toMatch(/thiếu mã giao dịch \(id\)/)
+    }
+    expect(
+      (await svc().from('payment_events').select('id', { count: 'exact', head: true })).count,
+    ).toBe(before)
+  })
+
+  it('an event stored earlier under a non-canonical key is still recognised as the same transaction', async () => {
+    const order = await waitingDeposit()
+    const n = base()
+    const legacy = await svc()
+      .from('payment_events')
+      .insert({
+        provider: 'SEPAY',
+        provider_event_id: `00${n}`,
+        payload: { id: `00${n}` },
+        outcome: 'CREDITED',
+      })
+    expect(legacy.error).toBeNull()
+    for (const id of forms(n)) {
+      expect((await webhook(transfer(order, 150000, { id }))).data).toMatchObject({
+        status: 'DUPLICATE',
+        previous_outcome: 'CREDITED',
+      })
+    }
+    expect(await rowsFor(n)).toHaveLength(1) // only the legacy row; nothing new stored
+    expect((await svc().from('payments').select('id').eq('order_id', order.id)).data).toEqual([])
+    expect((await orderRow(order.id))?.paid_amount).toBe(0)
   })
 })
 
