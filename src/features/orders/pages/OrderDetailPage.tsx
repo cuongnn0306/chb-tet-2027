@@ -272,6 +272,7 @@ export function OrderDetailPage() {
             (data.owner_user_id === access.user.id || data.created_by === access.user.id))
         }
         isWarehouseStaff={isWarehouseStaff}
+        isAdmin={isAdmin}
         onChanged={() => {
           void queryClient.invalidateQueries({ queryKey: ['order', orderId] })
           void queryClient.invalidateQueries({ queryKey: ['order-history', orderId] })

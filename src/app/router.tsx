@@ -7,6 +7,9 @@ import { MovementHistoryPage } from '@/features/inventory/pages/MovementHistoryP
 import { DeliveryBoardPage } from '@/features/deliveries/pages/DeliveryBoardPage'
 import { DeliveryPrintPage } from '@/features/deliveries/pages/DeliveryPrintPage'
 import { PaymentReviewPage } from '@/features/payments/pages/PaymentReviewPage'
+import { TransferDetailPage } from '@/features/transfers/pages/TransferDetailPage'
+import { TransferListPage } from '@/features/transfers/pages/TransferListPage'
+import { TransferRequestPage } from '@/features/transfers/pages/TransferRequestPage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { HomePage } from '@/features/dashboard/pages/HomePage'
 import { CommissionRulesPage } from '@/features/master-data/pages/CommissionRulesPage'
@@ -66,6 +69,14 @@ export const router = createBrowserRouter([
             children: [
               { path: ROUTES.deliveries, element: <DeliveryBoardPage /> },
               { path: '/deliveries/:deliveryId/print', element: <DeliveryPrintPage mode="note" /> },
+            ],
+          },
+          {
+            element: <PermissionRoute permission="propose_transfer" />,
+            children: [
+              { path: ROUTES.transfers, element: <TransferListPage /> },
+              { path: ROUTES.transferNew, element: <TransferRequestPage /> },
+              { path: '/transfers/:transferId', element: <TransferDetailPage /> },
             ],
           },
           {

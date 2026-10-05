@@ -1,0 +1,3 @@
+# INF-008 external completion handoff
+
+Failed dispatch5052 has no result; PID/children absent. Do not treat missing result as successful. Later Desktop session875289ab completed INF008 and DEL011 attempts and ended13:48 end_turn. INF008 scoped correction independently reviewed with38 tests. Latest DEL011 root report current-source hashes independently match every recorded path. Root registry has finished attempts; Desktop transcript unchanged at14:55. Retire worker_lost reservation as superseded external handoff, preserving its failure and files. New exact CLI lane resume may perform validation-only fresh INF008 attempt; no feature takeover, no copy, no Done.

@@ -10,15 +10,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run test:pipeline
+      - run: npm run task:verify
+      - if: github.event_name == 'pull_request'
+        env:
+          TASK_BASE_REF: ${{ github.event.pull_request.base.sha }}
+        run: npm run task:verify -- "$TASK_BASE_REF"
       - run: npm run lint
+      - run: npm run format:check
+      - run: npm run check:env
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-task-reports
+          path: |
+            docs/handoff/reports/
+            docs/handoff/STATUS.md
+            docs/handoff/PROJECT_PROGRESS.md
+          if-no-files-found: warn
 
   database:
     runs-on: ubuntu-latest

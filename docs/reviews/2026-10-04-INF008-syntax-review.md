@@ -1,0 +1,3 @@
+# INF008 syntax correction review
+
+Exit0/is_errorfalse, one final last, stdin delivered, complete streams, liveChildren0; PID39536 absent. One denied npm exec prettier command retained; existing npx prettier allowlist was not used. New report 00-02-57-838Z source hashes match. Pipeline/lint/typecheck/tests/build/env pass; format193fail and DBnotrun preservation blocker. Malformed and executable-output regressions preserve old bytes; existing generated types accepted. No real generation/root integration. Remaining touched test formatting requires exact allowed npx prettier, new start/finish report; no permission expansion.

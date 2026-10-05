@@ -67,7 +67,7 @@ export const DELIVERY_ACTION_CONSEQUENCES: Record<DeliveryAction, string> = {
     'Hàng rời kho để đi giao. Hệ thống kiểm tra đã phân bổ đủ hàng tại kho xuất. Tồn kho chỉ trừ khi xác nhận đã giao.',
   deliver:
     'Hàng đã phân bổ được trừ khỏi tồn kho (xuất bán, lô gần hết hạn trước) và ghi vào lịch sử kho. Nếu đơn đã giao đủ và thanh toán đủ, đơn tự động hoàn tất.',
-  fail: 'Hàng vẫn được giữ cho đơn. Bạn có thể đổi lịch giao lại sau. Lý do được lưu Audit Log.',
+  fail: 'Hàng chưa về kho: vẫn tính là đang ở logistics và vẫn được giữ cho đợt giao này, không dùng được cho đợt giao khác từ cùng kho. Đổi lịch để giao lại. Lý do được lưu Audit Log.',
   cancel:
     'Số lượng của đợt giao này được trả lại để lập đợt giao khác. Hàng đã phân bổ vẫn được giữ cho đơn. Lý do được lưu Audit Log.',
 }
@@ -88,9 +88,15 @@ export interface DeliveryActor {
 }
 
 /** Actions a user can attempt on a delivery in `status` (the RPC re-checks everything). */
+/**
+ * `goodsInLogistics`: the goods already left the warehouse at least once and were not delivered (a
+ * FAILED delivery, also after it was rescheduled). Such a delivery cannot be cancelled: its goods are
+ * not back in the warehouse (DEL-012).
+ */
 export function availableDeliveryActions(
   status: DeliveryStatus,
   actor: DeliveryActor,
+  goodsInLogistics = false,
 ): DeliveryAction[] {
   const actions: DeliveryAction[] = []
   if (actor.isWarehouseStaff) {
@@ -98,7 +104,9 @@ export function availableDeliveryActions(
     if (status === 'READY') actions.push('dispatch')
     if (status === 'OUT_FOR_DELIVERY') actions.push('deliver', 'fail')
   }
-  if (actor.isPlanner && (status === 'PREPARING' || status === 'READY')) actions.push('cancel')
+  if (actor.isPlanner && !goodsInLogistics && (status === 'PREPARING' || status === 'READY')) {
+    actions.push('cancel')
+  }
   return actions
 }
 
@@ -122,6 +130,60 @@ export function canPlanDelivery(orderStatus: string): boolean {
 /** Quantity of an order line that is not yet assigned to any active delivery. */
 export function unassignedQuantity(ordered: number, assigned: number): number {
   return Math.max(ordered - assigned, 0)
+}
+
+// ---- Allocation per delivery and source location (DEL-005, review RV-06) ----------------------
+
+/** Deliveries whose goods have not left the warehouse yet: the only ones that can still be allocated. */
+const ALLOCATABLE_DELIVERY_STATUSES: DeliveryStatus[] = ['PREPARING', 'READY']
+/** Order statuses in which stock may be set aside for a delivery (the database re-checks this). */
+const ALLOCATABLE_ORDER_STATUSES = ['CONFIRMED', 'RESERVED', 'PREPARING', 'WAITING_DELIVERY']
+
+/** Admin or Warehouse may reserve stock at the source of a delivery that has not gone out yet. */
+export function canAllocateDelivery(
+  deliveryStatus: DeliveryStatus,
+  orderStatus: string,
+  isWarehouseStaff: boolean,
+): boolean {
+  return (
+    isWarehouseStaff &&
+    ALLOCATABLE_DELIVERY_STATUSES.includes(deliveryStatus) &&
+    ALLOCATABLE_ORDER_STATUSES.includes(orderStatus)
+  )
+}
+
+export interface AllocationOutcome {
+  fully_allocated: boolean
+  shortage_total: number
+  allocated_total: number
+  released_total: number
+}
+
+/** The sentence shown after "Phân bổ hàng cho đợt này": what changed, or why nothing did. */
+export function allocationOutcomeMessage(
+  outcome: AllocationOutcome,
+  sourceCode: string,
+): { tone: 'success' | 'warning'; text: string } {
+  if (!outcome.fully_allocated) {
+    return {
+      tone: 'warning',
+      text: `Kho ${sourceCode} chưa đủ hàng có thể bán: thiếu ${outcome.shortage_total.toLocaleString('vi-VN')} cái. Chưa giữ hàng nào và các kho khác không bị ảnh hưởng.`,
+    }
+  }
+  if (outcome.allocated_total === 0) {
+    return {
+      tone: 'success',
+      text: `Đợt giao này đã được giữ đủ hàng tại kho ${sourceCode}, không cần phân bổ thêm.`,
+    }
+  }
+  const moved =
+    outcome.released_total > 0
+      ? ` Đã giải phóng ${outcome.released_total.toLocaleString('vi-VN')} cái đơn đang giữ thừa ở kho khác.`
+      : ''
+  return {
+    tone: 'success',
+    text: `Đã giữ ${outcome.allocated_total.toLocaleString('vi-VN')} cái tại kho ${sourceCode} cho đợt giao này.${moved}`,
+  }
 }
 
 export interface PlanInput {

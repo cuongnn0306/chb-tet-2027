@@ -1,0 +1,3 @@
+# INF008 corrected real validation
+
+Report02-46-49-937Z all13 checks pass, fingerprints match. Real owned-lease reset/gen/pgTAP/integration pass; genuine db lease and db lease release metadata rows present, no retained lease/source stability failure; lock absent after exit. Generated types unchanged so no after-types rows needed; current app checks already cover identical bytes. Pipeline62 regressions pass, including generator timeout DB gating and LF fingerprint ownership. Historical changed-types16-check report retained. Report needs_validation due submitted pending acceptance/external staging text; no Done. Updated seven-file integration manifest/diffs, primary untouched.

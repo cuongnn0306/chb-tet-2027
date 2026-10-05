@@ -1,0 +1,9 @@
+# TRF-001 attempt 5: local validation passed; external acceptance pending
+
+Dispatch `TRF-001-1791125947611-3fdef0d2` resumed the reserved Claude session `9853b508-dc71-4ab7-a1b7-9bc9faefd22d` with the reviewed frozen runner. The runner ended with exit code 0, `is_error=false`, zero permission denials, complete stdin and output streams, one final result, and zero live children. Its immutable report is `docs/handoff/reports/TRF-001-2026-10-04T14-59-42-545Z.json`, status `needs_validation`. All 244 normalized source hashes match the checkout; this attempt changed no TRF-001 source after the transfer-code boundary fix.
+
+All local checks in this fresh `task:start` / `task:finish` attempt passed: pipeline (62/62), lint, typecheck, unit tests, build, format, environment, owned DB reset, generated types, pgTAP, and integration (22 files / 322 tests). `task:finish` acquired and released the shared DB lease. The pipeline test that failed intermittently in attempts 2 and 4 passed in this attempt; its timing behavior was not changed or diagnosed here.
+
+Independent code review covered the request RPC, permission enforcement, immutable transfer fields, RLS, no-stock/no-revenue effects, generated types, typed service, and transfer-code boundary test. The six database and domain acceptance rows in the report are locally met. Vietnamese screen states, mobile form behavior, staging verification, and Owner acceptance remain unverified. The screen implementation has only been reviewed in code, not in a browser or device. TRF-001 is **not Done**.
+
+Preserve the report and workspaces. Next: conduct browser/mobile review, staging verification through the approved release process, and obtain Owner acceptance before marking TRF-001 Done. Do not start a dependent transfer task based solely on this local report. No commit, push, merge, or deployment occurred.

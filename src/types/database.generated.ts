@@ -113,13 +113,13 @@ isOneToOne: false
                   ]
                 },"deliveries": {
                   Row: {
-                    "cancelled_reason": string | null,"created_at": string,"created_by": string | null,"delivered_at": string | null,"delivery_address": string | null,"delivery_code": string,"delivery_method": string,"failed_reason": string | null,"id": string,"notes": string | null,"order_id": string,"recipient_name": string,"recipient_phone": string,"scheduled_date": string,"scheduled_time": string | null,"shipping_fee": number,"shipping_fee_payer": string,"source_location_id": string,"status": string,"updated_at": string
+                    "cancelled_reason": string | null,"created_at": string,"created_by": string | null,"delivered_at": string | null,"delivery_address": string | null,"delivery_code": string,"delivery_method": string,"dispatched_at": string | null,"failed_reason": string | null,"id": string,"notes": string | null,"order_id": string,"recipient_name": string,"recipient_phone": string,"scheduled_date": string,"scheduled_time": string | null,"shipping_fee": number,"shipping_fee_payer": string,"source_location_id": string,"status": string,"updated_at": string
                   }
                   Insert: {
-                    "cancelled_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"delivered_at"?: string | null,"delivery_address"?: string | null,"delivery_code": string,"delivery_method"?: string,"failed_reason"?: string | null,"id"?: string,"notes"?: string | null,"order_id": string,"recipient_name": string,"recipient_phone": string,"scheduled_date": string,"scheduled_time"?: string | null,"shipping_fee"?: number,"shipping_fee_payer"?: string,"source_location_id": string,"status"?: string,"updated_at"?: string
+                    "cancelled_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"delivered_at"?: string | null,"delivery_address"?: string | null,"delivery_code": string,"delivery_method"?: string,"dispatched_at"?: string | null,"failed_reason"?: string | null,"id"?: string,"notes"?: string | null,"order_id": string,"recipient_name": string,"recipient_phone": string,"scheduled_date": string,"scheduled_time"?: string | null,"shipping_fee"?: number,"shipping_fee_payer"?: string,"source_location_id": string,"status"?: string,"updated_at"?: string
                   }
                   Update: {
-                    "cancelled_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"delivered_at"?: string | null,"delivery_address"?: string | null,"delivery_code"?: string,"delivery_method"?: string,"failed_reason"?: string | null,"id"?: string,"notes"?: string | null,"order_id"?: string,"recipient_name"?: string,"recipient_phone"?: string,"scheduled_date"?: string,"scheduled_time"?: string | null,"shipping_fee"?: number,"shipping_fee_payer"?: string,"source_location_id"?: string,"status"?: string,"updated_at"?: string
+                    "cancelled_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"delivered_at"?: string | null,"delivery_address"?: string | null,"delivery_code"?: string,"delivery_method"?: string,"dispatched_at"?: string | null,"failed_reason"?: string | null,"id"?: string,"notes"?: string | null,"order_id"?: string,"recipient_name"?: string,"recipient_phone"?: string,"scheduled_date"?: string,"scheduled_time"?: string | null,"shipping_fee"?: number,"shipping_fee_payer"?: string,"source_location_id"?: string,"status"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -139,6 +139,31 @@ isOneToOne: false
       columns: ["source_location_id"]
 isOneToOne: false
       referencedRelation: "locations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"delivery_item_batches": {
+                  Row: {
+                    "batch_id": string,"created_at": string,"delivery_item_id": string,"id": string,"quantity": number
+                  }
+                  Insert: {
+                    "batch_id": string,"created_at"?: string,"delivery_item_id": string,"id"?: string,"quantity": number
+                  }
+                  Update: {
+                    "batch_id"?: string,"created_at"?: string,"delivery_item_id"?: string,"id"?: string,"quantity"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "delivery_item_batches_batch_id_fkey"
+      columns: ["batch_id"]
+isOneToOne: false
+      referencedRelation: "product_batches"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "delivery_item_batches_delivery_item_id_fkey"
+      columns: ["delivery_item_id"]
+isOneToOne: false
+      referencedRelation: "delivery_items"
       referencedColumns: ["id"]
     }
                   ]
@@ -176,6 +201,43 @@ isOneToOne: false
       columns: ["product_id"]
 isOneToOne: false
       referencedRelation: "products"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"delivery_stock_allocations": {
+                  Row: {
+                    "allocated_by": string | null,"created_at": string,"delivery_id": string,"id": string,"location_id": string,"order_item_id": string,"quantity": number
+                  }
+                  Insert: {
+                    "allocated_by"?: string | null,"created_at"?: string,"delivery_id": string,"id"?: string,"location_id": string,"order_item_id": string,"quantity": number
+                  }
+                  Update: {
+                    "allocated_by"?: string | null,"created_at"?: string,"delivery_id"?: string,"id"?: string,"location_id"?: string,"order_item_id"?: string,"quantity"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "delivery_stock_allocations_allocated_by_fkey"
+      columns: ["allocated_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "delivery_stock_allocations_delivery_id_fkey"
+      columns: ["delivery_id"]
+isOneToOne: false
+      referencedRelation: "deliveries"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "delivery_stock_allocations_location_id_fkey"
+      columns: ["location_id"]
+isOneToOne: false
+      referencedRelation: "locations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "delivery_stock_allocations_order_item_id_fkey"
+      columns: ["order_item_id"]
+isOneToOne: false
+      referencedRelation: "order_items"
       referencedColumns: ["id"]
     }
                   ]
@@ -621,6 +683,74 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"transfer_items": {
+                  Row: {
+                    "approved_qty": number,"batch_id": string | null,"dispatched_qty": number,"id": string,"product_id": string,"received_qty": number,"requested_qty": number,"transfer_id": string
+                  }
+                  Insert: {
+                    "approved_qty"?: number,"batch_id"?: string | null,"dispatched_qty"?: number,"id"?: string,"product_id": string,"received_qty"?: number,"requested_qty": number,"transfer_id": string
+                  }
+                  Update: {
+                    "approved_qty"?: number,"batch_id"?: string | null,"dispatched_qty"?: number,"id"?: string,"product_id"?: string,"received_qty"?: number,"requested_qty"?: number,"transfer_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "transfer_items_batch_id_fkey"
+      columns: ["batch_id"]
+isOneToOne: false
+      referencedRelation: "product_batches"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "transfer_items_product_id_fkey"
+      columns: ["product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "transfer_items_transfer_id_fkey"
+      columns: ["transfer_id"]
+isOneToOne: false
+      referencedRelation: "transfers"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"transfers": {
+                  Row: {
+                    "approved_at": string | null,"approved_by": string | null,"created_at": string,"destination_location_id": string,"dispatched_at": string | null,"id": string,"reason": string,"received_at": string | null,"requested_by": string,"source_location_id": string,"status": string,"transfer_code": string
+                  }
+                  Insert: {
+                    "approved_at"?: string | null,"approved_by"?: string | null,"created_at"?: string,"destination_location_id": string,"dispatched_at"?: string | null,"id"?: string,"reason": string,"received_at"?: string | null,"requested_by": string,"source_location_id": string,"status"?: string,"transfer_code": string
+                  }
+                  Update: {
+                    "approved_at"?: string | null,"approved_by"?: string | null,"created_at"?: string,"destination_location_id"?: string,"dispatched_at"?: string | null,"id"?: string,"reason"?: string,"received_at"?: string | null,"requested_by"?: string,"source_location_id"?: string,"status"?: string,"transfer_code"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "transfers_approved_by_fkey"
+      columns: ["approved_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "transfers_destination_location_id_fkey"
+      columns: ["destination_location_id"]
+isOneToOne: false
+      referencedRelation: "locations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "transfers_requested_by_fkey"
+      columns: ["requested_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "transfers_source_location_id_fkey"
+      columns: ["source_location_id"]
+isOneToOne: false
+      referencedRelation: "locations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -651,6 +781,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"allocate_delivery_stock":
+{ Args: { "p_allow_below_safety"?: boolean,"p_delivery_id": string }; Returns: Json
+                           },
 "allocate_order":
 { Args: { "p_allow_below_safety"?: boolean,"p_location_id"?: string,"p_order_id": string }; Returns: Json
                            },
@@ -717,12 +850,15 @@ isOneToOne: false
               "customer_id": string,"last_order_at": string,"order_count": number,"total_gross": number
             }[]
                            },
+"delivery_allocation_status":
+{ Args: { "p_delivery_id": string }; Returns: Json
+                           },
 "delivery_detail":
 { Args: { "p_delivery_id": string }; Returns: Json
                            },
 "delivery_schedule":
 { Args: { "p_from": string,"p_statuses"?: (string)[],"p_to": string }; Returns: {
-              "customer_name": string,"delivery_address": string,"delivery_code": string,"delivery_id": string,"delivery_method": string,"lines": Json,"order_code": string,"order_id": string,"order_status": string,"owner_name": string,"recipient_name": string,"recipient_phone": string,"remaining_amount": number,"scheduled_date": string,"scheduled_time": string,"shipping_fee": number,"shipping_fee_payer": string,"source_location_code": string,"source_location_id": string,"status": string,"stock_risk": boolean,"total_quantity": number
+              "customer_name": string,"delivery_address": string,"delivery_code": string,"delivery_id": string,"delivery_method": string,"goods_in_logistics": boolean,"lines": Json,"order_code": string,"order_id": string,"order_status": string,"owner_name": string,"recipient_name": string,"recipient_phone": string,"remaining_amount": number,"scheduled_date": string,"scheduled_time": string,"shipping_fee": number,"shipping_fee_payer": string,"source_location_code": string,"source_location_id": string,"status": string,"stock_risk": boolean,"total_quantity": number
             }[]
                            },
 "dismiss_payment_event":
@@ -902,6 +1038,9 @@ isOneToOne: false
 "release_expired_reservations":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"request_transfer":
+{ Args: { "p_destination_location_id": string,"p_items": Json,"p_reason": string,"p_source_location_id": string }; Returns: Json
+                           },
 "reschedule_delivery":
 { Args: { "p_delivery_id": string,"p_reason"?: string,"p_scheduled_date": string,"p_scheduled_time"?: string }; Returns: {
               "cancelled_reason": string | null,
@@ -911,6 +1050,7 @@ isOneToOne: false
 "delivery_address": string | null,
 "delivery_code": string,
 "delivery_method": string,
+"dispatched_at": string | null,
 "failed_reason": string | null,
 "id": string,
 "notes": string | null,
@@ -931,6 +1071,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"run_due_delivery_allocation":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "save_delivery":
 { Args: { "p_delivery_address"?: string,"p_delivery_id": string,"p_delivery_method"?: string,"p_items": Json,"p_notes"?: string,"p_order_id": string,"p_recipient_name"?: string,"p_recipient_phone"?: string,"p_scheduled_date": string,"p_scheduled_time"?: string,"p_shipping_fee"?: number,"p_shipping_fee_payer"?: string,"p_source_location_id"?: string }; Returns: {
               "cancelled_reason": string | null,
@@ -940,6 +1083,7 @@ isOneToOne: false
 "delivery_address": string | null,
 "delivery_code": string,
 "delivery_method": string,
+"dispatched_at": string | null,
 "failed_reason": string | null,
 "id": string,
 "notes": string | null,
@@ -1034,6 +1178,7 @@ isOneToOne: false
 "delivery_address": string | null,
 "delivery_code": string,
 "delivery_method": string,
+"dispatched_at": string | null,
 "failed_reason": string | null,
 "id": string,
 "notes": string | null,

@@ -32,6 +32,11 @@ const MAIN_NAV: MainNavItem[] = [
   },
   { to: ROUTES.inventory, label: 'Tồn kho', visible: () => true },
   {
+    to: ROUTES.transfers,
+    label: 'Điều chuyển kho',
+    visible: (role) => hasPermission(role, 'propose_transfer'),
+  },
+  {
     to: ROUTES.inventoryBatches,
     label: 'Tồn theo lô',
     visible: (role) => (BATCH_VIEW_ROLES as readonly string[]).includes(role),

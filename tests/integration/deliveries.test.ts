@@ -407,7 +407,7 @@ describe('fulfilment: stock leaves at DELIVERED, order follows (DEL-006, DEL-011
     const d = await plan(sale, order, 5, w)
     await step(warehouse, d.data.id, 'ready')
     await step(warehouse, d.data.id, 'dispatch')
-    expect((await step(sale, d.data.id, 'cancel', 'đổi ý')).error?.message).toMatch(/đã xuất kho/)
+    expect((await step(sale, d.data.id, 'cancel', 'đổi ý')).error?.message).toMatch(/đã rời kho/)
 
     const w2 = await world()
     const { data: draft } = await rpc(sale, 'save_draft_order', {

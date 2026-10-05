@@ -130,7 +130,7 @@ function RescheduleBody({ deliveryId, failed, currentDate, onClose, onDone }: Re
     <div className="flex flex-col gap-3">
       <p className="text-slate-800">
         {failed
-          ? 'Đợt giao thất bại sẽ quay lại "Sẵn sàng giao" vào ngày mới. Hàng vẫn được giữ cho đơn.'
+          ? 'Đợt giao thất bại sẽ quay lại "Sẵn sàng giao" vào ngày mới. Hàng vẫn đang ở logistics và vẫn được giữ cho đợt giao này.'
           : 'Đợt giao được chuyển sang ngày mới, trạng thái giữ nguyên.'}
       </p>
       <TextField

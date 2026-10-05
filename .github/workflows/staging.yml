@@ -1,36 +1,129 @@
 name: Staging database
 
-# Applies migrations to the STAGING Supabase project when `develop` changes (INF-009).
+# Applies migrations to the STAGING Supabase project (INF-009), gated by CI (INF-008 / RV-10).
 # The app itself deploys through Vercel's Git integration (INF-011).
+#
+# Migrations are pushed only for the exact commit that is the current tip of `develop`, and only
+# after the required jobs (app, database) of the `CI` workflow succeeded for that same commit.
+# This holds for both the automatic (push) and the manual (workflow_dispatch) path. The decision
+# lives in scripts/staging-gate.mjs and fails closed on missing, unfinished, failed, stale,
+# wrong-branch or wrong-repository results. It is taken again AFTER the environment approval, right
+# before the first and before the writing supabase command: a human approval can take hours, and
+# develop may have advanced or CI may have been re-run meanwhile (any change denies). There is no pull_request trigger and no input that
+# selects a ref or SHA, so a fork or untrusted ref never reaches the secrets below.
 #
 # Inactive until a human provisions staging (see docs/runbooks/STAGING_DEPLOY.md):
 #   repo variable   STAGING_CONFIGURED = true
-#   repo secrets    SUPABASE_ACCESS_TOKEN, STAGING_PROJECT_REF, STAGING_DB_PASSWORD
-# Use a GitHub environment named "staging" for these values; never reuse production values.
+#   environment     "staging" (required reviewers + deployment branch limited to develop)
+#   env secrets     SUPABASE_ACCESS_TOKEN, STAGING_PROJECT_REF, STAGING_DB_PASSWORD
+# Never reuse production values.
 on:
   push:
     branches: [develop]
   workflow_dispatch:
+
+permissions: {}
 
 concurrency:
   group: staging-db
   cancel-in-progress: false
 
 jobs:
-  db-push:
+  # Holds no staging secrets and no environment: it only reads CI results with the read-only
+  # GITHUB_TOKEN. The approval-protected deploy job starts only after this job is green.
+  gate:
     if: ${{ vars.STAGING_CONFIGURED == 'true' }}
     runs-on: ubuntu-latest
-    environment: staging
-    env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      sha: ${{ steps.gate.outputs.sha }}
+      ci_run: ${{ steps.gate.outputs.ci_run }}
+      verified: ${{ steps.gate.outputs.verified }}
     steps:
+      - name: Refuse any ref other than develop
+        env:
+          EVENT_REF: ${{ github.ref }}
+        run: |
+          if [ "$EVENT_REF" != "refs/heads/develop" ]; then
+            echo "Staging migrations only run from develop (got $EVENT_REF)." >&2
+            exit 1
+          fi
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          sparse-checkout: scripts/staging-gate.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: gate
+        name: Verify CI is green for this exact develop commit
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          # Push: CI starts together with this run, so wait for it. Manual: CI must already be done.
+          GATE_WAIT_SECONDS: ${{ github.event_name == 'push' && '2700' || '0' }}
+        run: node scripts/staging-gate.mjs
+
+  db-push:
+    needs: gate
+    if: ${{ needs.gate.outputs.verified == 'true' }}
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 30
+    # actions: read only lets the recheck steps read CI results. The token is passed to those two
+    # steps alone and is never in the environment of `npm ci` or of the supabase steps.
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      # Exactly the commit the gate verified, never a branch name that may have moved.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate.outputs.sha }}
+          persist-credentials: false
+      - name: Confirm the checkout is the verified commit
+        env:
+          VERIFIED_SHA: ${{ needs.gate.outputs.sha }}
+        run: test "$(git rev-parse HEAD)" = "$VERIFIED_SHA"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx supabase link --project-ref "${{ secrets.STAGING_PROJECT_REF }}"
-      - run: npx supabase db push --dry-run
-      - run: npx supabase db push
+      # This job only starts after the environment approval. Revalidate now, before any privileged
+      # command: the develop tip and the newest CI attempt must still be the ones the gate verified.
+      - name: Recheck develop tip and CI after approval (before linking)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GATE_RECHECK: 'true'
+          GATE_EXPECT_SHA: ${{ needs.gate.outputs.sha }}
+          GATE_EXPECT_CI_RUN: ${{ needs.gate.outputs.ci_run }}
+        run: node scripts/staging-gate.mjs
+      - name: Link staging project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+          STAGING_PROJECT_REF: ${{ secrets.STAGING_PROJECT_REF }}
+        run: npx supabase link --project-ref "$STAGING_PROJECT_REF"
+      - name: Preview migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+        run: npx supabase db push --dry-run
+      # The dry run and the link take time: check once more right before the command that writes.
+      - name: Recheck develop tip and CI immediately before applying migrations
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GATE_RECHECK: 'true'
+          GATE_EXPECT_SHA: ${{ needs.gate.outputs.sha }}
+          GATE_EXPECT_CI_RUN: ${{ needs.gate.outputs.ci_run }}
+        run: node scripts/staging-gate.mjs
+      - name: Apply migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+        run: npx supabase db push
