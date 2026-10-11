@@ -118,7 +118,7 @@ The existing waterfall can credit D1's old row and let it dispatch against D2's 
 the guard now refuses ambiguous lines where the sum of open deliveries' capped historical attributions at this
 source exceeds the live physical reservation. It names the warehouse/SKU and directs Admin/Kho to reconcile or
 allocate more. A redispatch retains its already committed batch binding and skips this ambiguity preflight. The
-new A → B → A + sibling regression is in the integration suite; DB execution remains required.
+new A → B → A + sibling regression passed in the local integration suite on 11/10/2026.
 
 ## Status
 
@@ -129,3 +129,10 @@ run said "not validated"; the immutable report keeps that wording, this section 
 
 Correction attempt: the coverage-cap migration and the A -> B -> A / quantity-edit regressions are validated only
 by the report of this attempt. Staging, browser/mobile and independent review remain pending. Not Done.
+
+Owner-approved dispatch gate attempt: after Docker recovery, `supabase db reset --local`, pgTAP and
+the full integration suite passed under the shared DB lease (22 files, 325 tests). The new
+sibling-competition, pool-binding and stale-attribution regressions passed. Pipeline tests,
+lint, typecheck, unit tests, build and env check passed. Repository-wide `format:check`
+still fails on 297 inherited files; the changed TypeScript test and this plan pass scoped
+Prettier. Review, mobile and staging remain unverified, so DEL-005 is not Done.

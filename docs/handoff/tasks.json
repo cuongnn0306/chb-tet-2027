@@ -885,15 +885,21 @@
     },
     "DEL-005": {
       "id": "DEL-005",
-      "title": "Chặn dispatch khi lịch sử phân bổ của các delivery vượt tồn giữ thực tế",
+      "title": "Ghi nhận bằng chứng kiểm thử DB và acceptance DEL-005",
       "agent": "codex",
       "status": "needs_validation",
-      "startedAt": "2026-10-11T08:05:10.198Z",
-      "updatedAt": "2026-10-11T08:08:24.178Z",
-      "baseCommit": "9992776cabd39da7b3bc0b9bfa183da258374533",
+      "startedAt": "2026-10-11T08:46:44.682Z",
+      "updatedAt": "2026-10-11T08:53:29.317Z",
+      "baseCommit": "66770b3143f69ca7942e3641948041f1411152a1",
       "branch": "codex/del-005-dispatch-coverage",
-      "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/DEL-005-2026-10-11T08-06-27-887Z.md"
+      "preExistingChanges": [
+        "docs/exec-plans/active/DEL-005-source-allocation.md",
+        "docs/handoff/STATUS.md",
+        "docs/handoff/reports/DEL-005-2026-10-11T08-38-43-743Z.json",
+        "docs/handoff/reports/DEL-005-2026-10-11T08-38-43-743Z.md",
+        "docs/handoff/tasks.json"
+      ],
+      "latestReport": "docs/handoff/reports/DEL-005-2026-10-11T08-46-49-916Z.md"
     },
     "RES-005": {
       "id": "RES-005",
