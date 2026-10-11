@@ -1410,6 +1410,18 @@
         "tests/integration/transfer-source-priority.test.ts"
       ],
       "latestReport": "docs/handoff/reports/RES-010-2026-10-11T09-15-31-458Z.md"
+    },
+    "INF-002": {
+      "id": "INF-002",
+      "title": "Cho format check chạy ổn định trên checkout Windows CRLF",
+      "agent": "codex",
+      "status": "validated_local",
+      "startedAt": "2026-10-11T09:23:05.013Z",
+      "updatedAt": "2026-10-11T09:28:58.731Z",
+      "baseCommit": "ab6d6dc3dca8ee94a51255ee56e5f2fec2ddb7c0",
+      "branch": "codex/res-010-source-priority",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/INF-002-2026-10-11T09-24-05-187Z.md"
     }
   }
 }

@@ -7,6 +7,7 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 | DEL-005 | codex | needs_validation | 2026-10-11T08:53:29.317Z | [Báo cáo](reports/DEL-005-2026-10-11T08-46-49-916Z.md) |
 | DEL-011 | claude | needs_validation | 2026-10-03T13:38:43.759Z | [Báo cáo](reports/DEL-011-2026-10-03T13-35-53-129Z.md) |
 | DEL-012 | claude | needs_validation | 2026-10-02T07:15:45.320Z | [Báo cáo](reports/DEL-012-2026-10-02T07-12-39-997Z.md) |
+| INF-002 | codex | validated_local | 2026-10-11T09:28:58.731Z | [Báo cáo](reports/INF-002-2026-10-11T09-24-05-187Z.md) |
 | INF-008 | claude | needs_validation | 2026-10-04T03:20:28.474Z | [Báo cáo](reports/INF-008-2026-10-04T03-16-56-295Z.md) |
 | PAY-007 | claude | needs_validation | 2026-10-02T05:15:55.060Z | [Báo cáo](reports/PAY-007-2026-10-02T05-13-01-317Z.md) |
 | RES-005 | claude | needs_validation | 2026-10-04T07:55:23.348Z | [Báo cáo](reports/RES-005-2026-10-04T07-51-14-326Z.md) |
