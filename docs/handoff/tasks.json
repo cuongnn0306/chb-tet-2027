@@ -1390,6 +1390,26 @@
         "tests/unit/transfers/transfers.test.ts"
       ],
       "latestReport": "docs/handoff/reports/TRF-001-2026-10-04T14-59-42-545Z.md"
+    },
+    "RES-010": {
+      "id": "RES-010",
+      "title": "Ghi nhận acceptance đã kiểm thử trên nhánh tích hợp RES-010",
+      "agent": "codex",
+      "status": "needs_validation",
+      "startedAt": "2026-10-11T09:15:27.504Z",
+      "updatedAt": "2026-10-11T09:20:29.554Z",
+      "baseCommit": "b4323e081969f3eb194ce08a8de6fef814054d0c",
+      "branch": "codex/res-010-source-priority",
+      "preExistingChanges": [
+        "docs/exec-plans/active/RES-010-source-priority.md",
+        "docs/handoff/STATUS.md",
+        "docs/handoff/reports/RES-010-2026-10-11T09-09-41-386Z.json",
+        "docs/handoff/reports/RES-010-2026-10-11T09-09-41-386Z.md",
+        "docs/handoff/tasks.json",
+        "supabase/migrations/20261003044700_transfer_source_priority.sql",
+        "tests/integration/transfer-source-priority.test.ts"
+      ],
+      "latestReport": "docs/handoff/reports/RES-010-2026-10-11T09-15-31-458Z.md"
     }
   }
 }
