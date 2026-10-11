@@ -513,6 +513,51 @@ const editDelivery = (
   })
 
 describe('allocation survives edits of a not-yet-dispatched delivery (DEL-005)', () => {
+  it('does not let stale attribution claim a sibling’s newly reserved stock after source edits', async () => {
+    const w = await world(5, 10)
+    const order = await confirmedOrder(w, 10)
+    const d1 = (await plan(order, 5, w.x)).data
+    const d2 = (await plan(order, 5, w.y)).data
+    expect((await allocate(warehouse, d1.id)).data).toMatchObject({ allocated_total: 5 })
+    expect((await allocate(warehouse, d2.id)).data).toMatchObject({ allocated_total: 5 })
+
+    // D1's first X attribution stays in history when its five held units move to Y.
+    expect((await editDelivery(order, d1.id, 5, w.y)).error).toBeNull()
+    expect((await allocate(warehouse, d1.id)).data).toMatchObject({
+      allocated_total: 5,
+      released_total: 5,
+    })
+    expect(await reservedAt(order.itemId, w.x)).toBe(0)
+
+    // Both deliveries return to X, but only D2 receives a new five-unit reservation there.
+    expect((await editDelivery(order, d1.id, 5, w.x)).error).toBeNull()
+    expect((await editDelivery(order, d2.id, 5, w.x)).error).toBeNull()
+    expect((await allocate(warehouse, d2.id)).data).toMatchObject({
+      allocated_total: 5,
+      released_total: 5,
+    })
+    expect(await reservedAt(order.itemId, w.x)).toBe(5)
+    expect((await step(warehouse, d1.id, 'ready')).error).toBeNull()
+    expect((await step(warehouse, d2.id, 'ready')).error).toBeNull()
+
+    // The old history plus D2's new claim exceeds the live X hold: neither may take the other’s five.
+    for (const d of [d1, d2]) {
+      const result = await step(warehouse, d.id, 'dispatch')
+      expect(result.error?.message).toMatch(/lịch sử phân bổ.*vượt lượng đang giữ/)
+    }
+    expect(await soldFor(d1.id)).toEqual([])
+    expect(await soldFor(d2.id)).toEqual([])
+
+    await addStock(w.productId, w.x, 5)
+    expect((await allocate(warehouse, d2.id)).data).toMatchObject({
+      allocated_total: 5,
+      released_total: 5,
+    })
+    expect((await step(warehouse, d1.id, 'dispatch')).error).toBeNull()
+    expect((await step(warehouse, d2.id, 'dispatch')).error).toBeNull()
+    expect((await rpc(admin, 'verify_inventory_balances')).data).toEqual([])
+  })
+
   it('does not report coverage for a source whose reservation was released (A -> B -> A)', async () => {
     const w = await world()
     const order = await confirmedOrder(w, 5)

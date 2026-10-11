@@ -885,21 +885,15 @@
     },
     "DEL-005": {
       "id": "DEL-005",
-      "title": "Chặn dispatch nếu delivery chưa đủ phân bổ riêng tại kho nguồn và lô hợp lệ",
+      "title": "Chặn dispatch khi lịch sử phân bổ của các delivery vượt tồn giữ thực tế",
       "agent": "codex",
       "status": "needs_validation",
-      "startedAt": "2026-10-11T07:53:34.960Z",
-      "updatedAt": "2026-10-11T07:59:21.674Z",
-      "baseCommit": "2df547eb543c7fdbb372739e0fcadfb106800462",
-      "branch": "",
-      "preExistingChanges": [
-        "docs/architecture/TECH_DESIGN_v1.0.md",
-        "docs/delivery/IMPLEMENTATION_INFRA_PLAN_v1.0.md",
-        "docs/product/OWNER_DECISIONS_2026-10-11.md",
-        "docs/product/PRD_UIUX_v1.1.md",
-        "docs/reviews/2026-10-11-open-rules-proposal.md"
-      ],
-      "latestReport": "docs/handoff/reports/DEL-005-2026-10-11T07-57-30-636Z.md"
+      "startedAt": "2026-10-11T08:05:10.198Z",
+      "updatedAt": "2026-10-11T08:08:24.178Z",
+      "baseCommit": "9992776cabd39da7b3bc0b9bfa183da258374533",
+      "branch": "codex/del-005-dispatch-coverage",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/DEL-005-2026-10-11T08-06-27-887Z.md"
     },
     "RES-005": {
       "id": "RES-005",

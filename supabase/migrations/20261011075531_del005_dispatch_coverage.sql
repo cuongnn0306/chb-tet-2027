@@ -14,6 +14,8 @@ declare
   v_line record;
   v_count int := 0;
   v_logistics int;
+  v_claimed int;
+  v_held int;
 begin
   select * into v_delivery from public.deliveries where id = p_delivery_id;
   if not found then
@@ -34,6 +36,33 @@ begin
     order by p.sku
   loop
     v_count := v_count + 1;
+    -- Attribution rows are immutable history. After a source/quantity edit, old rows
+    -- can outnumber the live reservation and the coverage waterfall must not let an
+    -- earlier sibling claim stock newly reserved for this delivery. Redispatch uses
+    -- its already committed batch binding instead of reinterpreting history.
+    if v_delivery.dispatched_at is null then
+      select coalesce(sum(least(di2.quantity, coalesce(a.qty, 0))), 0)::int
+      into v_claimed
+      from public.delivery_items di2
+      join public.deliveries d2 on d2.id = di2.delivery_id
+      left join lateral (
+        select sum(a2.quantity)::int as qty
+        from public.delivery_stock_allocations a2
+        where a2.delivery_id = d2.id and a2.order_item_id = di2.order_item_id
+          and a2.location_id = v_delivery.source_location_id
+      ) a on true
+      where di2.order_item_id = v_line.order_item_id
+        and d2.source_location_id = v_delivery.source_location_id
+        and d2.status not in ('DELIVERED', 'CANCELLED');
+      v_held := private.reserved_physical_qty(
+        v_line.order_item_id, v_delivery.source_location_id
+      );
+      if v_claimed > v_held then
+        raise exception 'Chưa thể xác định phần hàng giữ riêng cho đợt giao % tại kho %: lịch sử phân bổ % vượt lượng đang giữ % của %. Admin/Kho cần đối soát hoặc phân bổ thêm trước khi xuất.',
+          v_delivery.delivery_code, v_line.location_code, v_claimed, v_held, v_line.sku
+          using errcode = 'P0001';
+      end if;
+    end if;
     if v_line.gap > 0 then
       v_logistics := private.delivery_logistics_qty(
         v_line.order_item_id, v_delivery.source_location_id, p_delivery_id

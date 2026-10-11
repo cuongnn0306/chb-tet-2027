@@ -112,6 +112,14 @@ returns SKU, shortage and source warehouse with a prompt to allocate or transfer
 only through `transition_delivery`; delivery audit stays in the existing transition trigger. DB/RLS types do not
 change. Full validation, review, mobile and staging evidence are recorded in the task report, not inferred here.
 
+Follow-up audit: immutable attribution history can overclaim live stock after deliveries change source. Example:
+D1 allocated at X, moved to Y (X hold released), then returns to X; D2 subsequently gets the only new X hold.
+The existing waterfall can credit D1's old row and let it dispatch against D2's hold. Before a **first** dispatch,
+the guard now refuses ambiguous lines where the sum of open deliveries' capped historical attributions at this
+source exceeds the live physical reservation. It names the warehouse/SKU and directs Admin/Kho to reconcile or
+allocate more. A redispatch retains its already committed batch binding and skips this ambiguity preflight. The
+new A → B → A + sibling regression is in the integration suite; DB execution remains required.
+
 ## Status
 
 First attempt: validated locally (report `DEL-005-2026-10-03T18-30-17-742Z`, `needs_validation`): lint, typecheck,
