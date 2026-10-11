@@ -41,3 +41,8 @@ failed on 297 inherited files; the RES-010 test and this plan pass scoped
 Prettier. No UI files changed, and final mobile, staging and independent review
 remain unverified. The acceptance evidence is recorded in a fresh report after
 this plan update; RES-010 is not Done.
+
+The unrelated Windows line-ending check failure was addressed separately under
+INF-002 (commit `006d69b`, full local pipeline passed). A fresh RES-010
+`task:start`/`task:finish` now verifies the combined source with the standard
+repository-wide format check; no RES-010 SQL or test behavior changed.
