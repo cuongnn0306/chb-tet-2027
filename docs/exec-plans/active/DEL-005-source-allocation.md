@@ -88,7 +88,8 @@ PREPARING/READY deliveries. Sales never see it. Pure rules in `src/domain/delive
 - `assert_delivery_stock` (dispatch gate) is unchanged: it still checks the pooled reservation at the source net of
   goods in logistics, not the per-delivery attribution. A delivery that was not allocated can still dispatch while the
   pool covers it; the per-delivery coverage is advisory in the UI and enforced by the allocation RPC. Tightening the
-  gate would change an existing RPC contract and needs a decision.
+  gate would change an existing RPC contract and needs a decision. **Owner approved this change on 11/10/2026**;
+  the new attempt below supersedes this historical open decision.
 - Expired/deactivated dispatched stock and goods returned after a failed delivery (RV-05 / DEL-012 open decisions) are
   not changed.
 - `src/types/database.generated.ts` is **not regenerated and is a known blocker for the coordinator**: `task:finish`
@@ -96,6 +97,20 @@ PREPARING/READY deliveries. Sales never see it. Pure rules in `src/domain/delive
   allowed for this task. The coordinator must arrange pipeline-owned generation separately after the migrations
   are applied. Until then the new RPCs/table are called through the existing untyped RPC helper, so the build does
   not depend on it.
+
+## Owner-approved dispatch gate — Codex attempt 11/10/2026
+
+Source: `docs/product/OWNER_DECISIONS_2026-10-11.md` §6 and TECH_DESIGN §7. The dispatch RPC must require
+`private.delivery_stock_coverage` to show no gap for every line of the **specific** delivery at its current source.
+The existing order-row lock serialises sibling dispatches. The existing FEFO binder assigns exact valid batches
+within the same transaction; if binding or sellability fails, no status/audit/binding is committed. An order-wide
+pool is usable only when its share can be bound to this delivery. No reservation of a sibling can count as coverage.
+
+Scope: additive migration `20261011075531_del005_dispatch_coverage.sql` replaces the private dispatch guard,
+and integration regressions cover competing deliveries and pool binding. No new UI role, state or bypass. The guard
+returns SKU, shortage and source warehouse with a prompt to allocate or transfer. Its action is still Admin/Warehouse
+only through `transition_delivery`; delivery audit stays in the existing transition trigger. DB/RLS types do not
+change. Full validation, review, mobile and staging evidence are recorded in the task report, not inferred here.
 
 ## Status
 

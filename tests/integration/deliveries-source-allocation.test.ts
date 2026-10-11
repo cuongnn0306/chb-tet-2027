@@ -200,6 +200,70 @@ const soldFor = async (deliveryId: string) =>
   ).map((m) => ({ batch: m.batch_id, qty: m.quantity, from: m.from_location_id }))
 
 describe('allocation per delivery and source location (DEL-005, RV-06)', () => {
+  it('blocks a sibling from dispatching against another delivery’s coverage, including concurrent attempts', async () => {
+    const w = await world(5, 5)
+    const order = await confirmedOrder(w, 10)
+    expect(
+      (await rpc(admin, 'allocate_order', { p_order_id: order.id, p_location_id: w.x })).error,
+    ).toBeNull()
+    expect(
+      (await rpc(admin, 'allocate_order', { p_order_id: order.id, p_location_id: w.y })).error,
+    ).toBeNull()
+    const d1 = (await plan(order, 5, w.x)).data
+    const d2 = (await plan(order, 5, w.x)).data
+    expect((await step(warehouse, d1.id, 'ready')).error).toBeNull()
+    expect((await step(warehouse, d2.id, 'ready')).error).toBeNull()
+
+    const [first, second] = await Promise.all([
+      step(warehouse, d1.id, 'dispatch'),
+      step(admin, d2.id, 'dispatch'),
+    ])
+    expect(first.error).toBeNull()
+    expect(second.error?.message).toMatch(/thiếu 5.*kho.*phân bổ.*điều chuyển/)
+    expect(
+      (await svc().from('deliveries').select('status').eq('id', d2.id).single()).data?.status,
+    ).toBe('READY')
+    expect(await soldFor(d1.id)).toEqual([])
+    expect(await soldFor(d2.id)).toEqual([])
+    expect(await reservedAt(order.itemId, w.x)).toBe(5)
+
+    await addStock(w.productId, w.x, 5)
+    expect((await allocate(warehouse, d2.id)).data).toMatchObject({
+      fully_allocated: true,
+      allocated_total: 5,
+      released_total: 5,
+    })
+    expect((await step(warehouse, d2.id, 'dispatch')).error).toBeNull()
+    expect((await rpc(admin, 'verify_inventory_balances')).data).toEqual([])
+  })
+
+  it('binds pooled stock to the delivery that dispatches before counting it as exported', async () => {
+    const w = await world(10, 0)
+    const order = await confirmedOrder(w, 10)
+    expect((await rpc(admin, 'allocate_order', { p_order_id: order.id })).error).toBeNull()
+    const d1 = (await plan(order, 5, w.x)).data
+    const d2 = (await plan(order, 5, w.x)).data
+    expect((await step(warehouse, d2.id, 'ready')).error).toBeNull()
+    expect((await step(warehouse, d2.id, 'dispatch')).error).toBeNull()
+
+    const { data: d2Items } = await svc()
+      .from('delivery_items')
+      .select('id')
+      .eq('delivery_id', d2.id)
+    const { data: bound } = await svc()
+      .from('delivery_item_batches')
+      .select('quantity')
+      .eq('delivery_item_id', d2Items?.[0]?.id as string)
+    expect(bound?.reduce((sum, row) => sum + row.quantity, 0)).toBe(5)
+    expect(await soldFor(d2.id)).toEqual([])
+
+    await goOut(d1.id)
+    expect((await step(warehouse, d2.id, 'deliver')).error).toBeNull()
+    expect((await step(warehouse, d1.id, 'deliver')).error).toBeNull()
+    expect((await itemRow(order.itemId))?.delivered_quantity).toBe(10)
+    expect((await rpc(admin, 'verify_inventory_balances')).data).toEqual([])
+  })
+
   it('splits one SKU across two warehouses and never reserves twice', async () => {
     const w = await world()
     const order = await confirmedOrder(w, 10)
