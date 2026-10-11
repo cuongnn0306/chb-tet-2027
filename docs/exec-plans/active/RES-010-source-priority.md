@@ -46,3 +46,8 @@ The unrelated Windows line-ending check failure was addressed separately under
 INF-002 (commit `006d69b`, full local pipeline passed). A fresh RES-010
 `task:start`/`task:finish` now verifies the combined source with the standard
 repository-wide format check; no RES-010 SQL or test behavior changed.
+
+Static mobile impact and source provenance are recorded in
+`docs/reviews/2026-10-11-RES010-mobile-and-source-review.md`. The existing
+suggestion response and UI rendering contract are unchanged; an actual mobile
+viewport check, independent final review and staging UAT remain open.

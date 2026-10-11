@@ -1393,15 +1393,15 @@
     },
     "RES-010": {
       "id": "RES-010",
-      "title": "Xác minh RES-010 sau khi sửa format check cross-platform",
+      "title": "Ghi nhận mobile impact và truy xuất nguồn bản sửa RES-010",
       "agent": "codex",
-      "status": "validated_local",
-      "startedAt": "2026-10-11T09:29:23.758Z",
-      "updatedAt": "2026-10-11T09:35:08.466Z",
-      "baseCommit": "006d69b5e4ecaba51889a1549d3a61880ccd0d5e",
+      "status": "needs_validation",
+      "startedAt": "2026-10-11T15:48:16.215Z",
+      "updatedAt": "2026-10-11T15:51:18.931Z",
+      "baseCommit": "107b0891059cd21bb34eae3abcd381fca1a5d72a",
       "branch": "codex/res-010-source-priority",
       "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/RES-010-2026-10-11T09-29-59-737Z.md"
+      "latestReport": "docs/handoff/reports/RES-010-2026-10-11T15-48-48-068Z.md"
     },
     "INF-002": {
       "id": "INF-002",
