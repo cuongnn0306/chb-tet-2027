@@ -314,6 +314,8 @@ Ví dụ:
 
 Không hard-code.
 
+Khi dời một đợt **chưa xuất kho** ra ngoài thời gian phân bổ, hệ thống chỉ giải phóng phần tồn vật lý đã gắn riêng cho đợt đó; nhu cầu tương lai đã xác nhận vẫn còn. Đợt giao trở lại cửa sổ được phân bổ lại theo FEFO, kho nguồn và safety stock. Nếu không xác định được phần giữ riêng trong pool chung, báo Admin/Kho đối soát và không dời lịch một phần. Đợt đã xuất kho không tự giải phóng tồn khi dời lịch.
+
 ---
 
 # 9. GIỮ HÀNG TẠM THỜI
@@ -609,6 +611,17 @@ GIAO THẤT BẠI
 
 Không tích hợp Grab/Ahamove V1.
 
+## 16.2 Giao thất bại và hàng quay về kho — quyết định Owner 11/10/2026
+
+- Hàng giao thất bại quay về đúng kho đã xuất giao. Account tạo đơn xác nhận việc giao thất bại và việc đưa hàng về kho; Kho kiểm đếm số lượng/lô thực nhận và đưa hàng vào `Pending Inspection` trước khi quyết định bán lại hay ghi nhận hỏng.
+- Việc nhận lại phải lưu người xác nhận, người kiểm đếm, thời gian, lý do, kho và lô. Hàng đang trong logistics chưa được ghi `SALE_OUT`; nhận lại không được cộng tồn lần thứ hai hoặc âm thầm giải phóng hàng giữ trước khi Kho xác nhận thực nhận.
+- Lô hết hạn sau khi rời kho **không tự động thu hồi**. Admin phối hợp Account và Kho xử lý từng trường hợp, ghi quyết định và lý do. Trong khi chưa có quyết định, hệ thống không tự đánh dấu giao thành công hoặc đưa lô vào tồn có thể bán.
+
+## 16.3 Điều kiện xuất kho theo đợt — quyết định Owner 11/10/2026
+
+- Chỉ xuất một đợt `READY` khi chính đợt đó đã được phân bổ đủ từng SKU/số lượng ở kho xuất hiện tại và gắn lô hợp lệ. Hàng giữ cho đợt khác không được tính thay. Hàng giữ chung chỉ được tính sau khi hệ thống gắn chính xác cho đợt sắp xuất.
+- Nếu thiếu, màn hình nêu rõ SKU, số lượng và kho thiếu, đồng thời gợi ý phân bổ lại hoặc điều chuyển. Không có nút bỏ qua điều kiện xuất.
+
 ---
 
 # 17. DELIVERY CALENDAR
@@ -740,6 +753,13 @@ Hoa hồng chỉ được ghi nhận khi:
 - Order = Hoàn thành
 - Remaining Amount = 0
 
+## 19.4 Chốt tỷ lệ hoa hồng — quyết định Owner 11/10/2026
+
+- Trước khi Admin xác nhận đơn, hoa hồng hiển thị là **dự kiến** và có thể thay đổi theo quy tắc đang hiệu lực.
+- Tại lần đầu đơn chuyển sang `CONFIRMED`, hệ thống chốt tỷ lệ áp dụng cho từng dòng sản phẩm và lưu bằng chứng quy tắc/tỷ lệ tại thời điểm đó. Thay đổi tỷ lệ hoặc vai trò về sau không viết lại hoa hồng lịch sử của đơn đã xác nhận.
+- Khi hoàn một phần, giảm doanh số theo giá niêm yết của đúng số lượng nhận hoàn và giảm hoa hồng tương ứng. Chiết khấu cấp đơn được phân bổ theo tỷ trọng giá trị niêm yết từng dòng; tiền tính bằng VND nguyên, phân bổ phần làm tròn có quy tắc cố định để tổng khớp chiết khấu gốc.
+- Chỉ khi đơn hoàn thành và đã thu đủ tiền, hoa hồng mới đủ điều kiện nhận. Điều chỉnh do hàng hoàn phải lưu lịch sử; Admin duyệt các ngoại lệ và quyết toán/chi trả.
+
 ---
 
 # 20. RETURN / EXCHANGE
@@ -764,6 +784,12 @@ Khi Return:
 
 - Giảm doanh số tương ứng
 - Giảm hoa hồng tương ứng
+
+## 20.1.1 Hoàn một phần và quyền thao tác — quyết định Owner 11/10/2026
+
+- Chỉ tạo yêu cầu hoàn **chưa** đổi trạng thái đơn và chưa giảm doanh số/hoa hồng.
+- Khi Kho thực nhận hàng, yêu cầu chuyển sang `RECEIVED_PENDING_INSPECTION`, hàng vào `Pending Inspection` và đơn `COMPLETED` chuyển sang `RETURNED` kể cả khi chỉ hoàn một phần. Giao diện phải ghi rõ **Hoàn một phần**, số lượng đã hoàn và số lượng khách còn giữ; giao dịch gốc không bị viết lại. Doanh số và hoa hồng giảm tại mốc thực nhận, không chờ quyết định bán lại/hỏng. Tiền hoàn cho khách là giao dịch thanh toán riêng.
+- Account phụ trách đơn hoặc người tạo đơn và Admin được tạo yêu cầu hoàn, xem các yêu cầu thuộc đơn mình; Admin xem toàn bộ. Kho tại điểm nhận xem yêu cầu liên quan, xác nhận số lượng/lô thực nhận và kết quả kiểm tra. Account không tự xác nhận nhập kho hay đưa hàng về tồn có thể bán. Các điều chỉnh ngoại lệ về tiền/hoa hồng do Admin duyệt và được audit.
 
 ## 20.2 Đổi hàng
 
@@ -822,6 +848,13 @@ Audit áp dụng cho:
 - Bánh đã bán
 - Đơn đã hoàn thành
 - Đơn hủy
+
+## 22.1.1 Mốc thời gian và quy doanh số/KPI — quyết định Owner 11/10/2026
+
+- Doanh số niêm yết ghi một lần theo **ngày xác nhận đơn** (`confirmed_at`), bằng giá niêm yết × số lượng. Đơn nháp không tính; giao nhiều đợt không ghi doanh số đơn nhiều lần. Giữ riêng khoản giảm do hàng hoàn theo **ngày Kho thực nhận** để báo cáo theo ngày không âm thầm sửa lịch sử.
+- Tiền thực thu ghi theo ngày xác nhận từng khoản thanh toán; tiền hoàn cho khách ghi giảm theo ngày hoàn tiền. Luôn hiển thị riêng doanh số niêm yết, khoản giảm hàng hoàn và tiền thực thu.
+- KPI giao hàng tính theo từng đợt và ngày giao thực tế. KPI nhân viên quy cho account phụ trách, cùng kênh/nguồn/điểm tạo đơn đã lưu khi xác nhận; thay đổi người phụ trách về sau cần điều chỉnh có audit, không tự ghi lại kỳ cũ.
+- Đơn đã xác nhận rồi hủy/vô hiệu hóa ghi một khoản giảm gross/net đúng một lần vào ngày hủy/vô hiệu hóa; không sửa kỳ xác nhận. Đơn hủy trước xác nhận không tạo doanh số hoặc khoản giảm. Dashboard tách doanh số đơn xác nhận, giảm do hủy/vô hiệu hóa, giảm do hàng hoàn, doanh số sau điều chỉnh và tiền thực thu. Tổng lũy kế phải đối soát với trạng thái đơn hiện tại.
 
 ## 22.2 Inventory
 

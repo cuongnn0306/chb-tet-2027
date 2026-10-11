@@ -63,6 +63,9 @@ PRODUCTION
 | Cập nhật sản xuất | ✓ |  |  |  |  | ✓ |
 | Xem hoa hồng bản thân | ✓ | ✓ | ✓ | ✓ |  |  |
 | Xem toàn bộ hoa hồng | ✓ |  |  |  |  |  |
+| Tạo/xem yêu cầu hoàn của đơn mình | ✓ | ✓ | ✓ | ✓ |  |  |
+| Xác nhận hàng hoàn tại kho nhận, kiểm tra lô | ✓ |  |  |  | ✓ |  |
+| Xem mọi yêu cầu hoàn, duyệt điều chỉnh ngoại lệ | ✓ |  |  |  |  |  |
 | Settings | ✓ |  |  |  |  |  |
 | Audit log | ✓ |  |  |  |  |  |
 
@@ -656,6 +659,10 @@ Status:
 - DAMAGED
 - CLOSED
 
+Quyền: Admin hoặc `orders.owner_user_id`/`orders.created_by` được tạo và xem yêu cầu hoàn của đơn tương ứng. Kho chỉ xem yêu cầu gắn với kho nhận của mình và xác nhận thực nhận/kiểm tra; Admin xem toàn bộ và duyệt điều chỉnh ngoại lệ. Kiểm tra quyền ở RPC/RLS, không chỉ tại giao diện.
+
+Tạo `REQUESTED` không đổi `orders.status` hay số liệu doanh số/hoa hồng. Khi Kho xác nhận thực nhận, transaction nguyên tử chuyển return sang `RECEIVED_PENDING_INSPECTION`, ghi hàng `Pending Inspection`, tăng `order_items.returned_quantity` đúng lượng thực nhận và chuyển đơn `COMPLETED` sang `RETURNED` kể cả hoàn một phần. Lượng hoàn cộng dồn không vượt lượng đã giao. Giảm doanh số/hoa hồng tại mốc này bằng bản ghi điều chỉnh bất biến; kết quả kiểm tra `RESTOCKED`/`DAMAGED` chỉ quyết định tình trạng tồn, không tạo lần giảm doanh số thứ hai. Giao diện phân biệt hoàn một phần bằng số lượng đã hoàn và số lượng khách còn giữ.
+
 ---
 
 ## 3.25 `return_items`
@@ -828,7 +835,7 @@ stateDiagram-v2
     CONFIRMED --> CANCELLED
     RESERVED --> CANCELLED
 
-    COMPLETED --> RETURNED: Return created
+    COMPLETED --> RETURNED: Warehouse receives returned items (partial or full)
     COMPLETED --> EXCHANGED: Exchange workflow
     DRAFT --> VOIDED: Admin
     WAITING_CONFIRMATION --> VOIDED: Admin
@@ -930,7 +937,10 @@ Rule:
 
 - `DELIVERED` → tạo `SALE_OUT` nếu chưa ghi nhận.
 - `FAILED` → không tự trả tồn; hàng vẫn theo trạng thái logistics cho tới khi kho nhận lại.
-- Reschedule được tạo lịch mới hoặc cập nhật lịch cùng delivery tùy chính sách vận hành.
+- Với `FAILED`, account đã tạo đơn xác nhận hàng quay về đúng kho xuất giao; Kho xác nhận thực nhận số lượng/lô trước khi chuyển sang `Pending Inspection`. Ghi sự kiện nhận lại, người xác nhận, người kiểm đếm, thời gian, lý do và audit; giải phóng đúng logistics footprint/hold khi thực nhận, không tạo `RETURN_IN` hoặc cộng tồn vật lý thêm lần nữa vì `SALE_OUT` chưa xảy ra. Thiết kế RPC/migration riêng trước khi dùng luồng này.
+- Lô hết hạn sau khi rời kho không tự động thu hồi. Trường hợp chưa giải quyết không được tự đánh dấu `DELIVERED` hay thành tồn bán được. Admin ghi quyết định xử lý từng trường hợp cùng Account/Kho, có lý do và audit; không có cơ chế tự động vượt kiểm tra lô.
+- `READY` → `OUT_FOR_DELIVERY` yêu cầu coverage đủ từng SKU/số lượng của **chính delivery** tại `source_location_id` hiện tại, với batch hợp lệ. Không tính reservation của delivery khác. Pool chung chỉ được tính sau khi gắn lượng/lô cho delivery này trong cùng transaction; thiếu coverage thì chặn xuất và trả thiếu hàng/kho cùng gợi ý phân bổ hoặc điều chuyển. Không có bypass. Lock phần tồn/giữ liên quan để hai delivery không cùng tiêu thụ số lượng cuối; audit quyết định xuất.
+- Reschedule được tạo lịch mới hoặc cập nhật lịch cùng delivery tùy chính sách vận hành. Nếu `dispatched_at IS NULL` và `scheduled_date - allocation_lead_days` mới lớn hơn ngày nghiệp vụ Việt Nam, trong cùng transaction giải phóng đúng physical hold gắn với delivery, giữ future demand/TTL/lịch sử và audit. Không giải phóng pool chung chưa quy được cho delivery; chặn để Admin/Kho đối soát. Job phân bổ lại theo FEFO/kho nguồn/safety stock khi trở lại cửa sổ. Delivery đã xuất kho không tự giải phóng khi dời lịch; hàng giao thất bại theo quy trình nhận lại.
 
 ---
 
@@ -1039,29 +1049,36 @@ stateDiagram-v2
     FINALIZED --> REVERSED: Adjustment with audit
 ```
 
+Tại lần đầu đơn chuyển sang `CONFIRMED`, chốt tỷ lệ hoa hồng đã resolve cho từng `order_item` cùng bằng chứng quy tắc/nhân viên áp dụng. Trước đó `ESTIMATED` là tạm tính theo rule đang hiệu lực; sau đó đổi rule hoặc vai trò không viết lại snapshot. Cần migration và test cho snapshot trước khi triển khai COM-002/003; không tính lịch sử từ rule hiện tại. Hoa hồng chỉ `ELIGIBLE` khi đơn hoàn thành và đã thu đủ. Hàng hoàn thực nhận tạo điều chỉnh bất biến, kể cả khi hoa hồng đã `FINALIZED`; Admin duyệt ngoại lệ và quyết toán.
+
+Chiết khấu cấp đơn được phân bổ theo tỷ trọng `gross_line_amount` của từng dòng. Mọi tiền là VND nguyên; thuật toán làm tròn/phần dư phải cố định và bảo toàn tổng chiết khấu. Hoàn một phần giảm doanh số theo giá niêm yết của số lượng thực nhận, đồng thời đảo phần hoa hồng gốc trừ phần chiết khấu đã phân bổ cho số lượng đó; tổng điều chỉnh nhiều lần không vượt snapshot gốc.
+
 ---
 
 # 13. DASHBOARD CALCULATION DEFINITIONS
 
-## Gross Sales
+## Gross Sales / Net Sales theo sự kiện
 
 ```text
-SUM(order.gross_amount)
-WHERE status not in CANCELLED, VOIDED
+Tại confirmed_at: +order.gross_amount và +order.net_amount, một lần mỗi order
+Nếu đơn đã xác nhận chuyển CANCELLED/VOIDED:
+  tại cancelled_at/voided_at: -order.gross_amount và -order.net_amount, đúng một lần
+Tại ngày Kho thực nhận hàng hoàn: giảm riêng gross của số lượng thực nhận,
+  giảm riêng net bằng gross hoàn trừ phần chiết khấu tương ứng
 ```
 
-## Net Sales
+Không viết lại kỳ xác nhận khi hủy/vô hiệu hóa hoặc hoàn. Hủy/vô hiệu hóa trước xác nhận không tạo dòng doanh số/đảo. Dòng đảo giữ attribution đã chốt khi xác nhận; reason và audit theo state machine. Đơn đã thu tiền chỉ được hủy/vô hiệu hóa sau khi xử lý khoản thu theo quy trình refund/void hiện hành. Báo cáo tách doanh số đơn xác nhận, giảm do hủy/vô hiệu hóa, giảm do hàng hoàn, doanh số sau điều chỉnh và tiền thực thu; mọi tiền là VND nguyên.
 
-```text
-SUM(order.net_amount)
-WHERE status not in CANCELLED, VOIDED
-```
+Tổng lũy kế theo sự kiện sau điều chỉnh phải đối soát với tổng hiện trạng loại đơn `CANCELLED`/`VOIDED` và trừ hàng hoàn hợp lệ. Bộ tổng hiện trạng có thể lọc status, nhưng truy vấn chuỗi thời gian **không** lọc bỏ sự kiện xác nhận của đơn hủy vì sẽ xóa lịch sử kỳ gốc. Chặn phát sinh dòng đảo lặp khi thao tác hủy được gọi lại.
 
 ## Cash Collected
 
 ```text
-SUM(CONFIRMED payments)
+SUM(CONFIRMED payments) theo ngày xác nhận từng khoản
+- SUM(refunds) theo ngày hoàn tiền
 ```
+
+Không gộp doanh số niêm yết với tiền thực thu. KPI giao hàng dùng từng delivery theo ngày `delivered_at`; KPI theo nhân viên/kênh/nguồn/điểm tạo đơn dùng attribution đã lưu khi xác nhận và không tự viết lại kỳ cũ khi người phụ trách đổi. Đơn nháp không tính doanh số; nhiều delivery của cùng đơn không ghi doanh số đơn nhiều lần.
 
 ## Units Sold
 
@@ -1680,9 +1697,9 @@ Không để component React chứa business logic quan trọng.
 
 ## `dispatch_delivery()`
 
-- Validate reservation
-- Consume reserved inventory
-- Create SALE_OUT
+- Validate coverage riêng từng SKU của delivery tại kho xuất và batch hợp lệ; gắn phần pool chung nguyên tử nếu đủ
+- Chuyển phần giữ đã gắn sang logistics footprint, ghi `dispatched_at` và audit trong cùng transaction
+- Không tạo `SALE_OUT` tại dispatch; chỉ ghi một lần khi `DELIVERED`. Nếu `FAILED`, chờ quy trình Kho nhận lại
 
 ## `approve_transfer()`
 

@@ -586,6 +586,8 @@ Admin only + audit.
 
 ## DEL-005 — Source location selection
 
+Quyết định Owner 11/10/2026: dispatch chỉ được phép khi delivery sắp xuất đủ coverage riêng từng SKU/số lượng tại kho nguồn hiện tại và batch hợp lệ. Pool chung phải gắn nguyên tử cho delivery trước khi tính; không dùng hold của delivery khác, không bypass. Kiểm thử thiếu hàng, hai delivery tranh lượng cuối, nhiều kho, batch hết hạn/ngừng dùng, quyền và audit.
+
 ## DEL-006 — Delivery status state machine
 
 ## DEL-007 — Today view
@@ -601,6 +603,8 @@ Admin only + audit.
 ## DEL-012 — Failed delivery
 
 ## DEL-013 — Reschedule
+
+Quyết định Owner 11/10/2026: chỉ delivery chưa xuất kho được giải phóng đúng physical hold của mình khi ngày mới vượt `allocation_lead_days` theo ngày nghiệp vụ Việt Nam. Giữ future demand, TTL và lịch sử; pool chưa quy được thì chặn để đối soát. Dời lịch và giải phóng nguyên tử/audit; khi vào cửa sổ phân bổ lại theo FEFO/kho nguồn/safety stock. Kiểm thử ranh ngày, delivery anh em, pool chung, đổi kho, đã xuất kho và race với auto-allocation.
 
 ## DEL-014 — Print delivery note
 
@@ -690,7 +694,11 @@ Committed Demand
 
 ## RET-001 — Return request
 
+Admin hoặc account phụ trách/người tạo đơn được tạo và xem yêu cầu thuộc đơn mình; Kho tại điểm nhận xem để xử lý thực nhận/kiểm tra.
+
 ## RET-002 — Receive pending inspection
+
+Chỉ khi Kho xác nhận số lượng/lô thực nhận mới chuyển đơn `COMPLETED` → `RETURNED` (kể cả hoàn một phần), đưa hàng vào `Pending Inspection`, tạo điều chỉnh doanh số/hoa hồng bất biến. Yêu cầu mới tạo không đổi đơn hay KPI.
 
 ## RET-003 — Inspection
 
@@ -727,6 +735,8 @@ Priority:
 
 ## COM-002 — Estimated commission
 
+Tạm tính trước xác nhận; tỷ lệ theo từng dòng được snapshot ở lần đầu Admin xác nhận đơn. Không hồi tính từ rule hoặc vai trò hiện tại.
+
 ## COM-003 — Eligible commission
 
 Chỉ khi:
@@ -756,6 +766,8 @@ Chỉ khi:
 # E12 — DASHBOARD & REPORTS
 
 ## RPT-001 — KPI definitions
+
+Ngày xác nhận đơn cho doanh số gross/net; ngày Kho nhận hàng hoàn cho khoản giảm; ngày xác nhận thanh toán/hoàn tiền cho dòng tiền; ngày giao thực tế cho delivery KPI. Attribution người phụ trách/kênh/nguồn/điểm tạo đơn chốt khi xác nhận. Đơn đã xác nhận rồi hủy/vô hiệu hóa ghi đúng một dòng đảo gross/net tại `cancelled_at`/`voided_at` theo attribution gốc; kỳ xác nhận giữ nguyên. Đơn hủy trước xác nhận không có dòng doanh số/đảo. Dashboard và export tách doanh số xác nhận, giảm hủy/vô hiệu hóa, giảm hoàn, doanh số sau điều chỉnh và tiền thực thu; tổng lũy kế đối soát với tổng hiện trạng. Kiểm thử hủy lặp, lọc kỳ, thanh toán/hoàn tiền khác ngày và audit.
 
 ## RPT-002 — Admin dashboard
 
@@ -1379,6 +1391,8 @@ Webhook log không lưu secret/auth header.
 ---
 
 # 18. PRODUCTION ACCESS CONTROL
+
+**Owner các tài khoản nền tảng (xác nhận 11/10/2026): chủ dự án trực tiếp quản trị GitHub, Supabase Staging/Production, Vercel và SePay/tài khoản nhận tiền.** Owner cấp quyền theo vai trò, kiểm tra trạng thái repo/private và bảo vệ nhánh, tạo môi trường staging, kiểm chứng SePay Test Mode, xác nhận cấu hình production/MFA/backup trước release. Xác nhận người phụ trách không phải bằng chứng các cấu hình này đã được thiết lập hay kiểm thử.
 
 Tối thiểu:
 
