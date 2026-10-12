@@ -323,14 +323,29 @@ const newTypes = 'export type Database = { public: { Tables: { demo: never } } }
 // the test waits for their marker file before the fixture directory is removed.
 const hangChild =
   "setTimeout(()=>{require('node:fs').writeFileSync('tmp/gen-child-ended','ended')},2500)"
-// Waits for the pipeline to install `newTypes`, then immediately rewrites the file differently:
-// a concurrent edit that lands inside the generation window (before the post-generation snapshot).
-const hijackChild =
-  "const fs=require('node:fs');const f='src/types/database.generated.ts';const end=Date.now()+8000;" +
-  'const nap=()=>Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,1);' +
-  `try{while(Date.now()<end){try{if(fs.readFileSync(f,'utf8')===${JSON.stringify(newTypes)}){` +
-  "fs.writeFileSync(f,'export type Database = { hijacked: true }\\n');break}}catch{}nap()}}" +
-  "finally{try{fs.writeFileSync('tmp/hijack-done','done')}catch{}}"
+// Observe the directory rename instead of repeatedly opening the target: polling it can deny
+// Windows' atomic rename with EPERM, preventing the successful install this regression needs.
+// The mock generator waits for watcher readiness before it emits the replacement types.
+const hijackChild = `
+const fs = require('node:fs');
+const target = 'src/types/database.generated.ts';
+const finish = (result) => {
+  clearTimeout(deadline);
+  watcher.close();
+  fs.writeFileSync('tmp/hijack-done', result);
+};
+const watcher = fs.watch('src/types', (event, filename) => {
+  if (filename !== 'database.generated.ts') return;
+  try {
+    if (fs.readFileSync(target, 'utf8') !== ${JSON.stringify(newTypes)}) return;
+  } catch { return; }
+  watcher.close();
+  fs.writeFileSync(target, 'export type Database = { hijacked: true }\\n');
+  finish('hijacked');
+});
+const deadline = setTimeout(() => finish('timed_out'), 8000);
+fs.writeFileSync('tmp/hijack-ready', 'ready');
+`
 
 function typesFixture(t, { gen = 'ok', failReset = false } = {}) {
   const f = fixture(t)
@@ -361,7 +376,13 @@ if(m==='malformed'){console.log('export type Database = { public: {');process.ex
 if(m==='exec'){process.stdout.write(${JSON.stringify(newTypes)}+"console.log('side effect')\\n");process.exit(0)}
 if(m==='hang'){require('node:child_process').spawn(process.execPath,['-e',${JSON.stringify(hangChild)}],{detached:true,stdio:'ignore'}).unref();setTimeout(()=>{},10000)}
 else{
-if(m==='hijack')require('node:child_process').spawn(process.execPath,['-e',${JSON.stringify(hijackChild)}],{detached:true,stdio:'ignore'}).unref();
+if(m==='hijack'){
+require('node:child_process').spawn(process.execPath,['-e',${JSON.stringify(hijackChild)}],{detached:true,stdio:'ignore'}).unref();
+const deadline=Date.now()+8000;
+while(!fs.existsSync('tmp/hijack-ready')){
+if(Date.now()>=deadline)throw new Error('hijack watcher did not become ready');
+Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);
+}}
 if(m==='mutate')fs.writeFileSync('src/app.ts','export const version = 99\\n');
 process.stdout.write(${JSON.stringify(newTypes)})}}`,
   )
@@ -597,8 +618,9 @@ test('a concurrent edit of the types file inside the generation window is report
   assert.equal(f.start().status, 0)
   const result = f.finish(['--generate-types'])
   await waitFor(resolve(f.cwd, 'tmp/hijack-done'))
+  assert.equal(readFileSync(resolve(f.cwd, 'tmp/hijack-done'), 'utf8'), 'hijacked')
   assert.equal(result.status, 1)
-  assert.equal(f.check('generate types').status, 'pass')
+  assert.equal(f.check('generate types').status, 'pass', f.check('generate types').reason)
   assert.match(f.types(), /hijacked/)
   const stability = f.check('source stability')
   assert.equal(stability.status, 'fail')
