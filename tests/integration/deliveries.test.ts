@@ -505,4 +505,71 @@ describe('concurrency', () => {
       .eq('order_item_id', order.itemId)
     expect((data ?? []).reduce((s, r) => s + r.quantity, 0)).toBe(4)
   })
+
+  it('two simultaneous valid plans both succeed with distinct sequential codes within the order quantity (RV-09)', async () => {
+    const w = await world()
+    const order = await reservedOrder(w, 10)
+    const results = await Promise.all([plan(sale, order, 4, w), plan(sale, order, 6, w)])
+    expect(results.map((r) => r.error)).toEqual([null, null])
+    const codes = results.map((r) => r.data.delivery_code as string).sort()
+    expect(codes).toEqual([`${order.code}-01`, `${order.code}-02`])
+    const { data } = await svc()
+      .from('delivery_items')
+      .select('quantity')
+      .eq('order_item_id', order.itemId)
+    expect((data ?? []).reduce((s, r) => s + r.quantity, 0)).toBe(10)
+  })
+
+  it('two simultaneous over-quantity plans allow only the valid total and the loser fails on quantity, not on the code (RV-09)', async () => {
+    const w = await world()
+    const order = await reservedOrder(w, 5)
+    const results = await Promise.all([plan(sale, order, 4, w), plan(sale, order, 4, w)])
+    const won = results.filter((r) => r.error === null)
+    const lost = results.filter((r) => r.error !== null)
+    expect(won).toHaveLength(1)
+    expect(lost).toHaveLength(1)
+    expect(lost[0]!.error?.message).toMatch(/vượt số lượng đặt/)
+    expect(lost[0]!.error?.message).not.toMatch(/duplicate|unique|delivery_code/i)
+    expect(won[0]!.data.delivery_code).toBe(`${order.code}-01`)
+    const { data } = await svc()
+      .from('delivery_items')
+      .select('quantity')
+      .eq('order_item_id', order.itemId)
+    expect((data ?? []).reduce((s, r) => s + r.quantity, 0)).toBe(4)
+  })
+
+  it('does not truncate the code suffix beyond 99 deliveries on one order (RV-09)', async () => {
+    const w = await world()
+    const order = await reservedOrder(w, 1)
+    // Bounded setup: header rows only (no items), written directly in parallel chunks. This also
+    // exercises the per-order lock, since every insert gets its code from the guard.
+    const header = () => ({
+      delivery_code: '',
+      order_id: order.id,
+      scheduled_date: tomorrow(),
+      recipient_name: 'Người nhận',
+      recipient_phone: '0900000003',
+      delivery_address: '12 Phố Huế, Hà Nội',
+      source_location_id: w.locationId,
+    })
+    for (let chunk = 0; chunk < 3; chunk++) {
+      const res = await Promise.all(
+        Array.from({ length: 33 }, () => svc().from('deliveries').insert(header())),
+      )
+      expect(res.map((r) => r.error)).toEqual(Array(33).fill(null))
+    }
+    const hundredth = await plan(sale, order, 1, w) // the 100th delivery, planned through the RPC
+    expect(hundredth.error).toBeNull()
+    expect(hundredth.data.delivery_code).toBe(`${order.code}-100`)
+    const next = await svc().from('deliveries').insert(header()).select('delivery_code').single()
+    expect(next.error).toBeNull()
+    expect(next.data?.delivery_code).toBe(`${order.code}-101`)
+
+    const { data } = await svc().from('deliveries').select('delivery_code').eq('order_id', order.id)
+    const codes = (data ?? []).map((r) => r.delivery_code)
+    expect(codes).toHaveLength(101)
+    expect(new Set(codes).size).toBe(101)
+    expect(codes).toContain(`${order.code}-09`)
+    expect(codes).toContain(`${order.code}-99`)
+  }, 60_000)
 })
