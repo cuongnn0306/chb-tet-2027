@@ -1235,6 +1235,18 @@
       "branch": "codex/sec-003-validated-stack",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/SEC-003-2026-10-12T08-35-04-095Z.md"
+    },
+    "SEC-002": {
+      "id": "SEC-002",
+      "title": "Integrate reviewed immutable payment-event decision audit on validated stack",
+      "agent": "codex",
+      "status": "needs_validation",
+      "startedAt": "2026-10-12T16:14:42.613Z",
+      "updatedAt": "2026-10-12T16:21:38.496Z",
+      "baseCommit": "e0464a76ef35bd682e3a57657f5417f02325d300",
+      "branch": "codex/sec-002-validated-stack",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/SEC-002-2026-10-12T16-16-13-964Z.md"
     }
   }
 }
