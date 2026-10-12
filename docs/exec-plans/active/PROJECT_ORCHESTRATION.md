@@ -239,3 +239,11 @@ is not refreshed merely by this inventory. No task is certified DONE here.
 ## Latest composed payment audit checkpoint
 
 SEC-002 on e0464a7 passed all local checks in report SEC-002-2026-10-12T16-16-13-964Z: 318 pgTAP and 344 integration tests. Earlier heartbeat audit on bef4f19 remains preserved. No live Claude dispatch; current organization access blocker unchanged. Next scoped local task SEC-005, with the reviewed long-gateway mobile overflow correction. Remote CI/staging/Owner acceptance still pending.
+
+## Current session checkpoint — SEC-005
+
+Current branch codex/sec-005-validated-stack composes all five reviewed local attempts: INF-008 01db447, DEL-001 bef4f19, SEC-003 e0464a7, SEC-002 b1bb1c5 and SEC-005 current source. Fresh SEC-005-2026-10-12T16-24-03-985Z passes all 12 local checks, 287 unit, 318 pgTAP and 344 integration tests. Component QA at 320x780 reproduced and removed long-gateway overflow; malformed payload assignment and literal markup verified. All remain REVIEW/needs_validation for external acceptance.
+
+Claude working: none; current organization policy403 unchanged. Historical usage-limited lanes and sessions preserved. Codex implementation attempt closed after report; commit owned source/evidence together. No new PR, merge or Production action. PR19 read again: app FAILURE, database SUCCESS; base feature/DEL-001-deliveries. Separate CHB staging unconfigured and Vercel login unavailable.
+
+Next Claude ticket: docs/handoff/claude-inbox/SEC-008-composed-replay-validation.md, one corrected replay test with exact source/report hash and dependencies. Dispatch only after access restored and current ownership/checkpoint rechecked. SEC-004 tooling integration remains separate review; DEL-013/RET-002/COM-002 retain foundation gates; RPT-002/DEL-004 retain product decisions. No false Done certificates or bypass of CI gates.

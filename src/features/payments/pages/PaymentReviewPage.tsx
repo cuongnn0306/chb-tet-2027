@@ -10,6 +10,7 @@ import { Dialog } from '@/components/ui/Dialog'
 import { TextAreaField } from '@/components/ui/fields'
 import { TextField } from '@/components/ui/TextField'
 import { PAYMENT_METHOD_LABELS } from '@/domain/payments/payments'
+import { readPaymentReviewPayload } from '@/domain/payments/review-payload'
 import { describeDbError } from '@/lib/db-errors'
 import type { PaymentEvent } from '@/services/payments.service'
 import { usePaymentService } from '../hooks/usePaymentService'
@@ -62,49 +63,60 @@ export function PaymentReviewPage() {
         {events.isSuccess && events.data.length === 0 ? (
           <EmptyState title="Không có giao dịch nào cần xử lý" />
         ) : null}
-        {events.data?.map((event) => (
-          <article
-            key={event.id}
-            className="rounded-lg border border-slate-200 bg-white p-3 text-sm"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="font-medium text-slate-900">
-                <MoneyText amount={event.payload.transferAmount ?? 0} /> ·{' '}
-                {event.payload.gateway ?? event.provider}
+        {events.data?.map((event) => {
+          const view = readPaymentReviewPayload(event.payload, event.provider)
+          return (
+            <article
+              key={event.id}
+              className="rounded-lg border border-slate-200 bg-white p-3 text-sm break-words"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="min-w-0 font-medium text-slate-900">
+                  {view.amount !== null ? (
+                    <MoneyText amount={view.amount} />
+                  ) : (
+                    <span className="text-red-800">Số tiền không hợp lệ</span>
+                  )}{' '}
+                  · {view.gateway}
+                </p>
+                <StatusBadge
+                  label={event.outcome === 'UNMATCHED' ? 'Chưa khớp đơn' : 'Cần xem xét'}
+                  tone="warning"
+                />
+              </div>
+              <p className="text-slate-600">
+                <DateTimeText value={event.received_at} /> · Mã GD:{' '}
+                <span className="font-mono">{event.provider_event_id}</span>
               </p>
-              <StatusBadge
-                label={event.outcome === 'UNMATCHED' ? 'Chưa khớp đơn' : 'Cần xem xét'}
-                tone="warning"
-              />
-            </div>
-            <p className="text-slate-600">
-              <DateTimeText value={event.received_at} /> · Mã GD:{' '}
-              <span className="font-mono">{event.provider_event_id}</span>
-            </p>
-            <p className="text-slate-700">
-              Nội dung: {event.payload.content ?? event.payload.description ?? '—'}
-            </p>
-            {event.note ? <p className="text-amber-900">{event.note}</p> : null}
-            <div className="mt-2 flex flex-wrap gap-2">
-              {event.outcome === 'UNMATCHED' ? (
-                <Button variant="secondary" onClick={() => setAssigning(event)}>
-                  Gán vào đơn
+              <p className="text-slate-700">Nội dung: {view.content}</p>
+              {event.note ? <p className="text-amber-900">{event.note}</p> : null}
+              {view.amount === null && event.outcome === 'UNMATCHED' ? (
+                <p role="note" className="text-red-800">
+                  Số tiền trong giao dịch thiếu hoặc không hợp lệ nên không thể gán vào đơn. Hãy đối
+                  chiếu với sao kê ngân hàng rồi bấm “Đã xử lý” kèm ghi chú.
+                </p>
+              ) : null}
+              <div className="mt-2 flex flex-wrap gap-2">
+                {event.outcome === 'UNMATCHED' && view.amount !== null ? (
+                  <Button variant="secondary" onClick={() => setAssigning(event)}>
+                    Gán vào đơn
+                  </Button>
+                ) : null}
+                {event.order_id ? (
+                  <Link
+                    className="inline-flex min-h-11 items-center rounded-md border border-slate-300 bg-white px-4 hover:bg-slate-50"
+                    to={ROUTES.orderDetail(event.order_id)}
+                  >
+                    Mở đơn
+                  </Link>
+                ) : null}
+                <Button variant="secondary" onClick={() => setDismissing(event)}>
+                  Đã xử lý
                 </Button>
-              ) : null}
-              {event.order_id ? (
-                <Link
-                  className="inline-flex min-h-11 items-center rounded-md border border-slate-300 bg-white px-4 hover:bg-slate-50"
-                  to={ROUTES.orderDetail(event.order_id)}
-                >
-                  Mở đơn
-                </Link>
-              ) : null}
-              <Button variant="secondary" onClick={() => setDismissing(event)}>
-                Đã xử lý
-              </Button>
-            </div>
-          </article>
-        ))}
+              </div>
+            </article>
+          )
+        })}
       </div>
 
       <div className="flex flex-col gap-3">
@@ -187,6 +199,7 @@ function AssignForm({
   onDone: () => void
 }) {
   const service = usePaymentService()
+  const { amount } = readPaymentReviewPayload(event.payload, event.provider)
   const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const mutation = useMutation({
@@ -206,9 +219,9 @@ function AssignForm({
   return (
     <div className="flex flex-col gap-3">
       <p className="text-slate-800">
-        Gán khoản <MoneyText amount={event.payload.transferAmount ?? 0} /> vào đơn bạn chọn? Khoản
-        được ghi nhận là đã nhận tiền, cộng vào số đã thanh toán của đơn (nếu đủ cọc, đơn tự động
-        xác nhận) và được lưu Audit Log. Số tiền không được vượt số còn phải thu.
+        Gán khoản {amount !== null ? <MoneyText amount={amount} /> : 'có số tiền không hợp lệ'} vào
+        đơn bạn chọn? Khoản được ghi nhận là đã nhận tiền, cộng vào số đã thanh toán của đơn (nếu đủ
+        cọc, đơn tự động xác nhận) và được lưu Audit Log. Số tiền không được vượt số còn phải thu.
       </p>
       <TextField
         label="Mã đơn"
@@ -223,7 +236,7 @@ function AssignForm({
         </Button>
         <Button
           loading={mutation.isPending}
-          disabled={code.trim() === ''}
+          disabled={code.trim() === '' || amount === null}
           onClick={() => {
             setError(null)
             mutation.mutate()
