@@ -1223,6 +1223,18 @@
       "branch": "codex/del-001-validated-stack",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/DEL-001-2026-10-12T08-25-51-290Z.md"
+    },
+    "SEC-003": {
+      "id": "SEC-003",
+      "title": "Integrate hash-verified catalog RLS guard on reviewed stack; no ACL/schema changes",
+      "agent": "codex",
+      "status": "needs_validation",
+      "startedAt": "2026-10-12T08:34:24.624Z",
+      "updatedAt": "2026-10-12T08:39:51.786Z",
+      "baseCommit": "bef4f19306293e52af885f3fe82fb1edf136c1d7",
+      "branch": "codex/sec-003-validated-stack",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/SEC-003-2026-10-12T08-35-04-095Z.md"
     }
   }
 }

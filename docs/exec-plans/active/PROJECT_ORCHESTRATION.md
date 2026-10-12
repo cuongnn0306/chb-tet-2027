@@ -24,6 +24,8 @@ controller reservations and live GitHub/Claude inventories. Maximum two implemen
 | DEL-004                               | Unassigned                                                          | Order form delivery/save contract                                                             | BLOCKED_HUMAN | Atomic save/partial-failure UX contract unresolved                                        |
 | INF-001 / INF-009 / INF-011 / PAY-006 | Owner / coordinator                                                 | Platform accounts, private repo/protection, staging, Vercel, SePay Test Mode                  | BLOCKED_HUMAN | Remote configuration and credentials/evidence absent                                      |
 
+SEC-003 corrected catalog guard is in REVIEW on codex/sec-003-validated-stack. Next local attempt: SEC-002 immutable payment-event decision audit, then SEC-005 payload guard. These are closed-source integrations with independent review and fresh reports, not takeover of unfinished Claude lanes.
+
 ## Actual platform and runtime evidence
 
 - Primary is `feature/integration-e07-e08-20261004` at 2df547e with many preserved dirty files.
@@ -46,7 +48,7 @@ connected nep-nha project. Claude worker organization access and Vercel login ha
 restored; explicitly continue local work. Preserve these access blockers without repeated probes.
 
 1. INF-008 fixture correction committed 01db447; independent review and full local pipeline passed.
-2. DEL-001 composed-tree attempt passed all local checks; commit its owned source and evidence together.
+2. DEL-001 committed bef4f19; SEC-003 fresh report 2026-10-12T08-35-04-095Z passed all local checks, including 318 pgTAP and 333 integration tests. Both await external acceptance.
 3. Review and prepare baseline-checked integration patches for closed tasks; use an isolated
    integration checkout and fresh task attempts. Never overwrite the dirty primary registry.
 4. Review PR 19 local-evidence option B as a distinct INF-008 follow-up; preserve gates until
