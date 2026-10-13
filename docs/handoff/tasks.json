@@ -1262,15 +1262,15 @@
     },
     "INV-007": {
       "id": "INV-007",
-      "title": "Isolate inventory summary UI by active account/role and correct inactive/session-switch states on clean baseline",
+      "title": "Show explicit empty product catalog state found in browser QA; preserve account-role cache isolation and read-only inventory behavior",
       "agent": "codex",
       "status": "needs_validation",
-      "startedAt": "2026-10-13T02:45:49.645Z",
-      "updatedAt": "2026-10-13T02:50:21.470Z",
-      "baseCommit": "60cdcd6e7e24b7601167fdb63a3987aa72cfe921",
-      "branch": "",
+      "startedAt": "2026-10-13T03:37:09.065Z",
+      "updatedAt": "2026-10-13T03:40:30.851Z",
+      "baseCommit": "70339cb171a09b05cc08458e225e88b05de2d199",
+      "branch": "codex/inv-007-empty-state",
       "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/INV-007-2026-10-13T02-46-47-296Z.md"
+      "latestReport": "docs/handoff/reports/INV-007-2026-10-13T03-39-01-473Z.md"
     }
   }
 }

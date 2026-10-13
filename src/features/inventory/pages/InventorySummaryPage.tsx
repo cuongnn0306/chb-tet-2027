@@ -93,7 +93,13 @@ function InventorySummaryContent({ user, queryScope }: { user: ActiveUser; query
         </ErrorState>
       ) : null}
 
-      {summary.isSuccess ? (
+      {summary.isSuccess && catalog.data.products.length === 0 ? (
+        <EmptyState title="Chưa có sản phẩm để hiển thị tồn kho">
+          Vui lòng liên hệ quản trị viên để kiểm tra danh mục sản phẩm.
+        </EmptyState>
+      ) : null}
+
+      {summary.isSuccess && catalog.data.products.length > 0 ? (
         <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-slate-600">

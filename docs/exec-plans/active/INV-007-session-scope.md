@@ -18,3 +18,13 @@ Run the standard task pipeline and review the source diff and report fingerprint
 ## 13/10 reviewed checkpoint
 
 Source and checked parent match the immutable report above. The owner authorized feature-branch checkpoints in the orchestration request; earlier preserve-without-commit guidance is superseded for this reviewed checkpoint. Commit unchanged source, existing reports and registry together on `codex/inv-007-reviewed-checkpoint`. No source edit or new validation run. Preserve report status needs_validation and all remaining external/DB gates; this is not Done or merge authorization.
+
+## 13/10 browser follow-up
+
+Checkpoint `70339cb` remains preserved. A local controlled AuthContext fixture rendered the actual page with one persistent QueryClient and account/role-scoped cached rows; unexpected network calls were blocked. Account and role changes reset the location and show only the corresponding cached data; inactive/loading/signed-out states are checked separately. This fixture does not verify real login, RPC or RLS.
+
+At 320px the long location label did not overflow the document. An empty product catalog showed only table headers, contrary to the required empty state. A fresh INV-007 attempt on `codex/inv-007-empty-state` adds the existing shared EmptyState and omits the empty table. No inventory calculation, schema, service, permission or query-key change. Recheck the actual page and run task:finish; record DB reset/pgTAP/integration as not_run because the Linux engine pipe was absent on today's read-only readiness check. CI, real authenticated browser, staging and Owner acceptance remain pending.
+
+### Follow-up result
+
+Report `docs/handoff/reports/INV-007-2026-10-13T03-39-01-473Z.json`: pipeline, lint, typecheck, tests, build, format and env pass. DB reset, pgTAP and integration are not_run; status needs_validation. Source hash matches the report. Controlled browser retest and independent static review found no further actionable issue; evidence and limitations are in `docs/reviews/2026-10-13-INV007-browser-qa.md`. Temporary browser tab and Vite server were closed, viewport override reset, and port 4176 has no listener. No schema changes, remote writes, merges or deployment. Keep this plan active until remaining acceptance gates are satisfied.
