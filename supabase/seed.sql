@@ -190,3 +190,30 @@ begin
   end loop;
 end;
 $$;
+
+-- Two fake draft orders exercise the normal pricing/code/timeline path without creating
+-- confirmed demand, reservations or payment/commission entries in a fresh local DB.
+do $$
+declare
+  v_actor uuid;
+  v_customer uuid;
+  v_items jsonb;
+begin
+  select id into strict v_actor from public.profiles where full_name = 'Sale B2B Test';
+  select id into strict v_customer from public.customers where phone = '0900000001' and name = 'Nguyễn Văn Test';
+  select jsonb_agg(jsonb_build_object('product_id', id, 'quantity', qty)) into v_items
+  from public.products p
+  join (values ('TT-1200', 3), ('HQ-A', 1)) as sample(sku, qty) on sample.sku = p.sku;
+  perform set_config('request.jwt.claim.sub', v_actor::text, true);
+  perform public.save_draft_order(null, v_customer, v_items, p_notes => '[Test] Đơn nháp B2B nhiều SKU');
+
+  select id into strict v_actor from public.profiles where full_name = 'Nhân viên cửa hàng Test';
+  select id into strict v_customer from public.customers where phone = '0900000004' and name = 'Khách của cửa hàng';
+  select jsonb_agg(jsonb_build_object('product_id', id, 'quantity', qty)) into v_items
+  from public.products p
+  join (values ('TT-800', 2), ('COM-800', 1)) as sample(sku, qty) on sample.sku = p.sku;
+  perform set_config('request.jwt.claim.sub', v_actor::text, true);
+  perform public.save_draft_order(null, v_customer, v_items, p_notes => '[Test] Đơn nháp cửa hàng nhiều SKU');
+  perform set_config('request.jwt.claim.sub', '', true);
+end;
+$$;
