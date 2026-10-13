@@ -2,18 +2,60 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router'
 import { ROUTES } from '@/app/routes'
 import { MoneyText } from '@/components/shared/MoneyText'
-import { ErrorState, LoadingState } from '@/components/shared/PageState'
+import { ErrorState, LoadingState, NoPermissionState } from '@/components/shared/PageState'
 import { Button } from '@/components/ui/Button'
 import { customerDisplayName } from '@/domain/customers/validation'
 import { ORDER_STATUS_LABELS, isOrderStatus } from '@/domain/orders/state-machine'
+import { useAuth } from '@/features/auth/auth-context'
 import { formatDateTime } from '@/lib/date'
 import { useOrderService } from '../hooks/useOrderService'
 
-/** ORD-014: print-friendly order sheet. The app header and buttons are hidden when printing. */
+/**
+ * ORD-014: print-friendly order sheet. The app header and buttons are hidden when printing.
+ *
+ * The order query is mounted only for an active account and is keyed by user, role and order, so a
+ * printed order is never shown from another account's cache. Visibility itself stays with RLS.
+ */
 export function OrderPrintPage() {
+  const { access } = useAuth()
   const { orderId = '' } = useParams()
+
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active') return <NoPermissionState />
+  if (orderId === '') {
+    return (
+      <ErrorState title="Không tìm thấy mã đơn hàng">
+        Đường dẫn in không có mã đơn. Hãy mở lại phiếu in từ trang chi tiết đơn hàng.
+      </ErrorState>
+    )
+  }
+
+  const { id: userId, roleCode } = access.user
+  return (
+    <OrderPrintContent
+      key={JSON.stringify([userId, roleCode, orderId])}
+      orderId={orderId}
+      userId={userId}
+      roleCode={roleCode}
+    />
+  )
+}
+
+function OrderPrintContent({
+  orderId,
+  userId,
+  roleCode,
+}: {
+  orderId: string
+  userId: string
+  roleCode: string
+}) {
   const service = useOrderService()
-  const order = useQuery({ queryKey: ['order', orderId], queryFn: () => service.get(orderId) })
+  // Keeps the ['order', orderId] prefix so existing order invalidations also reach this query.
+  const order = useQuery({
+    queryKey: ['order', orderId, userId, roleCode],
+    queryFn: () => service.get(orderId),
+  })
 
   if (order.isPending) return <LoadingState />
   if (order.isError || !order.data) {

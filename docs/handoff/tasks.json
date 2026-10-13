@@ -1259,6 +1259,18 @@
       "branch": "codex/sec-005-validated-stack",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/SEC-005-2026-10-12T16-24-03-985Z.md"
+    },
+    "ORD-014": {
+      "id": "ORD-014",
+      "title": "Isolate printed order data by active account while preserving order invalidation",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-13T08:16:34.428Z",
+      "updatedAt": "2026-10-13T08:19:57.012Z",
+      "baseCommit": "60cdcd6e7e24b7601167fdb63a3987aa72cfe921",
+      "branch": "codex/ord-014-claude-print",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/ORD-014-2026-10-13T08-17-23-445Z.md"
     }
   }
 }
