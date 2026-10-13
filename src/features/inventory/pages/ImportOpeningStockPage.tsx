@@ -1,5 +1,9 @@
+import { useAuth } from '@/features/auth/auth-context'
+import { LoadingState, NoPermissionState } from '@/components/shared/PageState'
+import readExcelFile from 'read-excel-file/browser'
+import { MAX_IMPORT_FILE_BYTES, openingStockSheetText } from '@/domain/inventory/opening-stock-xlsx'
 import { useMutation } from '@tanstack/react-query'
-import { useState, type ChangeEvent } from 'react'
+import { useRef, useState, type ChangeEvent } from 'react'
 import { Link } from 'react-router'
 import { ROUTES } from '@/app/routes'
 import { Button } from '@/components/ui/Button'
@@ -23,8 +27,18 @@ interface Checked {
 
 /** INV-006 (Admin): validate first (nothing is written), then import the whole file or nothing. */
 export function ImportOpeningStockPage() {
+  const { access } = useAuth()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active' || access.user.roleCode !== 'ADMIN') return <NoPermissionState />
+  return <ImportOpeningStockContent key={access.user.id} />
+}
+
+function ImportOpeningStockContent() {
   const service = useInventoryService()
   const [text, setText] = useState('')
+  const fileSequence = useRef(0)
+  const [readingFile, setReadingFile] = useState(false)
+  const [fileError, setFileError] = useState<string | null>(null)
   const [checked, setChecked] = useState<Checked | null>(null)
   const [confirming, setConfirming] = useState(false)
   const [done, setDone] = useState<ImportReport | null>(null)
@@ -58,11 +72,36 @@ export function ImportOpeningStockPage() {
 
   async function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
-    if (!file) return
-    setText(await file.text())
-    setChecked(null)
-    setDone(null)
     event.target.value = ''
+    if (!file) return
+    const sequence = ++fileSequence.current
+    setReadingFile(true)
+    setFileError(null)
+    setChecked(null)
+    setConfirming(false)
+    setDone(null)
+    setText('')
+    try {
+      if (file.size > MAX_IMPORT_FILE_BYTES)
+        throw new Error('File vượt quá 5 MB. Vui lòng chia thành các file nhỏ hơn.')
+      let nextText: string
+      if (file.name.toLowerCase().endsWith('.xlsx')) {
+        const sheets = await readExcelFile(file)
+        if (sheets.length !== 1 || !sheets[0])
+          throw new Error('Vui lòng dùng file Excel có đúng một trang tính để tránh nhập nhầm kho.')
+        nextText = openingStockSheetText(sheets[0].data)
+      } else nextText = await file.text()
+      if (sequence === fileSequence.current) setText(nextText)
+    } catch (error) {
+      if (sequence === fileSequence.current)
+        setFileError(
+          error instanceof Error
+            ? error.message
+            : 'Không đọc được file. Vui lòng kiểm tra file Excel/CSV.',
+        )
+    } finally {
+      if (sequence === fileSequence.current) setReadingFile(false)
+    }
   }
 
   function downloadTemplate() {
@@ -84,7 +123,7 @@ export function ImportOpeningStockPage() {
       <header>
         <h1 className="text-xl font-semibold text-slate-900">Nhập tồn đầu kỳ</h1>
         <p className="text-sm text-slate-600">
-          Dán trực tiếp từ Excel hoặc chọn file CSV với các cột:{' '}
+          Dán trực tiếp từ Excel hoặc chọn file Excel (.xlsx)/CSV với các cột:{' '}
           <strong>{IMPORT_HEADER.join(' | ')}</strong>. Ngày nhập theo dd/MM/yyyy. Hệ thống kiểm tra
           toàn bộ file trước; có lỗi ở bất kỳ dòng nào thì không nhập dòng nào.
         </p>
@@ -95,22 +134,33 @@ export function ImportOpeningStockPage() {
           Tải file mẫu (CSV)
         </Button>
         <label className="inline-flex min-h-11 cursor-pointer items-center rounded-md border border-slate-300 bg-white px-4 text-slate-800 hover:bg-slate-50">
-          Chọn file CSV
+          Chọn file Excel/CSV
           <input
             type="file"
-            accept=".csv,.tsv,.txt,text/csv,text/plain"
+            accept=".xlsx,.csv,.tsv,.txt,text/csv,text/plain"
+            disabled={apply.isPending || check.isPending}
             className="sr-only"
             onChange={(e) => void handleFile(e)}
           />
         </label>
       </div>
 
+      {readingFile ? <p role="status">Đang đọc file…</p> : null}
+      {fileError ? (
+        <p role="alert" className="text-red-800">
+          {fileError}
+        </p>
+      ) : null}
       <TextAreaField
         label="Dữ liệu tồn đầu kỳ"
         rows={10}
+        disabled={check.isPending || apply.isPending || readingFile}
         value={text}
         placeholder={`${IMPORT_HEADER.join('\t')}\nHN-BEP\tTT-1200\tB-2027-01\t01/01/2027\t01/03/2027\t100`}
         onChange={(e) => {
+          fileSequence.current += 1
+          setReadingFile(false)
+          setFileError(null)
           setText(e.target.value)
           setChecked(null)
         }}
@@ -118,7 +168,7 @@ export function ImportOpeningStockPage() {
       <div>
         <Button
           loading={check.isPending}
-          disabled={text.trim() === ''}
+          disabled={readingFile || check.isPending || apply.isPending || text.trim() === ''}
           onClick={() => check.mutate()}
         >
           Kiểm tra dữ liệu

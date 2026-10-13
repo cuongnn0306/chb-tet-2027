@@ -1259,6 +1259,18 @@
       "branch": "codex/sec-005-validated-stack",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/SEC-005-2026-10-12T16-24-03-985Z.md"
+    },
+    "INV-006": {
+      "id": "INV-006",
+      "title": "Validate existing native XLSX opening-stock import in a clean reviewed stack",
+      "agent": "codex",
+      "status": "needs_validation",
+      "startedAt": "2026-10-12T22:47:44.979Z",
+      "updatedAt": "2026-10-12T22:54:10.863Z",
+      "baseCommit": "60cdcd6e7e24b7601167fdb63a3987aa72cfe921",
+      "branch": "",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/INV-006-2026-10-12T22-48-53-561Z.md"
     }
   }
 }
