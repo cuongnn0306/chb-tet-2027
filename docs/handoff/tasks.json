@@ -1262,15 +1262,15 @@
     },
     "SEC-004": {
       "id": "SEC-004",
-      "title": "Compose reviewed env and Git secret scanners on isolated validated stack",
+      "title": "Detect authenticated JWT bearer credentials in source and browser env",
       "agent": "claude",
       "status": "needs_validation",
-      "startedAt": "2026-10-13T04:55:42.734Z",
-      "updatedAt": "2026-10-13T05:01:32.579Z",
-      "baseCommit": "60cdcd6e7e24b7601167fdb63a3987aa72cfe921",
+      "startedAt": "2026-10-13T08:14:31.714Z",
+      "updatedAt": "2026-10-13T08:17:29.189Z",
+      "baseCommit": "6752c502eaea5be8c761e884b15027e8dc19b2c3",
       "branch": "codex/sec-004-claude-stack",
       "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/SEC-004-2026-10-13T04-59-17-385Z.md"
+      "latestReport": "docs/handoff/reports/SEC-004-2026-10-13T08-15-47-066Z.md"
     }
   }
 }

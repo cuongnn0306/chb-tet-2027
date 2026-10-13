@@ -90,9 +90,16 @@ export function findSecretShapes(text, { allowLocalUrls = true } = {}) {
 
   for (const m of text.matchAll(JWT_RE)) {
     const jwt = decodeJwt(m[0])
-    if (!jwt || jwt.role === null || PUBLIC_JWT_ROLES.has(jwt.role) || jwt.role === 'authenticated')
-      continue
-    add(jwt.role === 'service_role' ? 'jwt-service-role' : 'jwt-privileged-role', m[0], m.index)
+    if (!jwt || jwt.role === null || PUBLIC_JWT_ROLES.has(jwt.role)) continue
+    // An `authenticated` JWT is a signed-in user's access token: a bearer credential, unlike the
+    // public anon key. The role is decoded only to classify; the signature is never verified.
+    const rule =
+      jwt.role === 'authenticated'
+        ? 'jwt-user-session'
+        : jwt.role === 'service_role'
+          ? 'jwt-service-role'
+          : 'jwt-privileged-role'
+    add(rule, m[0], m.index)
   }
   for (const m of text.matchAll(SB_SECRET_RE)) add('supabase-secret-key', m[0], m.index)
   for (const m of text.matchAll(PEM_RE)) add('private-key-block', m[0], m.index)
@@ -200,6 +207,8 @@ const MESSAGES = {
     `${k} có tiền tố VITE_ nên sẽ lộ ra trình duyệt. Đổi tên (bỏ VITE_) và đặt ở server env.`,
   'server-key-in-browser-var': (k, d) =>
     `${k} chứa khóa phía server (${d}). Gỡ khỏi biến VITE_, xoay (rotate) khóa nếu đã commit/deploy.`,
+  'user-token-in-browser-var': (k, d) =>
+    `${k} chứa token phiên người dùng (${d}), là bearer credential chứ không phải khóa anon công khai. Gỡ khỏi biến VITE_ và thu hồi phiên nếu đã bị lộ.`,
   'secret-in-browser-var': (k, d) =>
     `${k} chứa giá trị giống secret (${d}). Gỡ khỏi biến VITE_ và xoay khóa nếu đã bị lộ.`,
   'not-anon-key': (k, d) =>
@@ -231,7 +240,11 @@ export function evaluateBrowserVar(key, rawValue) {
     r === 'jwt-service-role' || r === 'jwt-privileged-role' || r === 'supabase-secret-key'
   for (const s of shapes) {
     issues.push({
-      code: isKeyRule(s.rule) ? 'server-key-in-browser-var' : 'secret-in-browser-var',
+      code: isKeyRule(s.rule)
+        ? 'server-key-in-browser-var'
+        : s.rule === 'jwt-user-session'
+          ? 'user-token-in-browser-var'
+          : 'secret-in-browser-var',
       detail: describe(s.rule),
       fingerprint: s.fingerprint,
     })

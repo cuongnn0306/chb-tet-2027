@@ -19,6 +19,7 @@ const jwt = (role: string) =>
   `${b64({ alg: 'HS256', typ: 'JWT' })}.${b64({ iss: 'synthetic-test', role })}.${'Qw7'.repeat(8)}`
 const SERVICE = jwt('service_role')
 const ANON = jwt('anon')
+const AUTHENTICATED = jwt('authenticated')
 const SB_SECRET = `sb_${'secret'}_${'Kl90Mn12'.repeat(3)}`
 const CRED_URL = ['postgres://app', 'hunter22@db.example.test/app'].join(':')
 const LOCAL_URL = ['postgresql://postgres', 'postgres@127.0.0.1:54322/postgres'].join(':')
@@ -84,6 +85,25 @@ describe('scanText', () => {
       scanText('auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"', { path: 'a.toml' }),
     ).toEqual([])
     expect(scanText("API_KEY = 'your-api-key-placeholder-value'", { path: 'a.ts' })).toEqual([])
+  })
+
+  it('flags authenticated user JWT bearer literals in generic source but not the anon key', () => {
+    const src = `const session = '${AUTHENTICATED}'\nheaders.Authorization = "Bearer ${AUTHENTICATED}"\nconst anon = '${ANON}'\n`
+    const hits = scanText(src, { path: 'src/session.ts' })
+    expect(hits.map((h) => [h.rule, h.line])).toEqual([
+      ['jwt-user-session', 1],
+      ['jwt-user-session', 2],
+    ])
+    const out = hits.map((h) => formatFinding(h)).join('\n')
+    expect(out).toContain('src/session.ts:1')
+    expect(out).not.toContain(AUTHENTICATED)
+    expect(out).not.toContain('Qw7Qw7')
+  })
+
+  it('does not let a service-role allowlist entry hide an authenticated token', () => {
+    const [service] = scanText(`k=${SERVICE}`, { path: 'x.ts' })
+    const allow = new Set([`${service!.rule}:${service!.fingerprint}`])
+    expect(scanText(`k=${AUTHENTICATED}`, { path: 'x.ts', allowlist: allow })).toHaveLength(1)
   })
 
   it('has no inline suppression marker: a comment cannot hide a secret', () => {
@@ -198,6 +218,34 @@ describe('working tree and local history', () => {
     expect(findings[0]).toMatchObject({ rule: 'jwt-service-role', path: 'config.ts', line: 1 })
     expect(findings[0]?.commits).toEqual([introducing!.slice(0, 12)])
     expect(formatFinding(findings[0]!)).not.toContain(SERVICE)
+  })
+
+  it('detects an authenticated user JWT in the tree and in history after deletion, redacted', async () => {
+    const { root, git, commit } = makeRepo()
+    writeFileSync(resolve(root, 'session.ts'), `export const token = '${AUTHENTICATED}'\n`)
+    commit('add session token')
+    const introducing = git('rev-parse', 'HEAD').trim().slice(0, 12)
+    expect(scanWorkingTree(root).findings).toContainEqual(
+      expect.objectContaining({ rule: 'jwt-user-session', path: 'session.ts', line: 1 }),
+    )
+    const cli = spawnSync(process.execPath, [SCRIPT], { cwd: root, encoding: 'utf8' })
+    const cliOut = `${cli.stdout}${cli.stderr}`
+    expect(cli.status).toBe(1)
+    expect(cliOut).toContain('jwt-user-session')
+    expect(cliOut).not.toContain(AUTHENTICATED)
+    expect(cliOut).not.toContain('Qw7Qw7')
+
+    writeFileSync(resolve(root, 'session.ts'), 'export const token = process.env.TOKEN\n')
+    commit('remove session token')
+    expect(scanWorkingTree(root).findings).toEqual([])
+    const { findings } = await scanHistory(root)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]).toMatchObject({
+      rule: 'jwt-user-session',
+      path: 'session.ts',
+      commits: [introducing],
+    })
+    expect(formatFinding(findings[0]!)).not.toContain(AUTHENTICATED)
   })
 
   it('finds secrets on other local branches (git log --all)', async () => {

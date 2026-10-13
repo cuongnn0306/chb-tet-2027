@@ -15,7 +15,7 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 | RES-010 | codex | needs_validation | 2026-10-11T15:51:18.931Z | [Báo cáo](reports/RES-010-2026-10-11T15-48-48-068Z.md) |
 | SEC-002 | codex | needs_validation | 2026-10-12T16:21:38.496Z | [Báo cáo](reports/SEC-002-2026-10-12T16-16-13-964Z.md) |
 | SEC-003 | codex | needs_validation | 2026-10-12T08:39:51.786Z | [Báo cáo](reports/SEC-003-2026-10-12T08-35-04-095Z.md) |
-| SEC-004 | claude | needs_validation | 2026-10-13T05:01:32.579Z | [Báo cáo](reports/SEC-004-2026-10-13T04-59-17-385Z.md) |
+| SEC-004 | claude | needs_validation | 2026-10-13T08:17:29.189Z | [Báo cáo](reports/SEC-004-2026-10-13T08-15-47-066Z.md) |
 | SEC-005 | codex | needs_validation | 2026-10-12T16:29:14.725Z | [Báo cáo](reports/SEC-005-2026-10-12T16-24-03-985Z.md) |
 | SEC-006 | claude | needs_validation | 2026-10-02T16:12:26.841Z | [Báo cáo](reports/SEC-006-2026-10-02T16-11-40-849Z.md) |
 | SEC-007 | claude | needs_validation | 2026-10-02T04:08:15.181Z | [Báo cáo](reports/SEC-007-2026-10-02T04-05-07-915Z.md) |

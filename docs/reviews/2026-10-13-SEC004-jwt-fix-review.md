@@ -1,0 +1,11 @@
+# SEC-004 authenticated JWT fix review — 13/10/2026
+
+Fresh report `SEC-004-2026-10-13T08-15-47-066Z.json` checked composition checkpoint `6752c50`. Seven non-DB checks pass; DB reset, pgTAP and integration are explicitly not_run. All 260 governed source files match the report and independently recomputed digest `ce8b4b9f8910e778fe1b3118dff3a03584368c60f117666c0d5ecd91c53226a8`.
+
+The original independent synthetic in-memory reproduction now returns `jwt-user-session` for source and `user-token-in-browser-var` for arbitrary VITE variables. Metadata contains neither token nor signature. Public anon source/env and publishable anon env remain accepted. No new actionable finding in the scoped diff. Only the env scanner and its two unit files changed in governed source; CI, package, narrow allowlist, main secret scanner and declarations are unchanged. Meaningful regressions cover source/Bearer literals, arbitrary VITE names, redaction, CLI nonzero, current tree and deleted-in-history detection, and rule-qualified allowlist isolation. No broader tests were repeated during independent review; the recorded full unit step passed.
+
+The actual stricter scanner ran: 491 working-tree files (one binary skipped), 53 local commits, zero findings. This is not proof about ignored env files, unfetched/remote refs or hosted secrets. Role-less/malformed JWT and other documented heuristic limits remain unchanged.
+
+Terminal evidence: exit0/is_error=false, delivered stdin, one terminal result as last event and zero live children. The denied standalone `npx vitest` command was outside the shell allowlist; the full allowed `task:finish` subsequently ran `npm test` successfully. Preserve the denial history and do not claim the standalone command ran. Expected task:finish exit1 reflects needs_validation, not a failed app check. No permission expansion or bypass.
+
+The P2 authenticated-JWT false negative is resolved in the reviewed local source. Overall task remains needs_validation: DB, original ignored/hosted/remote secret scopes, CI/staging and Owner acceptance pending. No real secret observed, no auth/DB/provider call, no schema or business change, no merge/deploy authorization. Prior reports remain immutable.

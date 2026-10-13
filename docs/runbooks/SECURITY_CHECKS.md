@@ -35,6 +35,7 @@ Vite chỉ lộ biến `VITE_*` ra trình duyệt. Với mỗi mode `development
 | `forbidden-name`                 | Tên `VITE_*` chứa SERVICE_ROLE/SECRET/HMAC/PRIVATE/PASSWORD                                                                                                     |
 | `server-key-in-browser-var`      | Giá trị là JWT có `role` ≠ anon (ví dụ service_role, giải mã payload, không kiểm chữ ký) hoặc `sb_secret_*`, kể cả dưới tên hợp lệ như `VITE_SUPABASE_ANON_KEY` |
 | `not-anon-key` / `malformed-key` | `VITE_SUPABASE_ANON_KEY`/`VITE_SUPABASE_PUBLISHABLE_KEY` không phải JWT anon hợp lệ hay `sb_publishable_*`; JWT hỏng trong biến VITE khác                       |
+| `user-token-in-browser-var`      | JWT có `role` = `authenticated` (token phiên người dùng, bearer credential; giải mã payload, không kiểm chữ ký) dưới bất kỳ tên `VITE_*` nào                    |
 | `secret-in-browser-var`          | PEM private key, URL kèm user:password (không phải local), token nhà cung cấp                                                                                   |
 | `invalid-app-env`                | `VITE_APP_ENV` ngoài `local \| staging \| production`                                                                                                           |
 | `secret-in-template`             | `.env.example` chứa giá trị giống secret (chỉ được trống/placeholder)                                                                                           |
@@ -52,11 +53,14 @@ server env). Nếu giá trị từng nằm trong file được commit, build ho�
 Quét từng dòng của file đang theo dõi hoặc chưa theo dõi nhưng không bị ignore (nên
 `.env.local` thật không được quét ở đây; đó là việc của `check:env`), và mọi dòng từng được
 thêm trong lịch sử local, kể cả secret đã bị xóa sau đó. Rule: `jwt-service-role`,
-`jwt-privileged-role` (JWT có role không phải anon/authenticated), `supabase-secret-key`,
+`jwt-privileged-role` (JWT có role khác anon/authenticated/service_role),
+`jwt-user-session` (JWT role `authenticated`: token phiên người dùng, bearer credential),
+`supabase-secret-key`,
 `private-key-block`, `url-credentials` (bỏ qua localhost/127.0.0.1), `provider-token`,
 `hardcoded-secret-assignment` (tên như `*_WEBHOOK_SECRET`, `*_API_KEY`… gán literal entropy
 cao; `env(...)`, `${...}` và placeholder được bỏ qua). Anon/publishable key công khai không
-bị coi là secret.
+bị coi là secret. Việc giải mã role chỉ để phân loại, không phải xác thực chữ ký; token
+fixture phải được dựng lúc chạy test, không commit literal.
 
 **Không có chú thích bỏ qua trong code.** Chỉ một hit đã review mới được cho qua bằng
 `scripts/secret-scan.allowlist.json`:
@@ -79,7 +83,7 @@ mới ghi fingerprint vào allowlist.
 
 ## Phạm vi đã/chưa quét (ghi nhận 2026-10-13)
 
-- Đã quét: working tree (486 file, 1 file nhị phân bị bỏ qua) và 52 commit local của
+- Đã quét: working tree (491 file, 1 file nhị phân bị bỏ qua) và 53 commit local của
   worktree này (`--all`): 0 phát hiện. Allowlist hiện chỉ có một fingerprint của fixture
   synthetic đã được review.
 - Bỏ qua có chủ đích: mọi đường dẫn chứa thư mục `node_modules`, `dist` hoặc `coverage`

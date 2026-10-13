@@ -19,6 +19,7 @@ const jwt = (role?: string) =>
   `${b64({ alg: 'HS256', typ: 'JWT' })}.${b64({ iss: 'synthetic-test', ...(role ? { role } : {}) })}.${'Zq9'.repeat(8)}`
 const SERVICE = jwt('service_role')
 const ANON = jwt('anon')
+const AUTHENTICATED = jwt('authenticated')
 const SB_SECRET = `sb_${'secret'}_${'Ab12Cd34'.repeat(3)}`
 const SB_PUBLISHABLE = `sb_${'publishable'}_${'Ef56Gh78'.repeat(3)}`
 const SERVICE_SIGNATURE = 'Zq9'.repeat(8)
@@ -120,9 +121,19 @@ describe('evaluateBrowserVar', () => {
     expect(evaluateBrowserVar('VITE_SUPABASE_ANON_KEY', 'not-a-key').map((i) => i.code)).toEqual([
       'malformed-key',
     ])
-    expect(
-      evaluateBrowserVar('VITE_SUPABASE_ANON_KEY', jwt('authenticated')).map((i) => i.code),
-    ).toEqual(['not-anon-key'])
+    expect(evaluateBrowserVar('VITE_SUPABASE_ANON_KEY', jwt()).map((i) => i.code)).toEqual([
+      'not-anon-key',
+    ])
+  })
+
+  it('rejects an authenticated user JWT under any VITE name, including the anon key variable', () => {
+    for (const name of ['VITE_USER_SESSION', 'VITE_ANALYTICS_ID', 'VITE_SUPABASE_ANON_KEY']) {
+      const issues = evaluateBrowserVar(name, AUTHENTICATED)
+      expect(issues.map((i) => i.code)).toEqual(['user-token-in-browser-var'])
+      expect(JSON.stringify(issues)).not.toContain(AUTHENTICATED)
+      expect(JSON.stringify(issues)).not.toContain(SERVICE_SIGNATURE)
+    }
+    expect(evaluateBrowserVar('VITE_USER_SESSION', ANON)).toEqual([])
   })
 
   it('keeps the name-based check and flags other secret shapes', () => {
@@ -167,6 +178,25 @@ describe('scanEnv', () => {
     expect(out).not.toContain(SERVICE)
     expect(out).not.toContain(SERVICE_SIGNATURE)
     expect(out).not.toContain('service_role')
+  })
+
+  it('finds an authenticated user JWT in an arbitrary VITE variable with redacted output', () => {
+    const root = makeRoot({
+      '.env.production.local': `VITE_USER_SESSION=${AUTHENTICATED}\nVITE_SUPABASE_ANON_KEY=${ANON}\n`,
+    })
+    const findings = scanEnv({ root })
+    expect(errors(findings)).toHaveLength(1)
+    expect(findings[0]).toMatchObject({
+      code: 'user-token-in-browser-var',
+      key: 'VITE_USER_SESSION',
+      source: '.env.production.local',
+      line: 1,
+      modes: ['production'],
+    })
+    const out = render(findings)
+    expect(out).toContain('VITE_USER_SESSION')
+    expect(out).not.toContain(AUTHENTICATED)
+    expect(out).not.toContain(SERVICE_SIGNATURE)
   })
 
   it('finds sb_secret-style keys and redacts them', () => {

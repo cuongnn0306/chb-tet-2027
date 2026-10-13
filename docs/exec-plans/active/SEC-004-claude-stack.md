@@ -82,3 +82,43 @@ in this worktree only, not the primary checkout's ignored env files.
 # 13/10 independent follow-up
 
 Composition checks passed but independent review reproduced an inherited authenticated-JWT scanner false negative. See `docs/reviews/2026-10-13-SEC004-composition-review.md`. Preserve this report/checkpoint, then resume the exact session for a fresh scoped SEC-004 attempt with source/env synthetic regressions. Keep external and DB gates pending; do not claim Done.
+
+# 13/10 authenticated JWT correction (second attempt)
+
+Scope: `scripts/env-scan.mjs`, `tests/unit/scripts/env-scan.test.ts`,
+`tests/unit/scripts/secret-scan.test.ts`, this plan and the runbook. `env-scan.d.mts` needed
+no change (`rule` stays `string`). No package, CI, allowlist, dependency or other-script change.
+
+Reproduced defect (from the independent review, confirmed by reading the code): the JWT loop in
+`findSecretShapes` did `continue` for `role === 'authenticated'`, so a user session token was
+invisible to `scanText` and to `evaluateBrowserVar` under any name. Supabase documents user JWTs
+as bearer access tokens, distinct from the public anon/publishable keys.
+
+Fix: `authenticated` now yields rule `jwt-user-session`; anon stays exempt; JWTs without a
+`role` claim and malformed JWTs keep their previous behaviour. In browser variables the new
+code is `user-token-in-browser-var` with a Vietnamese message naming only the variable, the
+rule description and file:line. The role is decoded for classification only; the signature is
+never verified and no fixture is authenticated. Allowlist untouched: it is keyed by
+rule+fingerprint, so the existing entry cannot hide the new rule (regression-tested).
+
+Behaviour change to an existing test: a `jwt('authenticated')` in `VITE_SUPABASE_ANON_KEY`
+used to report `not-anon-key`; it now reports `user-token-in-browser-var` (a stronger,
+more accurate finding). `not-anon-key` stays covered with a JWT lacking a role claim.
+
+Regressions added (tokens assembled at runtime with synthetic claims/signature): env-scan —
+authenticated JWT under three VITE names with redacted diagnostics, anon unaffected, `scanEnv`
+on `.env.production.local` with mode and line; secret-scan — generic source literals and
+`Bearer` header, anon not flagged, service-role allowlist entry does not hide it, tree + CLI
+exit 1 + redaction, deleted-then-found-in-history with the introducing commit.
+
+Evidence before finish: `npm run check:secrets` under the stricter rule — 491 working-tree
+files (1 binary skipped), 53 local commits, 0 findings, metadata only. Scoped Prettier on owned
+files applied. A direct `vitest` run was not on the command allowlist, so the unit tests are
+executed only by `task:finish`.
+
+Finish result — report SEC-004-2026-10-13T08-15-47-066Z, `needs_validation` (exit 1 expected):
+pipeline, lint, typecheck, unit tests (including the new regressions), build, format:check and
+`check:env` pass. DB reset, pgTAP and integration are `not_run` (Docker Linux engine
+unavailable, coordinator blocker present) and are not claimed. Pending and outside this
+workspace: real browser/auth/RLS behaviour, ignored env of the primary checkout, remote/fork
+refs, hosted secret stores, remote CI, staging, independent review. Not Done.
