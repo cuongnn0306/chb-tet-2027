@@ -1,0 +1,84 @@
+# SEC-004 — Compose reviewed env and Git secret scanners on the validated stack
+
+## Dependency and scope
+
+Implementation plan E13 SEC-004 (secret scan) is a heading only; acceptance comes from the
+owner task prompt and PROJECT_PROGRESS (`SEC-004 partial: full secret/history/mode scan chưa
+có RV-11`). Baseline 60cdcd6 is an explicitly reviewed composed continuation; origin/develop
+is foundation-only and is not rebased onto or claimed integrated.
+
+This is a composition of closed reviewed work, not a new scanner. Eight source/test inputs
+staged by the coordinator under `tmp/sec004-reference/` were verified against
+`input-manifest.json` (SHA-256, before and after integration; all eight identical) and
+written to the same repository-relative paths. The original source worktree was not touched.
+
+| Path                                     | SHA-256                                                          |
+| ---------------------------------------- | ---------------------------------------------------------------- |
+| `scripts/check-env.ts`                   | 2c71fc836f503d09528555c330cafeb811d4e39328e018431aed39b20ad3bb8a |
+| `scripts/env-scan.mjs`                   | 244bf48fbc6922c31c44b1e8f430b02239bacba06ca1370b3533aa9e3157dd8a |
+| `scripts/env-scan.d.mts`                 | 1a2b6194400097136e58e10edc87a4865080f36d718a3f510b25302d85cc8f39 |
+| `scripts/secret-scan.mjs`                | 22f2040a1d0d8dc7f0e5683fc695e3077f6764ef7f9668da08847ba6913dff14 |
+| `scripts/secret-scan.d.mts`              | cea1678693f3b1a5bb0cf221f9a3c2d4fe4f8d702f0e8c936526caba76e24c80 |
+| `scripts/secret-scan.allowlist.json`     | f69be72b24e7af782ca11c3b66f4a4cdb6f2ba8ade32e1892135be18eadce0d8 |
+| `tests/unit/scripts/env-scan.test.ts`    | 97e45adb874a6ed2f3cf05216a51288b5d20a649e935374bf09e2d7b8263dbdf |
+| `tests/unit/scripts/secret-scan.test.ts` | 88c6f5b830eabe9ddfb87a0f197e16b02516f15076748fadfc946dd99b693b82 |
+
+Also integrated: `docs/runbooks/SECURITY_CHECKS.md` (only its dated scan-scope section was
+updated with this attempt's real counts and the deliberate skip rules read from the source),
+`package.json` (one line: `check:secrets` = `node scripts/secret-scan.mjs`) and
+`.github/workflows/ci.yml` (one step: `npm run check:secrets` after `npm run check:env`;
+every existing gate, `fetch-depth: 0` and setting preserved). No dependencies, migrations,
+types, RPC/RLS, business/auth rules or webhook code changed.
+
+## Behaviour (as reviewed, unchanged)
+
+- `check:env`: loads `.env`, `.env.local`, `.env.[mode]`, `.env.[mode].local` for
+  development/production/staging with Vite precedence (`process.env` > `.env.[mode].local` >
+  `.env.[mode]` > `.env.local` > `.env`), expands `${VAR}`, flags server keys under
+  browser-exposed names, forbidden names, invalid `VITE_APP_ENV`, tracked env files,
+  `.env.example` secrets and unsupported `envPrefix`/`envDir`. Values are never printed.
+- `check:secrets`: scans tracked + untracked-not-ignored files line by line and every added
+  line in local history via `git log --all -m -p -U0`, so merge-only additions and later
+  deleted secrets are found. Output is rule id, path:line, 12-char commit, 10-hex
+  fingerprint. No inline suppression; one reviewed rule+fingerprint allowlist entry (a
+  synthetic `FAKE_API_KEY` test fixture), reason required.
+
+## Review of existing scanner against current code
+
+Read `secret-scan.mjs` / `env-scan.mjs` against the current tree. No defect was reproduced, so
+no scanner code and no new regression was added. Observations only (not changed, outside the
+"actually reproduced defect" rule):
+
+- `SKIP_PATH` skips any path with a `node_modules`, `dist` or `coverage` directory, even if
+  Git tracks it; NUL-containing files are counted as binary and not scanned. Documented in
+  the runbook scope section so a clean result is not read as covering them.
+- `git log --all` covers local refs including already-fetched remote-tracking refs; it never
+  contacts a remote, so unfetched remote/fork refs are outside this check.
+
+## Evidence (pre-finish)
+
+- `npm run check:secrets`: working tree 486 files (1 binary skipped), 52 local commits, 0
+  findings, exit 0, metadata-only output.
+- Scoped `npx prettier --check` on every allowed file: pass.
+- Lint, typecheck, unit, build, format, env and pipeline run only through `task:finish`.
+
+## Evidence (task:finish)
+
+Report SEC-004-2026-10-13T04-59-17-385Z, status `needs_validation` (exit 1 expected):
+pipeline, lint, typecheck, unit tests (including both scanner test files), build,
+format:check and `check:env` all pass. DB reset, pgTAP and integration are `not_run`
+because the Docker Linux engine is unavailable and the coordinator blocker is present; they
+are not claimed as passed. The `check:env` pass covers process.env and the env files present
+in this worktree only, not the primary checkout's ignored env files.
+
+## Not verifiable in this isolated workspace (pending)
+
+- Ignored env files of the primary checkout (`npm run check:env` there, by the Owner).
+- Remote, fork and unfetched PR refs; Vercel/Supabase hosted secret stores; CI artifacts.
+- GitHub CI run of the added step; independent review of the diff.
+- DB reset, pgTAP and integration: Docker Linux engine unavailable; `task:finish` skips DB
+  while the coordinator blocker is present. No Done, merge or deploy certification.
+
+# 13/10 independent follow-up
+
+Composition checks passed but independent review reproduced an inherited authenticated-JWT scanner false negative. See `docs/reviews/2026-10-13-SEC004-composition-review.md`. Preserve this report/checkpoint, then resume the exact session for a fresh scoped SEC-004 attempt with source/env synthetic regressions. Keep external and DB gates pending; do not claim Done.
