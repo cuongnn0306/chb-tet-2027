@@ -1259,6 +1259,18 @@
       "branch": "codex/sec-005-validated-stack",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/SEC-005-2026-10-12T16-24-03-985Z.md"
+    },
+    "INV-009": {
+      "id": "INV-009",
+      "title": "Isolate read-only inventory ledger by active account and role on reviewed stack",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-13T05:01:21.723Z",
+      "updatedAt": "2026-10-13T05:04:07.338Z",
+      "baseCommit": "60cdcd6e7e24b7601167fdb63a3987aa72cfe921",
+      "branch": "codex/inv-009-claude-scope",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/INV-009-2026-10-13T05-02-00-916Z.md"
     }
   }
 }
