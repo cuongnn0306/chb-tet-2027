@@ -16,6 +16,7 @@ import {
 import { useAuth } from '@/features/auth/auth-context'
 import { describeDbError } from '@/lib/db-errors'
 import type { TransferFormOptions } from '@/services/transfers.service'
+import { TransferSourceRecommendations } from '../components/TransferSourceRecommendations'
 import { useTransferService } from '../hooks/useTransferService'
 
 /**
@@ -37,8 +38,8 @@ export function TransferRequestPage() {
         </Link>
         <h1 className="text-xl font-semibold text-slate-900">Yêu cầu điều chuyển kho</h1>
         <p className="text-sm text-slate-600">
-          Chọn kho cần hàng, kho sẽ xuất hàng, sản phẩm và số lượng. Gửi yêu cầu không làm thay đổi
-          tồn kho: Admin sẽ xem xét và duyệt trước khi hàng được chuyển.
+          Chọn kho cần hàng, sản phẩm và số lượng; hệ thống gợi ý kho xuất để bạn tham khảo. Gửi yêu
+          cầu không làm thay đổi tồn kho: Admin sẽ xem xét và duyệt trước khi hàng được chuyển.
         </p>
       </header>
 
@@ -126,14 +127,6 @@ function TransferRequestForm({ options }: { options: TransferFormOptions }) {
         }}
       />
       <SelectField
-        label="Kho xuất hàng"
-        placeholder="Chọn kho xuất"
-        options={options.locations.filter((location) => location.value !== destination)}
-        value={source}
-        error={errors?.source}
-        onChange={(e) => setSource(e.target.value)}
-      />
-      <SelectField
         label="Sản phẩm"
         placeholder="Chọn sản phẩm"
         options={options.products}
@@ -149,6 +142,21 @@ function TransferRequestForm({ options }: { options: TransferFormOptions }) {
         value={quantityText}
         error={errors?.line[0]?.quantity}
         onChange={(e) => setQuantityText(e.target.value)}
+      />
+      <TransferSourceRecommendations
+        destinationLocationId={destination}
+        productId={productId}
+        quantityText={quantityText}
+        selectedLocationId={source}
+        onSelect={setSource}
+      />
+      <SelectField
+        label="Kho xuất hàng"
+        placeholder="Chọn kho xuất"
+        options={options.locations.filter((location) => location.value !== destination)}
+        value={source}
+        error={errors?.source}
+        onChange={(e) => setSource(e.target.value)}
       />
       <TextAreaField
         label="Lý do / ghi chú cho Admin"

@@ -1259,6 +1259,18 @@
       "branch": "codex/sec-005-validated-stack",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/SEC-005-2026-10-12T16-24-03-985Z.md"
+    },
+    "TRF-002": {
+      "id": "TRF-002",
+      "title": "Read-only source recommendations in transfer request",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-14T02:19:15.844Z",
+      "updatedAt": "2026-10-14T02:25:59.094Z",
+      "baseCommit": "60cdcd6e7e24b7601167fdb63a3987aa72cfe921",
+      "branch": "feature/TRF-002-recommendations",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/TRF-002-2026-10-14T02-24-28-929Z.md"
     }
   }
 }
