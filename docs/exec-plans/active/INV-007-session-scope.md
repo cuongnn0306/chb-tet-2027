@@ -28,3 +28,7 @@ At 320px the long location label did not overflow the document. An empty product
 ### Follow-up result
 
 Report `docs/handoff/reports/INV-007-2026-10-13T03-39-01-473Z.json`: pipeline, lint, typecheck, tests, build, format and env pass. DB reset, pgTAP and integration are not_run; status needs_validation. Source hash matches the report. Controlled browser retest and independent static review found no further actionable issue; evidence and limitations are in `docs/reviews/2026-10-13-INV007-browser-qa.md`. Temporary browser tab and Vite server were closed, viewport override reset, and port 4176 has no listener. No schema changes, remote writes, merges or deployment. Keep this plan active until remaining acceptance gates are satisfied.
+
+## 14/10 validation-only attempt after Docker recovery
+
+The clean `b26a24a` checkpoint preserves the reviewed page and browser fixture evidence. The page's LF-normalized SHA-256 still matches the prior report. Docker Linux and the local CHB DB are now available, removing the previous `not_run` condition. Run a fresh `task:start` / `task:finish` with the shared `CHB_DB_LOCK_PATH` lease. Do not edit inventory source, schema, service contracts or Claude-owned movement-history work. Inspect the new DB reset, pgTAP, integration, format and source-fingerprint results; preserve `needs_validation` until real authenticated UI/RLS, remote CI, staging and Owner acceptance are evidenced.

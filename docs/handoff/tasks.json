@@ -1262,15 +1262,15 @@
     },
     "INV-007": {
       "id": "INV-007",
-      "title": "Show explicit empty product catalog state found in browser QA; preserve account-role cache isolation and read-only inventory behavior",
+      "title": "Validation-only after Docker Linux engine restoration",
       "agent": "codex",
       "status": "needs_validation",
-      "startedAt": "2026-10-13T03:37:09.065Z",
-      "updatedAt": "2026-10-13T03:40:30.851Z",
-      "baseCommit": "70339cb171a09b05cc08458e225e88b05de2d199",
+      "startedAt": "2026-10-14T06:33:12.764Z",
+      "updatedAt": "2026-10-14T09:58:29.990Z",
+      "baseCommit": "b26a24a171ddd37a5044fdec427c63d04764c3e8",
       "branch": "codex/inv-007-empty-state",
       "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/INV-007-2026-10-13T03-39-01-473Z.md"
+      "latestReport": "docs/handoff/reports/INV-007-2026-10-14T09-52-49-120Z.md"
     }
   }
 }
