@@ -50,6 +50,23 @@ schema, service, auth, CI, package/config or business-rule change in this attemp
 - Still unverified (no actual evidence in this attempt): browser print output, 320px/mobile
   layout, real account switching/Auth/RLS, current-head CI, staging, Owner acceptance.
 
+## Validation-only attempt 3 (2026-10-14, after stale DB blocker removal)
+
+The previous report `ORD-014-2026-10-14T10-33-51-530Z.json` passed seven non-DB checks but DB
+reset/pgTAP/integration were `not_run` because the ignored local settings still supplied the
+stale 13/10 `CHB_DB_VALIDATION_BLOCKER`. The coordinator removed only that key (other settings and
+`CHB_DB_LOCK_PATH` preserved). This is a new environment condition, not a retry of a DB command.
+
+- Checkpoint `bed0ad8`, branch `codex/ord-014-claude-print`, tracked tree clean; blocker key
+  confirmed absent and lock path key present by count only (no values read or printed).
+- Single `task:finish` run; only it may reset the local DB, run pgTAP and integration while owning
+  the shared lease. No direct DB command, borrowed lease, repeat on failure, or
+  linked/staging/production DB.
+- Exact check statuses and the source digest are recorded in the new immutable report.
+- No implementation, schema, service, auth, CI, package/config or business-rule change.
+- Still unverified: browser print output, 320px/mobile layout, real account switching/Auth/RLS,
+  current-head CI, staging, Owner acceptance.
+
 ## Status
 
 Needs validation. Not Done.

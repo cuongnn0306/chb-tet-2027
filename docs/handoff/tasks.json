@@ -1262,15 +1262,15 @@
     },
     "ORD-014": {
       "id": "ORD-014",
-      "title": "Validation-only after Docker Linux engine restoration",
+      "title": "Validation-only after stale local DB blocker removal",
       "agent": "claude",
       "status": "needs_validation",
-      "startedAt": "2026-10-14T10:33:30.593Z",
-      "updatedAt": "2026-10-14T10:35:57.747Z",
-      "baseCommit": "9f62e94a74f41642f237ea07c948028de8665bbd",
+      "startedAt": "2026-10-14T10:54:45.763Z",
+      "updatedAt": "2026-10-14T10:59:29.448Z",
+      "baseCommit": "bed0ad80cb6ce55860106529c1b688b99abb867c",
       "branch": "codex/ord-014-claude-print",
       "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/ORD-014-2026-10-14T10-33-51-530Z.md"
+      "latestReport": "docs/handoff/reports/ORD-014-2026-10-14T10-55-07-304Z.md"
     }
   }
 }
