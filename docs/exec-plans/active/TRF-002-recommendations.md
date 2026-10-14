@@ -77,6 +77,20 @@ p_destination_location_id, p_quantity)` and returns rows in the order received (
   is unavailable (inherited `CHB_DB_VALIDATION_BLOCKER`).
 - CI, staging and Owner acceptance. Transfer approval / dispatch / receive acceptance is pending in TRF-003..007.
 
+## Validation-only attempt 2 (2026-10-14, after Docker Linux engine restoration)
+
+- Scope: no source, schema, contract, permission or business-rule change. Checkpoint `7c7d70a` (worktree clean) with the
+  immutable attempt-1 report `TRF-002-2026-10-14T02-24-28-929Z`, where DB reset, pgTAP and integration were `not_run`.
+- Reason: the Owner started Docker Desktop and the coordinator verified the Linux engine and the CHB Supabase DB
+  container; the inherited `CHB_DB_VALIDATION_BLOCKER` was removed from this worktree's ignored local settings and
+  `CHB_DB_LOCK_PATH` retained.
+- Method: one `npm run task:finish -- TRF-002 tmp/TRF-002-summary.json`. Only that pipeline may run the local DB reset,
+  pgTAP and integration checks under the shared lease; no direct DB command, no retry of an unchanged failing reset.
+- Result: recorded by the attempt-2 report in `docs/handoff/reports/` (exact per-check status and source fingerprint);
+  it is not restated here so this plan cannot drift from the evidence.
+- Unchanged acceptance: rendered isolation/retry, select-and-submit, mobile layout, live Auth/RLS from the screen, CI,
+  staging and Owner acceptance remain `not_verified`. A passing local DB run does not satisfy them; this is not Done.
+
 ## Status
 
-In progress (attempt 1). See `docs/handoff/reports/TRF-002-*.md`. This task is never Done without external acceptance.
+Attempt 2 closed as `needs_validation` after local DB recovery. See `docs/handoff/reports/TRF-002-*.md`; browser/mobile, staging, CI and Owner acceptance remain open. This task is never Done without external acceptance.

@@ -1262,15 +1262,15 @@
     },
     "TRF-002": {
       "id": "TRF-002",
-      "title": "Read-only source recommendations in transfer request",
+      "title": "Validation-only after Docker Linux engine restoration",
       "agent": "claude",
       "status": "needs_validation",
-      "startedAt": "2026-10-14T02:19:15.844Z",
-      "updatedAt": "2026-10-14T02:25:59.094Z",
-      "baseCommit": "60cdcd6e7e24b7601167fdb63a3987aa72cfe921",
+      "startedAt": "2026-10-14T04:43:41.407Z",
+      "updatedAt": "2026-10-14T04:48:34.771Z",
+      "baseCommit": "7c7d70aa4e48f1d46c79abd4e141337b422e4f43",
       "branch": "feature/TRF-002-recommendations",
       "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/TRF-002-2026-10-14T02-24-28-929Z.md"
+      "latestReport": "docs/handoff/reports/TRF-002-2026-10-14T04-44-05-164Z.md"
     }
   }
 }
