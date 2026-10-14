@@ -1262,15 +1262,15 @@
     },
     "ORD-014": {
       "id": "ORD-014",
-      "title": "Isolate printed order data by active account while preserving order invalidation",
+      "title": "Validation-only after Docker Linux engine restoration",
       "agent": "claude",
       "status": "needs_validation",
-      "startedAt": "2026-10-13T08:16:34.428Z",
-      "updatedAt": "2026-10-13T08:19:57.012Z",
-      "baseCommit": "60cdcd6e7e24b7601167fdb63a3987aa72cfe921",
+      "startedAt": "2026-10-14T10:33:30.593Z",
+      "updatedAt": "2026-10-14T10:35:57.747Z",
+      "baseCommit": "9f62e94a74f41642f237ea07c948028de8665bbd",
       "branch": "codex/ord-014-claude-print",
       "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/ORD-014-2026-10-13T08-17-23-445Z.md"
+      "latestReport": "docs/handoff/reports/ORD-014-2026-10-14T10-33-51-530Z.md"
     }
   }
 }

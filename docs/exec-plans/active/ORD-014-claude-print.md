@@ -36,6 +36,20 @@ no schema/types/RPC/services/hooks/auth/shared config/other pages, no new depend
 - Not verifiable from source review: browser print output, mobile layout, real account
   switching, RLS behaviour. The coordinator runs browser acceptance separately.
 
+## Validation-only attempt (2026-10-14)
+
+Follow-up after the Docker Linux engine was restored (coordinator evidence: reviewed SEC-004
+report of 14/10). Checkpoint `9f62e94`, branch `codex/ord-014-claude-print`, clean tree; the 253
+governed source hashes matched report `ORD-014-2026-10-13T08-17-23-445Z.json`. No implementation,
+schema, service, auth, CI, package/config or business-rule change in this attempt.
+
+- Single `task:finish` run; only it may reset the local DB, run pgTAP and integration while owning
+  the shared `CHB_DB_LOCK_PATH` lease. No direct Supabase CLI, `test:db`, `test:integration`,
+  borrowed lease, retry, or linked/staging/production DB.
+- Exact check statuses are recorded in the new immutable report, not here.
+- Still unverified (no actual evidence in this attempt): browser print output, 320px/mobile
+  layout, real account switching/Auth/RLS, current-head CI, staging, Owner acceptance.
+
 ## Status
 
 Needs validation. Not Done.
