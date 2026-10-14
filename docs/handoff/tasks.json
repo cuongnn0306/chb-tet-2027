@@ -1262,15 +1262,15 @@
     },
     "SEC-004": {
       "id": "SEC-004",
-      "title": "Detect authenticated JWT bearer credentials in source and browser env",
+      "title": "Validation-only after Docker Linux engine restoration",
       "agent": "claude",
       "status": "needs_validation",
-      "startedAt": "2026-10-13T08:14:31.714Z",
-      "updatedAt": "2026-10-13T08:17:29.189Z",
-      "baseCommit": "6752c502eaea5be8c761e884b15027e8dc19b2c3",
+      "startedAt": "2026-10-14T10:02:51.956Z",
+      "updatedAt": "2026-10-14T10:08:36.826Z",
+      "baseCommit": "715584b5a51cebf8120d496d79066d82648251a3",
       "branch": "codex/sec-004-claude-stack",
       "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/SEC-004-2026-10-13T08-15-47-066Z.md"
+      "latestReport": "docs/handoff/reports/SEC-004-2026-10-14T10-03-34-359Z.md"
     }
   }
 }

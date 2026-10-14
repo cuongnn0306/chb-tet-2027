@@ -122,3 +122,50 @@ pipeline, lint, typecheck, unit tests (including the new regressions), build, fo
 unavailable, coordinator blocker present) and are not claimed. Pending and outside this
 workspace: real browser/auth/RLS behaviour, ignored env of the primary checkout, remote/fork
 refs, hosted secret stores, remote CI, staging, independent review. Not Done.
+
+# 14/10 validation-only follow-up (third attempt)
+
+Environment change since the previous DB `not_run`: the coordinator reports the Docker Linux
+engine and the local CHB Supabase DB are healthy, no implementation dispatch or DB lease is
+active, the stale ignored `CHB_DB_VALIDATION_BLOCKER` was removed and the shared
+`CHB_DB_LOCK_PATH` is retained. Immutable report `SEC-004-2026-10-13T08-15-47-066Z` and its 260
+source hashes were verified by the coordinator; they are not edited here.
+
+Scope: validation only. Preconditions confirmed before `task:start`: branch
+`codex/sec-004-claude-stack`, HEAD `715584b5a51cebf8120d496d79066d82648251a3`, clean worktree.
+No implementation source, schema, service contract, workflow switch, permission, allowlist,
+package, CI or business rule is changed; this plan is the only tracked file edited by hand.
+No ignored env file, credential or real secret value is read; the synthetic scanner
+regressions from the previous attempt remain the evidence for scanner behaviour.
+
+Plan: run `npm run task:finish` exactly once. Only the finish pipeline performs the local DB
+reset, pgTAP and integration while it owns the shared lease; no direct Supabase CLI,
+`db reset`, `test:db` or `test:integration`, and no linked, staging or production database.
+A failed DB check is recorded as failed and is not retried in this attempt. Status stays
+`needs_validation` because the external gates below cannot be met from this workspace.
+
+Finish result — report `SEC-004-2026-10-14T10-03-34-359Z`, status `needs_validation` (exit 1
+expected), checked HEAD `715584b5a51cebf8120d496d79066d82648251a3`, source digest
+`ce8b4b9f8910e778fe1b3118dff3a03584368c60f117666c0d5ecd91c53226a8`. Single finish invocation,
+no retry:
+
+| Check     | Result | Check            | Result |
+| --------- | ------ | ---------------- | ------ |
+| pipeline  | pass   | db lease         | pass   |
+| lint      | pass   | db reset (local) | pass   |
+| typecheck | pass   | pgTAP            | pass   |
+| tests     | pass   | integration      | pass   |
+| build     | pass   | db lease release | pass   |
+| format    | pass   |                  |        |
+| check:env | pass   |                  |        |
+
+The DB lease was owned by the pipeline and released normally (`pid=11340`, token prefix
+`8944292c`). This supersedes the earlier DB `not_run` rows for the unchanged source; the
+immutable 13/10 reports are untouched. `check:env` still covers only `process.env` and the env
+files present in this worktree.
+
+Still pending and not verifiable from this workspace, so status stays `needs_validation` and
+nothing is Done: hosted/remote secret-scan scope (remote, fork and unfetched PR refs,
+Vercel/Supabase hosted secret stores, CI artifacts), `npm run check:env` against the primary
+checkout's ignored env files by the Owner, current-head remote CI, staging, real browser/auth/RLS
+behaviour, coordinator independent review and Owner acceptance.
