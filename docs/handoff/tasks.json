@@ -1561,15 +1561,15 @@
     },
     "RPT-001": {
       "id": "RPT-001",
-      "title": "Integrate approved KPI event definitions and cancellation reversal glossary",
+      "title": "Validation-only after Docker Linux engine restoration",
       "agent": "codex",
       "status": "needs_validation",
-      "startedAt": "2026-10-12T03:51:51.903Z",
-      "updatedAt": "2026-10-12T03:54:53.841Z",
-      "baseCommit": "2df547eb543c7fdbb372739e0fcadfb106800462",
-      "branch": "",
+      "startedAt": "2026-10-14T05:57:52.067Z",
+      "updatedAt": "2026-10-14T06:03:31.556Z",
+      "baseCommit": "af1615c0681cb132bc7d125e5c7f75cc85da6286",
+      "branch": "codex/rpt-001-kpi-definitions",
       "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/RPT-001-2026-10-12T03-52-40-361Z.md"
+      "latestReport": "docs/handoff/reports/RPT-001-2026-10-14T05-58-23-962Z.md"
     }
   }
 }
