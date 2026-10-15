@@ -52,3 +52,23 @@ new immutable report; the earlier report `INV-009-2026-10-13T05-02-00-916Z` is u
 
 Still unverified without actual evidence: browser/mobile 320px, real account/role switching,
 Auth/RLS behaviour, current-head CI, staging and Owner acceptance. This task is not Done.
+
+Outcome of that attempt (historical, immutable report `INV-009-2026-10-14T15-12-57-073Z`): the
+first seven checks passed; `supabase db reset --local` failed with `LocalDbRunningError` because the
+Docker Linux-engine pipe (`dockerDesktopLinuxEngine`) was absent, so pgTAP and integration were
+`not_run`. That Docker blocker is a historical condition of 13/10 and 14/10, not the current state.
+
+## Validation attempt: retry after Docker Linux recovery (15/10/2026)
+
+Validation-only retry; no implementation source, schema, service, auth, CI, package or config
+change. Codex reported Docker Linux server 29.6.2 and healthy local CHB Supabase core containers.
+Starting state confirmed: branch `codex/inv-009-claude-scope`, checkpoint `9b9827a` (preserves the
+14/10 failed evidence), clean tracked worktree, and the stale `CHB_DB_VALIDATION_BLOCKER` key absent
+from ignored local settings (count only; values not read). `task:finish` is run exactly once; it
+alone performs local DB reset, pgTAP and integration while owning the shared DB lease. Actual check
+statuses, source digest and any blocker are recorded in the new immutable report; earlier reports
+are unchanged.
+
+Still unverified without actual evidence: browser/mobile 320px, real account/role switching,
+Auth/RLS behaviour, current-head CI, staging and Owner acceptance. Source review is not live
+Auth/RLS evidence. This task is not Done.

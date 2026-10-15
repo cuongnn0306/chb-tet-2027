@@ -1262,15 +1262,15 @@
     },
     "INV-009": {
       "id": "INV-009",
-      "title": "Validation-only after Docker and local DB recovery",
+      "title": "Validation-only retry after Docker Linux recovery; no source changes",
       "agent": "claude",
       "status": "needs_validation",
-      "startedAt": "2026-10-14T15:12:20.147Z",
-      "updatedAt": "2026-10-14T15:15:10.212Z",
-      "baseCommit": "c17cc665d6a0419009785eaa2abcd3185c553303",
+      "startedAt": "2026-10-15T08:09:50.582Z",
+      "updatedAt": "2026-10-15T08:15:40.808Z",
+      "baseCommit": "9b9827a2cd5c3e306078958b8de8c8d69de68962",
       "branch": "codex/inv-009-claude-scope",
       "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/INV-009-2026-10-14T15-12-57-073Z.md"
+      "latestReport": "docs/handoff/reports/INV-009-2026-10-15T08-10-11-825Z.md"
     }
   }
 }
