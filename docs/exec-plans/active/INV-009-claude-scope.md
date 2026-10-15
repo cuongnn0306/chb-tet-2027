@@ -40,3 +40,15 @@ Browser/mobile, authenticated session and RLS behaviour were not exercised; sour
 not prove authentication or RLS. No dedicated regression test was added: the repository has no
 component-render test tooling for this page, and mirroring the key shape in a unit test was ruled
 out. Docker is unavailable, so DB reset, pgTAP and integration are `not_run` by blocker.
+
+## Validation attempt: after Docker and local DB recovery (14/10/2026)
+
+Validation-only; no implementation source changed. Starting state confirmed: branch
+`codex/inv-009-claude-scope`, checkpoint `c17cc66`, clean tracked worktree, and the stale
+`CHB_DB_VALIDATION_BLOCKER` key absent from the ignored local settings (checked by count only; no
+values read). `task:finish` was run exactly once so it alone performed local DB reset, pgTAP and
+integration under the shared lease. Actual check statuses and the source digest are recorded in the
+new immutable report; the earlier report `INV-009-2026-10-13T05-02-00-916Z` is unchanged.
+
+Still unverified without actual evidence: browser/mobile 320px, real account/role switching,
+Auth/RLS behaviour, current-head CI, staging and Owner acceptance. This task is not Done.
