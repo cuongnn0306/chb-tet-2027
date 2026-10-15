@@ -1271,6 +1271,18 @@
       "branch": "feature/TRF-002-recommendations",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/TRF-002-2026-10-14T04-44-05-164Z.md"
+    },
+    "SEC-001": {
+      "id": "SEC-001",
+      "title": "Admin read-only Audit Log viewer over existing immutable audit helper and RLS",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-15T09:36:54.437Z",
+      "updatedAt": "2026-10-15T09:51:21.970Z",
+      "baseCommit": "a41cdeb07d2de2ff31d968446068364d9b6826ca",
+      "branch": "feature/SEC-001-audit-viewer",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/SEC-001-2026-10-15T09-46-34-135Z.md"
     }
   }
 }

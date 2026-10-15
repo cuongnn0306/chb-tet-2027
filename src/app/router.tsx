@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router'
+import { AuditLogPage } from '@/features/audit/pages/AuditLogPage'
 import { CustomerListPage } from '@/features/customers/pages/CustomerListPage'
 import { BatchStockPage } from '@/features/inventory/pages/BatchStockPage'
 import { ImportOpeningStockPage } from '@/features/inventory/pages/ImportOpeningStockPage'
@@ -70,6 +71,10 @@ export const router = createBrowserRouter([
               { path: ROUTES.deliveries, element: <DeliveryBoardPage /> },
               { path: '/deliveries/:deliveryId/print', element: <DeliveryPrintPage mode="note" /> },
             ],
+          },
+          {
+            element: <PermissionRoute permission="view_audit_log" />,
+            children: [{ path: ROUTES.auditLog, element: <AuditLogPage /> }],
           },
           {
             element: <PermissionRoute permission="propose_transfer" />,
