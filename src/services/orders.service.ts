@@ -27,6 +27,52 @@ export interface Quote {
   lines: QuoteLine[]
 }
 
+/**
+ * COM-002: how a rate was found. USER_PRODUCT/USER/ROLE_PRODUCT/ROLE are commission_rules rows (COM-001
+ * priority); PRODUCT_DEFAULT is the product's default rate; NONE means the product no longer exists.
+ */
+export type CommissionRuleSource =
+  'USER_PRODUCT' | 'USER' | 'ROLE_PRODUCT' | 'ROLE' | 'PRODUCT_DEFAULT' | 'NONE'
+
+export interface CommissionLineEstimate {
+  order_item_id: string
+  product_id: string
+  sku: string
+  quantity: number
+  /** list price x quantity */
+  commission_revenue: number
+  rate_percent: number
+  rule_source: CommissionRuleSource
+  /** Rule evidence is Admin-only: null for the salesperson. */
+  rule_id: string | null
+  rule_effective_from: string | null
+  rule_effective_to: string | null
+  base_commission: number
+  customer_discount_share: number
+  final_commission: number
+}
+
+/**
+ * ESTIMATE: order never confirmed, figures follow today's rules and can still change.
+ * SNAPSHOT: order was confirmed, figures are frozen from that moment (`is_final`).
+ * MISSING_SNAPSHOT: confirmed before snapshots existed; no figures are invented from today's rules.
+ */
+export interface OrderCommissionEstimate {
+  order_id: string
+  basis: 'ESTIMATE' | 'SNAPSHOT' | 'MISSING_SNAPSHOT'
+  is_final: boolean
+  /** Business date the rates were resolved on (null for MISSING_SNAPSHOT). */
+  resolved_on: string | null
+  seller_user_id: string
+  seller_role_code: string | null
+  gross_amount: number
+  discount_amount: number
+  base_commission: number | null
+  final_commission: number | null
+  discount_within_base_commission: boolean | null
+  lines: CommissionLineEstimate[]
+}
+
 export interface SaveDraftInput {
   orderId: string | null
   customerId: string
@@ -147,6 +193,16 @@ export function createOrderService(client: AppSupabaseClient) {
           p_owner_user_id: ownerUserId ?? undefined,
         }) as never,
       ) as Promise<Quote>
+    },
+
+    /**
+     * COM-002: commission of one order for its salesperson or an Admin. A confirmed order returns the frozen
+     * snapshot; before that it is an estimate from the rules effective today.
+     */
+    async commissionEstimate(orderId: string): Promise<OrderCommissionEstimate> {
+      return call(
+        client.rpc('estimate_order_commission', { p_order_id: orderId }) as never,
+      ) as Promise<OrderCommissionEstimate>
     },
 
     async saveDraft(input: SaveDraftInput): Promise<Order> {

@@ -1271,6 +1271,39 @@
       "branch": "",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/COM-001-2026-10-12T18-43-51-739Z.md"
+    },
+    "COM-002": {
+      "id": "COM-002",
+      "title": "Remove obsolete estimate RPC type bridge after generated types",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-17T07:16:58.714Z",
+      "updatedAt": "2026-10-17T07:23:42.487Z",
+      "baseCommit": "3f5ef40d0397d6891fe0afa03ece1ea4dbf97c53",
+      "branch": "feature/COM-002-estimated-commission",
+      "preExistingChanges": [
+        "docs/exec-plans/active/COM-002-estimated-commission.md",
+        "docs/handoff/STATUS.md",
+        "docs/handoff/claude-inbox/COM-002-docker-recovery-20261017.md",
+        "docs/handoff/claude-inbox/COM-002-fix-round1.md",
+        "docs/handoff/claude-inbox/COM-002-type-bridge-cleanup-20261017.md",
+        "docs/handoff/claude-inbox/COM-002.md",
+        "docs/handoff/reports/COM-002-2026-10-16T09-36-07-486Z.json",
+        "docs/handoff/reports/COM-002-2026-10-16T09-36-07-486Z.md",
+        "docs/handoff/reports/COM-002-2026-10-16T10-06-05-104Z.json",
+        "docs/handoff/reports/COM-002-2026-10-16T10-06-05-104Z.md",
+        "docs/handoff/reports/COM-002-2026-10-17T06-28-40-799Z.json",
+        "docs/handoff/reports/COM-002-2026-10-17T06-28-40-799Z.md",
+        "docs/handoff/tasks.json",
+        "src/domain/orders/commission.ts",
+        "src/services/orders.service.ts",
+        "src/types/database.generated.ts",
+        "supabase/migrations/20261016090000_com002_commission_snapshot.sql",
+        "supabase/tests/commission_snapshot.test.sql",
+        "tests/integration/commission-snapshot.test.ts",
+        "tests/unit/domain/order-commission.test.ts"
+      ],
+      "latestReport": "docs/handoff/reports/COM-002-2026-10-17T07-17-39-194Z.md"
     }
   }
 }

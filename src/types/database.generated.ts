@@ -396,6 +396,61 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"order_item_commission_snapshots": {
+                  Row: {
+                    "base_commission": number,"commission_revenue": number,"customer_discount_share": number,"final_commission": number | null,"id": string,"order_id": string,"order_item_id": string,"product_id": string,"quantity": number,"rate_percent": number,"resolved_on": string,"rule_effective_from": string | null,"rule_effective_to": string | null,"rule_id": string | null,"rule_source": string,"seller_role_code": string,"seller_role_id": string,"seller_user_id": string,"snapshot_at": string,"snapshot_by": string | null
+                  }
+                  Insert: {
+                    "base_commission": number,"commission_revenue": number,"customer_discount_share": number,"final_commission"?: never,"id"?: string,"order_id": string,"order_item_id": string,"product_id": string,"quantity": number,"rate_percent": number,"resolved_on": string,"rule_effective_from"?: string | null,"rule_effective_to"?: string | null,"rule_id"?: string | null,"rule_source": string,"seller_role_code": string,"seller_role_id": string,"seller_user_id": string,"snapshot_at"?: string,"snapshot_by"?: string | null
+                  }
+                  Update: {
+                    "base_commission"?: number,"commission_revenue"?: number,"customer_discount_share"?: number,"final_commission"?: never,"id"?: string,"order_id"?: string,"order_item_id"?: string,"product_id"?: string,"quantity"?: number,"rate_percent"?: number,"resolved_on"?: string,"rule_effective_from"?: string | null,"rule_effective_to"?: string | null,"rule_id"?: string | null,"rule_source"?: string,"seller_role_code"?: string,"seller_role_id"?: string,"seller_user_id"?: string,"snapshot_at"?: string,"snapshot_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_item_commission_snapshots_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_item_commission_snapshots_order_item_id_fkey"
+      columns: ["order_item_id"]
+isOneToOne: true
+      referencedRelation: "order_items"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_item_commission_snapshots_product_id_fkey"
+      columns: ["product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_item_commission_snapshots_rule_id_fkey"
+      columns: ["rule_id"]
+isOneToOne: false
+      referencedRelation: "commission_rules"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_item_commission_snapshots_seller_role_id_fkey"
+      columns: ["seller_role_id"]
+isOneToOne: false
+      referencedRelation: "roles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_item_commission_snapshots_seller_user_id_fkey"
+      columns: ["seller_user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_item_commission_snapshots_snapshot_by_fkey"
+      columns: ["snapshot_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"order_items": {
                   Row: {
                     "allocated_quantity": number,"created_at": string,"delivered_quantity": number,"gross_line_amount": number,"id": string,"list_price": number,"order_id": string,"product_id": string,"quantity": number,"returned_quantity": number
@@ -863,6 +918,9 @@ isOneToOne: false
                            },
 "dismiss_payment_event":
 { Args: { "p_event_id": string,"p_note": string }; Returns: undefined
+                           },
+"estimate_order_commission":
+{ Args: { "p_order_id": string }; Returns: Json
                            },
 "fail_payment":
 { Args: { "p_payment_id": string,"p_reason": string }; Returns: {
