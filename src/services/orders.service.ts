@@ -48,8 +48,32 @@ export interface CommissionLineEstimate {
   rule_effective_from: string | null
   rule_effective_to: string | null
   base_commission: number
+  /** The line's share of the customer discount (used for returns). */
   customer_discount_share: number
+  /** Part of the discount funded by this line's commission: 0..base. Null for legacy snapshots. */
+  commission_deduction: number | null
+  /** base - deduction, never negative. Null for legacy snapshots (allocation_version 1). */
+  payable_commission: number | null
+  /** What can be paid for the line; for legacy snapshots the stored difference. */
   final_commission: number
+  allocation_version: 1 | 2
+}
+
+/** Admin exception raised when the discount is above the base commission at the first CONFIRMED. */
+export interface CommissionDiscountException {
+  status: 'PENDING' | 'APPROVED'
+  company_borne_excess: number
+  approved_at: string | null
+  /** Admin-only. */
+  approval_reason: string | null
+}
+
+export interface ApproveCommissionExceptionResult {
+  order_id: string
+  status: 'APPROVED'
+  /** True when it was already approved: nothing changed and no second audit entry was written. */
+  already_approved: boolean
+  approved_at: string
 }
 
 /**
@@ -68,8 +92,16 @@ export interface OrderCommissionEstimate {
   gross_amount: number
   discount_amount: number
   base_commission: number | null
+  /** Part of the discount the commission pays for: min(discount, base). Null for legacy snapshots. */
+  commission_funded_discount: number | null
+  /** Discount the company bears when it exceeds the base commission; null for legacy / missing snapshots. */
+  company_borne_excess: number | null
+  /** The employee's payable commission (sum of the nonnegative line figures). */
   final_commission: number | null
   discount_within_base_commission: boolean | null
+  /** Present once a snapshot recorded an exception; it locks the commission while PENDING. */
+  exception: CommissionDiscountException | null
+  commission_locked: boolean
   lines: CommissionLineEstimate[]
 }
 
@@ -203,6 +235,22 @@ export function createOrderService(client: AppSupabaseClient) {
       return call(
         client.rpc('estimate_order_commission', { p_order_id: orderId }) as never,
       ) as Promise<OrderCommissionEstimate>
+    },
+
+    /**
+     * COM-002: Admin approves the exception that locks the commission of an order whose discount exceeded the base
+     * commission at the first CONFIRMED. A written reason is required; the database audits it and repeats are safe.
+     */
+    async approveCommissionException(
+      orderId: string,
+      reason: string,
+    ): Promise<ApproveCommissionExceptionResult> {
+      return call(
+        client.rpc('approve_commission_discount_exception', {
+          p_order_id: orderId,
+          p_reason: reason,
+        }) as never,
+      ) as Promise<ApproveCommissionExceptionResult>
     },
 
     async saveDraft(input: SaveDraftInput): Promise<Order> {

@@ -1,0 +1,10 @@
+# COM-002 review fix: Admin approval UI and typed RPC
+
+Continue the exact COM-002 session/worktree/branch. Read AGENTS.md and the three specifications in order, the active COM-002 ExecPlan, handoff workflow and latest COM-002 report. Read the immutable Codex review at `D:/Projects/chb-ban-hang/docs/reviews/2026-10-17-COM002-owner-policy-result-review.md`. Owner decisions are in `docs/product/OWNER_DECISIONS_2026-10-17.md`.
+
+`task:start` must run before editing. Fix two findings only:
+
+1. P1: On order detail, Admin needs a usable approval action for a PENDING commission discount exception. Show the frozen base commission, discount, company-borne excess and commission lock plainly in accented Vietnamese. Require a nonblank reason; explain that approval unlocks commission while the company bears the excess and employee payout cannot go below zero. Invoke the typed service/RPC, handle concurrent/idempotent result and refresh the estimate. Salesperson may see their commission/lock status but never approval reason or Admin action. Cover loading, empty, error, no-permission and narrow mobile layout. Keep critical rules in the service/RPC, not the component. Add meaningful UI regression for pending-to-approved and role boundary; use fixture data only.
+2. P2: Generated `database.generated.ts` now has `approve_commission_discount_exception`. Remove the `ApproveRpcClient` cast/interface and call `client.rpc` directly, preserving API behavior.
+
+Do not edit the existing migration or historical reports, don't broaden any permission allowlist, and don't claim that the two denied optional diagnostics ran. Use only the existing allowed npm scripts from the worktree cwd without `cd` prefix; Edit/Write can handle formatting. Update COM-002 ExecPlan with acceptance evidence. Fill a new JSON summary based on `docs/handoff/summary.example.json` and run `npm run task:finish -- COM-002 <summary-path>` even if blocked. All DB validation must occur solely inside `task:finish` with the inherited shared lease. Leave task `needs_validation` until Codex review, actual mobile QA, staging, CI and Owner acceptance; no push/merge/deploy.

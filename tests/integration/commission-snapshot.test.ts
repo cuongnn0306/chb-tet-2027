@@ -192,6 +192,29 @@ async function snapshotRows(orderId: string) {
     .sort((a, b) => (a.sku < b.sku ? -1 : a.sku > b.sku ? 1 : 0))
 }
 
+// The exception table enters the generated types only after the pipeline regenerates them: query it loosely.
+const looseSvc = () => svc() as unknown as SupabaseClient
+
+async function exceptionRows(orderId: string) {
+  const { data, error } = await looseSvc()
+    .from('commission_discount_exceptions')
+    .select('*')
+    .eq('order_id', orderId)
+  expect(error).toBeNull()
+  return (data ?? []) as any[]
+}
+
+async function exceptionAuditCount(exceptionId: string, action: 'insert' | 'update') {
+  const { data, error } = await looseSvc()
+    .from('audit_logs')
+    .select('id, reason')
+    .eq('entity_type', 'commission_discount_exceptions')
+    .eq('entity_id', exceptionId)
+    .eq('action', action)
+  expect(error).toBeNull()
+  return (data ?? []) as { id: string; reason: string | null }[]
+}
+
 async function estimate(client: AppSupabaseClient, orderId: string) {
   const { data, error } = await rpc(client, 'estimate_order_commission', { p_order_id: orderId })
   expect(error).toBeNull()
@@ -238,21 +261,27 @@ describe('estimated commission (COM-002)', () => {
       gross_amount: 70329,
       discount_amount: 5000,
       base_commission: expected.baseCommission,
-      final_commission: expected.finalCommission,
+      commission_funded_discount: expected.commissionFundedDiscount,
+      company_borne_excess: expected.companyBorneExcess,
+      final_commission: expected.payableCommission,
       discount_within_base_commission: true,
+      commission_locked: false,
     })
     const dbLines = est.lines.map((l: any) => ({
       sku: l.sku,
       base: l.base_commission,
       share: l.customer_discount_share,
-      final: l.final_commission,
+      deduction: l.commission_deduction,
+      payable: l.payable_commission,
     }))
     const tsLines = expected.lines.map((l) => ({
       sku: l.sku,
       base: l.baseCommission,
       share: l.customerDiscountShare,
-      final: l.finalCommission,
+      deduction: l.commissionDeduction,
+      payable: l.payableCommission,
     }))
+    expect(dbLines.every((l: { payable: number }) => l.payable >= 0)).toBe(true)
     expect(dbLines).toEqual(tsLines)
 
     // base commission is exactly the ceiling the quote used for the discount check (ORD-005)
@@ -302,7 +331,13 @@ describe('estimated commission (COM-002)', () => {
       base_commission: 60000,
       customer_discount_share: 0,
       final_commission: 60000,
+      allocation_version: 2,
+      commission_deduction: 0,
+      payable_commission: 60000,
     })
+    // an ordinary order needs no discount exception and its commission is not locked
+    expect(await exceptionRows(order.id)).toHaveLength(0)
+    expect((await estimate(sale, order.id)).commission_locked).toBe(false)
 
     // Later rule changes (edit, a newer overriding rule, deactivation) never rewrite the order.
     await setRate(p, 20)
@@ -358,6 +393,150 @@ describe('estimated commission (COM-002)', () => {
     expect(await status(order.id)).toBe('CANCELLED')
     expect(await snapshotRows(order.id)).toHaveLength(0)
     expect((await estimate(sale, order.id)).basis).toBe('ESTIMATE')
+  })
+})
+
+describe('discount above the base commission (Owner decision 17/10/2026)', () => {
+  it('confirms and posts the payment once, locks the commission, and unlocks only on Admin approval', async () => {
+    const p = await product(100000, 10)
+    const order = await draft([{ p, qty: 5 }], 40000) // gross 500.000, 10% -> base 50.000, discount 40.000 is allowed
+    const deposit = await waitingDeposit(order.id)
+    await setRate(p, 5) // base falls to 25.000 while the order waits for its deposit
+    await payDeposit(order.id, deposit)
+
+    expect(await status(order.id)).toBe('CONFIRMED')
+    const { data: payments } = await svc()
+      .from('payments')
+      .select('id, amount')
+      .eq('order_id', order.id)
+    expect(payments).toHaveLength(1) // posted once, not rolled back and not duplicated
+    expect(payments?.[0]?.amount).toBe(deposit)
+
+    const rows = await snapshotRows(order.id)
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toMatchObject({
+      rate_percent: 5, // the rate at the actual CONFIRMED transition, not at the Admin click
+      base_commission: 25000,
+      customer_discount_share: 40000, // the customer keeps the whole discount
+      commission_deduction: 25000,
+      payable_commission: 0,
+      allocation_version: 2,
+    })
+    const { data: orderRow } = await svc()
+      .from('orders')
+      .select('discount_amount, net_amount')
+      .eq('id', order.id)
+      .single()
+    expect(orderRow).toMatchObject({ discount_amount: 40000, net_amount: 460000 })
+
+    const [exception] = await exceptionRows(order.id)
+    expect(exception).toMatchObject({
+      status: 'PENDING',
+      base_commission: 25000,
+      customer_discount: 40000,
+      company_borne_excess: 15000,
+      approved_by: null,
+    })
+
+    const locked = await estimate(sale, order.id)
+    expect(locked).toMatchObject({
+      basis: 'SNAPSHOT',
+      commission_locked: true,
+      company_borne_excess: 15000,
+      commission_funded_discount: 25000,
+      final_commission: 0,
+    })
+    expect(locked.exception).toMatchObject({ status: 'PENDING', approval_reason: null })
+    expect(locked.lines[0]).toMatchObject({ payable_commission: 0, customer_discount_share: 40000 })
+
+    // nobody but the Admin approves, and never without a reason
+    for (const client of [sale, store, warehouse]) {
+      const denied = await rpc(client, 'approve_commission_discount_exception', {
+        p_order_id: order.id,
+        p_reason: 'Tự duyệt',
+      })
+      expect(denied.error?.code).toBe('42501')
+    }
+    const blank = await rpc(admin, 'approve_commission_discount_exception', {
+      p_order_id: order.id,
+      p_reason: '   ',
+    })
+    expect(blank.error?.code).toBe('22023')
+    expect((await exceptionRows(order.id))[0].status).toBe('PENDING')
+
+    // two Admin approvals racing: both succeed, exactly one changes the row, exactly one audit entry
+    const [first, second] = await Promise.all([
+      rpc(admin, 'approve_commission_discount_exception', {
+        p_order_id: order.id,
+        p_reason: 'Owner đồng ý',
+      }),
+      rpc(admin, 'approve_commission_discount_exception', {
+        p_order_id: order.id,
+        p_reason: 'Owner đồng ý',
+      }),
+    ])
+    expect(first.error).toBeNull()
+    expect(second.error).toBeNull()
+    expect([first.data.already_approved, second.data.already_approved].sort()).toEqual([
+      false,
+      true,
+    ])
+
+    const [approved] = await exceptionRows(order.id)
+    expect(approved).toMatchObject({ status: 'APPROVED', approval_reason: 'Owner đồng ý' })
+    expect(approved.approved_by).not.toBeNull()
+    const audits = await exceptionAuditCount(approved.id, 'update')
+    expect(audits).toHaveLength(1)
+    expect(audits[0]?.reason).toBe('Owner đồng ý')
+
+    const unlocked = await estimate(sale, order.id)
+    expect(unlocked.commission_locked).toBe(false)
+    expect(unlocked.exception).toMatchObject({ status: 'APPROVED', approval_reason: null }) // reason is Admin-only
+    expect((await estimate(admin, order.id)).exception.approval_reason).toBe('Owner đồng ý')
+
+    // the snapshot and the payment are untouched by the approval
+    expect(await snapshotRows(order.id)).toEqual(rows)
+    const { data: after } = await svc().from('payments').select('id').eq('order_id', order.id)
+    expect(after).toHaveLength(1)
+  })
+
+  it('keeps the exception table Admin-only and read-only for every API role', async () => {
+    const p = await product(100000, 10)
+    const order = await draft([{ p, qty: 5 }], 40000)
+    const deposit = await waitingDeposit(order.id)
+    await setRate(p, 5)
+    await payDeposit(order.id, deposit)
+    const [exception] = await exceptionRows(order.id)
+
+    const asLoose = (client: AppSupabaseClient) => client as unknown as SupabaseClient
+    for (const nonAdmin of [sale, store, warehouse]) {
+      const seen = await asLoose(nonAdmin)
+        .from('commission_discount_exceptions')
+        .select('id')
+        .eq('order_id', order.id)
+      expect(seen.data).toEqual([])
+    }
+    const adminSeen = await asLoose(admin)
+      .from('commission_discount_exceptions')
+      .select('id')
+      .eq('order_id', order.id)
+    expect(adminSeen.data).toHaveLength(1)
+
+    for (const client of [sale, admin, svc() as unknown as AppSupabaseClient]) {
+      const update = await asLoose(client)
+        .from('commission_discount_exceptions')
+        .update({ status: 'APPROVED', approval_reason: 'đường tắt' })
+        .eq('id', exception.id)
+      expect(update.error).not.toBeNull()
+      const insert = await asLoose(client).from('commission_discount_exceptions').insert({
+        order_id: order.id,
+        base_commission: 1,
+        customer_discount: 2,
+        company_borne_excess: 1,
+      })
+      expect(insert.error).not.toBeNull()
+    }
+    expect((await exceptionRows(order.id))[0].status).toBe('PENDING')
   })
 })
 

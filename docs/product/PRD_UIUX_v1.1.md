@@ -733,9 +733,24 @@ CUSTOMER DISCOUNT
 CUSTOMER DISCOUNT ≤ BASE COMMISSION
 ```
 
-Nếu vượt:
+Nếu vượt **khi tạo/lưu/gửi đơn**:
 
 → không cho lưu đơn.
+
+> **Cập nhật theo quyết định Owner 17/10/2026** (`OWNER_DECISIONS_2026-10-17.md`): kiểm tra trên chỉ áp dụng khi lưu/gửi đơn. Nếu sau đó tỷ lệ/quy tắc giảm làm chiết khấu khách đã chốt **vượt** hoa hồng gốc tại lần đầu đơn thành `CONFIRMED`, đơn **vẫn xác nhận** và khoản tiền đã thu **không** bị hoàn tác hay ghi lại. Hoa hồng của đơn bị **khóa** cho đến khi **Admin duyệt ngoại lệ** kèm lý do bắt buộc và audit; không có tự duyệt. Chiết khấu của khách và doanh thu thuần của đơn giữ nguyên đủ. (Cách diễn đạt trước 17/10/2026 — "vượt thì không cho lưu đơn", áp dụng cả lúc xác nhận — được thay thế cho thời điểm xác nhận.)
+
+Hoa hồng thực nhận **không bao giờ âm** ở từng dòng:
+
+```text
+CUSTOMER DISCOUNT SHARE (từng dòng)    = chiết khấu đơn phân bổ theo giá trị niêm yết dòng
+COMMISSION DEDUCTION  (từng dòng)      = phần chiết khấu do hoa hồng dòng đó gánh, 0 ≤ deduction ≤ base
+PAYABLE COMMISSION    (từng dòng)      = BASE COMMISSION − COMMISSION DEDUCTION  (≥ 0)
+
+Σ COMMISSION DEDUCTION = min(CUSTOMER DISCOUNT, Σ BASE COMMISSION)
+COMPANY-BORNE EXCESS   = CUSTOMER DISCOUNT − Σ COMMISSION DEDUCTION  (= phần vượt, công ty chịu, ≥ 0)
+```
+
+Đơn thông thường (`CUSTOMER DISCOUNT ≤ BASE COMMISSION`): tổng chiết khấu được bảo toàn, `Σ PAYABLE = BASE − DISCOUNT`, phần công ty chịu bằng 0. Nếu vượt: hoa hồng nhân viên bằng 0, phần vượt hiển thị rõ là công ty chịu. Dòng có tỷ lệ 0% không bao giờ hiển thị hoa hồng âm: phần chiết khấu của dòng đó được các dòng còn dư hoa hồng gánh, phân bổ số nguyên, quy tắc phần dư cố định (dư lớn nhất trước; hòa theo SKU theo thứ tự byte, rồi theo mã dòng). Phần chiết khấu khách phân bổ cho từng dòng **giữ nguyên** để tính hàng hoàn.
 
 Ví dụ:
 
@@ -753,7 +768,9 @@ Hoa hồng chỉ được ghi nhận khi:
 - Order = Hoàn thành
 - Remaining Amount = 0
 
-## 19.4 Chốt tỷ lệ hoa hồng — quyết định Owner 11/10/2026
+## 19.4 Chốt tỷ lệ hoa hồng — quyết định Owner 11/10/2026, làm rõ 17/10/2026
+
+> Làm rõ 17/10/2026: "xác nhận" ở đây là **lần chuyển trạng thái thực sự sang `CONFIRMED`** (đủ cọc, hoặc cọc bằng 0), không phải thao tác Admin bấm xác nhận nếu đơn còn `WAITING_DEPOSIT`. Tỷ lệ đổi giữa hai thời điểm đó vẫn có hiệu lực. Ngoại lệ chiết khấu vượt hoa hồng: xem 19.3 và `OWNER_DECISIONS_2026-10-17.md`; hoa hồng chỉ `ELIGIBLE` sau khi Admin duyệt ngoại lệ (nếu có) cùng các điều kiện bên dưới.
 
 - Trước khi Admin xác nhận đơn, hoa hồng hiển thị là **dự kiến** và có thể thay đổi theo quy tắc đang hiệu lực.
 - Tại lần đầu đơn chuyển sang `CONFIRMED`, hệ thống chốt tỷ lệ áp dụng cho từng dòng sản phẩm và lưu bằng chứng quy tắc/tỷ lệ tại thời điểm đó. Thay đổi tỷ lệ hoặc vai trò về sau không viết lại hoa hồng lịch sử của đơn đã xác nhận.

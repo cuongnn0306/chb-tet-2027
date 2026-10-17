@@ -9,6 +9,7 @@ import { availableActions, isEditable, type OrderAction } from '@/domain/orders/
 import { useAuth } from '@/features/auth/auth-context'
 import { Button } from '@/components/ui/Button'
 import { ACTION_COPY } from '../action-copy'
+import { CommissionExceptionPanel } from '../components/CommissionExceptionPanel'
 import { OrderActionDialog } from '../components/OrderActionDialog'
 import { OrderDeliveryPanel } from '@/features/deliveries/components/OrderDeliveryPanel'
 import { OrderPaymentPanel } from '@/features/payments/components/OrderPaymentPanel'
@@ -243,6 +244,10 @@ export function OrderDetailPage() {
           void queryClient.invalidateQueries({ queryKey: ['orders'] })
         }}
       />
+
+      {isAdmin || (access.status === 'active' && data.owner_user_id === access.user.id) ? (
+        <CommissionExceptionPanel orderId={data.id} status={data.status} isAdmin={isAdmin} />
+      ) : null}
 
       <OrderStockPanel
         orderId={data.id}

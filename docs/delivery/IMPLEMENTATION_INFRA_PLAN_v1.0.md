@@ -735,7 +735,9 @@ Priority:
 
 ## COM-002 — Estimated commission
 
-Tạm tính trước xác nhận; tỷ lệ theo từng dòng được snapshot ở lần đầu Admin xác nhận đơn. Không hồi tính từ rule hoặc vai trò hiện tại.
+Tạm tính trước xác nhận; tỷ lệ theo từng dòng được snapshot ở lần đầu đơn **thực sự** chuyển sang `CONFIRMED` (đủ cọc hoặc cọc 0; không phải lúc Admin bấm xác nhận dẫn tới `WAITING_DEPOSIT` — làm rõ Owner 17/10/2026, trước đó ghi "lần đầu Admin xác nhận đơn"). Không hồi tính từ rule hoặc vai trò hiện tại.
+
+Hoa hồng từng dòng không âm: tách `customer_discount_share`, `commission_deduction` và `payable_commission`; phần chiết khấu vượt hoa hồng là công ty chịu (`company_borne_excess`). Chiết khấu vượt hoa hồng tại `CONFIRMED` không chặn xác nhận/thu tiền: tạo ngoại lệ `PENDING`, Admin duyệt kèm lý do + audit (`approve_commission_discount_exception`). Chi tiết: `docs/product/OWNER_DECISIONS_2026-10-17.md`.
 
 ## COM-003 — Eligible commission
 
@@ -743,6 +745,7 @@ Chỉ khi:
 
 - order completed
 - paid full
+- không còn ngoại lệ chiết khấu `PENDING` (hoặc Admin đã duyệt) — `private.commission_is_locked(order) = false` (Owner 17/10/2026)
 
 ## COM-004 — Discount deduction
 

@@ -5,7 +5,7 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 | Task | Agent | Trạng thái | Cập nhật (UTC) | Báo cáo |
 | --- | --- | --- | --- | --- |
 | COM-001 | codex | needs_validation | 2026-10-12T18:49:32.966Z | [Báo cáo](reports/COM-001-2026-10-12T18-43-51-739Z.md) |
-| COM-002 | claude | needs_validation | 2026-10-17T07:23:42.487Z | [Báo cáo](reports/COM-002-2026-10-17T07-17-39-194Z.md) |
+| COM-002 | claude | needs_validation | 2026-10-17T16:04:34.230Z | [Báo cáo](reports/COM-002-2026-10-17T15-59-21-397Z.md) |
 | DEL-001 | codex | needs_validation | 2026-10-12T08:30:39.435Z | [Báo cáo](reports/DEL-001-2026-10-12T08-25-51-290Z.md) |
 | DEL-005 | codex | needs_validation | 2026-10-11T08:53:29.317Z | [Báo cáo](reports/DEL-005-2026-10-11T08-46-49-916Z.md) |
 | DEL-011 | claude | needs_validation | 2026-10-03T13:38:43.759Z | [Báo cáo](reports/DEL-011-2026-10-03T13-35-53-129Z.md) |

@@ -61,6 +61,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"commission_discount_exceptions": {
+                  Row: {
+                    "approval_reason": string | null,"approved_at": string | null,"approved_by": string | null,"base_commission": number,"company_borne_excess": number,"created_at": string,"customer_discount": number,"id": string,"order_id": string,"status": string
+                  }
+                  Insert: {
+                    "approval_reason"?: string | null,"approved_at"?: string | null,"approved_by"?: string | null,"base_commission": number,"company_borne_excess": number,"created_at"?: string,"customer_discount": number,"id"?: string,"order_id": string,"status"?: string
+                  }
+                  Update: {
+                    "approval_reason"?: string | null,"approved_at"?: string | null,"approved_by"?: string | null,"base_commission"?: number,"company_borne_excess"?: number,"created_at"?: string,"customer_discount"?: number,"id"?: string,"order_id"?: string,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "commission_discount_exceptions_approved_by_fkey"
+      columns: ["approved_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "commission_discount_exceptions_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: true
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"commission_rules": {
                   Row: {
                     "created_at": string,"effective_from": string,"effective_to": string | null,"id": string,"is_active": boolean,"product_id": string | null,"rate_percent": number,"role_id": string | null,"updated_at": string,"user_id": string | null
@@ -398,13 +423,13 @@ isOneToOne: false
                   ]
                 },"order_item_commission_snapshots": {
                   Row: {
-                    "base_commission": number,"commission_revenue": number,"customer_discount_share": number,"final_commission": number | null,"id": string,"order_id": string,"order_item_id": string,"product_id": string,"quantity": number,"rate_percent": number,"resolved_on": string,"rule_effective_from": string | null,"rule_effective_to": string | null,"rule_id": string | null,"rule_source": string,"seller_role_code": string,"seller_role_id": string,"seller_user_id": string,"snapshot_at": string,"snapshot_by": string | null
+                    "allocation_version": number,"base_commission": number,"commission_deduction": number | null,"commission_revenue": number,"customer_discount_share": number,"final_commission": number | null,"id": string,"order_id": string,"order_item_id": string,"payable_commission": number | null,"product_id": string,"quantity": number,"rate_percent": number,"resolved_on": string,"rule_effective_from": string | null,"rule_effective_to": string | null,"rule_id": string | null,"rule_source": string,"seller_role_code": string,"seller_role_id": string,"seller_user_id": string,"snapshot_at": string,"snapshot_by": string | null
                   }
                   Insert: {
-                    "base_commission": number,"commission_revenue": number,"customer_discount_share": number,"final_commission"?: never,"id"?: string,"order_id": string,"order_item_id": string,"product_id": string,"quantity": number,"rate_percent": number,"resolved_on": string,"rule_effective_from"?: string | null,"rule_effective_to"?: string | null,"rule_id"?: string | null,"rule_source": string,"seller_role_code": string,"seller_role_id": string,"seller_user_id": string,"snapshot_at"?: string,"snapshot_by"?: string | null
+                    "allocation_version"?: number,"base_commission": number,"commission_deduction"?: number | null,"commission_revenue": number,"customer_discount_share": number,"final_commission"?: never,"id"?: string,"order_id": string,"order_item_id": string,"payable_commission"?: never,"product_id": string,"quantity": number,"rate_percent": number,"resolved_on": string,"rule_effective_from"?: string | null,"rule_effective_to"?: string | null,"rule_id"?: string | null,"rule_source": string,"seller_role_code": string,"seller_role_id": string,"seller_user_id": string,"snapshot_at"?: string,"snapshot_by"?: string | null
                   }
                   Update: {
-                    "base_commission"?: number,"commission_revenue"?: number,"customer_discount_share"?: number,"final_commission"?: never,"id"?: string,"order_id"?: string,"order_item_id"?: string,"product_id"?: string,"quantity"?: number,"rate_percent"?: number,"resolved_on"?: string,"rule_effective_from"?: string | null,"rule_effective_to"?: string | null,"rule_id"?: string | null,"rule_source"?: string,"seller_role_code"?: string,"seller_role_id"?: string,"seller_user_id"?: string,"snapshot_at"?: string,"snapshot_by"?: string | null
+                    "allocation_version"?: number,"base_commission"?: number,"commission_deduction"?: number | null,"commission_revenue"?: number,"customer_discount_share"?: number,"final_commission"?: never,"id"?: string,"order_id"?: string,"order_item_id"?: string,"payable_commission"?: never,"product_id"?: string,"quantity"?: number,"rate_percent"?: number,"resolved_on"?: string,"rule_effective_from"?: string | null,"rule_effective_to"?: string | null,"rule_id"?: string | null,"rule_source"?: string,"seller_role_code"?: string,"seller_role_id"?: string,"seller_user_id"?: string,"snapshot_at"?: string,"snapshot_by"?: string | null
                   }
                   Relationships: [
                     {
@@ -841,6 +866,9 @@ isOneToOne: false
                            },
 "allocate_order":
 { Args: { "p_allow_below_safety"?: boolean,"p_location_id"?: string,"p_order_id": string }; Returns: Json
+                           },
+"approve_commission_discount_exception":
+{ Args: { "p_order_id": string,"p_reason": string }; Returns: Json
                            },
 "assign_payment_event":
 { Args: { "p_event_id": string,"p_order_id": string }; Returns: {
