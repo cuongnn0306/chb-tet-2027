@@ -1,0 +1,13 @@
+# SEC-004 composition review — 13/10/2026
+
+Report `SEC-004-2026-10-13T04-59-17-385Z.json` is a closed needs_validation attempt. Seven non-DB checks pass; DB reset, pgTAP and integration are explicitly not_run with the worktree-local blocker. The scanner actually scanned 486 files and 52 local commits with zero findings. All 260 governed source hashes match; independent review's digest `077c5740e1c4ed4069cbf3b33c16c4ba0f75ea06c657c6812bdd5203a61dea26` matches the report. All eight executable/test inputs match the closed 06/10 source. Package/CI add one script/step each, preserve fetch-depth 0 and every prior gate. The allowlist remains one reviewed synthetic fingerprint/reason.
+
+CLI terminal exit0/is_error=false, complete stdin/result/streams and zero live children are recorded. The runner correctly retained a permission denial for a disallowed compound `cd`/hash/size diagnostic; it was not an implementation or validation command. Do not waive or broaden the shell allowlist. The coordinator had already verified staged source hashes and independently reverified the resulting tree; the diagnostic denial does not erase the checks actually completed.
+
+## Finding requiring a new attempt
+
+**P2: authenticated user JWTs are exempted.** `scripts/env-scan.mjs` skips `role === 'authenticated'` in `findSecretShapes`. Independent review constructed a fake user JWT entirely in memory: both `scanText` for a source assignment and `evaluateBrowserVar('VITE_USER_SESSION', token)` returned zero findings. No real credential, auth call, DB or file write was involved. Supabase documents that user JWTs are access tokens carrying identity/authorization and sent as bearer credentials, distinct from public application anon/publishable keys: [JWT documentation](https://supabase.com/docs/guides/auth/jwts), [API key documentation](https://supabase.com/docs/guides/getting-started/api-keys).
+
+Preserve this composition checkpoint and immutable report. Resume this exact Claude session for one fresh SEC-004 task:start/finish attempt: detect authenticated bearer token literals in source and VITE values, use safe metadata-only diagnostics, preserve genuine public-key exemptions and narrow allowlist, and add meaningful synthetic regressions including no token echo. No auth verification/provider/network/DB change is needed. The changelog index was fetched and relevant Auth entries inspected; this pure local scanner change makes no API/SDK/TLS behavior change.
+
+Status: FIX_REQUIRED for this scanner finding; not Done or credential-clearance certification. Original ignored env, remote/fork refs, hosted secrets, CI/staging and all blocked DB checks remain outside this attempt's verified scope. No real leaked credential was observed.
