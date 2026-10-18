@@ -22,3 +22,11 @@ Codex owns `INF-013`, branch `codex/inf-013-local-integration`, and this worktre
 - Latest INF-013 report's source fingerprint matches the integrated head; report states actual pass/fail/not-run checks.
 - `git diff --check`, no secret files, no unrelated manual source changes.
 - External CI/PR review, authenticated mobile flow, staging and Owner acceptance remain explicitly pending unless actually observed.
+
+## Local composition evidence — 18/10/2026
+
+- Source: COM-002 `a1ff658`; SEC-001/TRF-002 `64dd702`; ORD-014 `9d35bb2`; SEC-004 `b9c5448`; common checkpoint `60cdcd6`.
+- Merge commits: `e385770`, `f4f764a`, `cef77a5`. Conflicts were limited to `docs/handoff/tasks.json` (all three merges) and `docs/handoff/STATUS.md` (ORD-014). Registry resolution rejected any differing pre-existing task record, added only TRF-002, SEC-001, ORD-014 and SEC-004, and regenerated STATUS from the same task index rule as the pipeline.
+- Source path comparison: 95 of 96 paths unique to one input tip match that tip's Git blob exactly in the integrated tree. The sole expected exception is the implementation plan, which adds INF-013. The only shared paths are generated registry and STATUS. All 23 input task records match their source branch values exactly; INF-013 is the 24th record and remains `in_progress` until `task:finish`.
+- `git diff --cached --check` passed for every merge; targeted Prettier check passed for the new plan and implementation-plan entry. No feature source was edited by the integration owner.
+- Read-only Docker check found the Desktop Linux engine pipe absent (`dockerDesktopLinuxEngine`), with no shared DB lease. The final task pipeline must use its explicit `CHB_DB_VALIDATION_BLOCKER` mechanism so DB reset, pgTAP and integration are recorded `not_run`; no startup or reset retry on this unchanged condition.
