@@ -1,4 +1,5 @@
 import {
+  MAX_LINE_QUANTITY,
   validateTransferRequest,
   type TransferRequestInput,
   type TransferStatus,
@@ -49,6 +50,25 @@ export interface TransferFormOptions {
   products: { value: string; label: string }[]
 }
 
+/** One source location as ranked by `suggest_transfer_sources()`; its position in the list is the ranking. */
+export interface TransferSourceRecommendation {
+  locationId: string
+  locationCode: string
+  locationName: string
+  region: string | null
+  /** Sellable quantity at the source (already net of reservations and safety stock). */
+  sellableQty: number
+  sameRegion: boolean
+  /** True when the source alone covers the requested quantity. */
+  coversAll: boolean
+}
+
+export interface TransferSourceQuery {
+  productId: string
+  destinationLocationId: string
+  quantity: number
+}
+
 /** Newest requests shown in the queue; the screen says so when the list is cut. */
 export const TRANSFER_LIST_LIMIT = 200
 
@@ -69,6 +89,17 @@ export class TransferInputError extends Error {
     super(message)
     this.name = 'TransferInputError'
   }
+}
+
+/** A row of `suggest_transfer_sources()` (earliest_expiry is batch-derived and deliberately not mapped). */
+interface SuggestedSourceRow {
+  location_id: string
+  location_code: string
+  location_name: string
+  region: string | null
+  sellable_qty: number
+  same_region: boolean
+  covers_all: boolean
 }
 
 interface QueryResult {
@@ -136,6 +167,37 @@ export function createTransferService(client: AppSupabaseClient) {
         })),
         p_reason: input.reason.trim(),
       })) as RequestedTransfer
+    },
+
+    /**
+     * Ranked source locations for a destination, SKU and quantity. Read-only advice: it reserves, approves and moves
+     * nothing. The ranking (same region, enough quantity, earliest expiry, quantity, code), the sellable-stock and
+     * safety-stock rules and the destination exclusion all live in the RPC; rows are returned in the order received.
+     */
+    async suggestSources(query: TransferSourceQuery): Promise<TransferSourceRecommendation[]> {
+      const quantityOk =
+        Number.isInteger(query.quantity) &&
+        query.quantity >= 1 &&
+        query.quantity <= MAX_LINE_QUANTITY
+      if (!query.productId || !query.destinationLocationId || !quantityOk) {
+        throw new TransferInputError(
+          'Chọn kho nhận, sản phẩm và nhập số lượng hợp lệ để xem gợi ý kho xuất.',
+        )
+      }
+      const rows = await rpc('suggest_transfer_sources', {
+        p_product_id: query.productId,
+        p_destination_location_id: query.destinationLocationId,
+        p_quantity: query.quantity,
+      })
+      return ((rows ?? []) as SuggestedSourceRow[]).map((row) => ({
+        locationId: row.location_id,
+        locationCode: row.location_code,
+        locationName: row.location_name,
+        region: row.region,
+        sellableQty: row.sellable_qty,
+        sameRegion: row.same_region,
+        coversAll: row.covers_all,
+      }))
     },
 
     /** Queue, newest first: all requests for the Admin, the caller's own for everyone else (RLS). */

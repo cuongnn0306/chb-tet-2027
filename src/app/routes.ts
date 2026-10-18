@@ -11,6 +11,7 @@ export const ROUTES = {
   deliveries: '/deliveries',
   deliveryPrint: (id: string) => `/deliveries/${id}/print`,
   deliveryIssue: (id: string) => `/deliveries/${id}/issue`,
+  auditLog: '/audit-log',
   transfers: '/transfers',
   transferNew: '/transfers/new',
   transferDetail: (id: string) => `/transfers/${id}`,

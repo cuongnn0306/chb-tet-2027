@@ -16,6 +16,7 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 | PAY-007 | claude | needs_validation | 2026-10-02T05:15:55.060Z | [Báo cáo](reports/PAY-007-2026-10-02T05-13-01-317Z.md) |
 | RES-005 | claude | needs_validation | 2026-10-04T07:55:23.348Z | [Báo cáo](reports/RES-005-2026-10-04T07-51-14-326Z.md) |
 | RES-010 | codex | needs_validation | 2026-10-11T15:51:18.931Z | [Báo cáo](reports/RES-010-2026-10-11T15-48-48-068Z.md) |
+| SEC-001 | claude | needs_validation | 2026-10-15T09:51:21.970Z | [Báo cáo](reports/SEC-001-2026-10-15T09-46-34-135Z.md) |
 | SEC-002 | codex | needs_validation | 2026-10-12T16:21:38.496Z | [Báo cáo](reports/SEC-002-2026-10-12T16-16-13-964Z.md) |
 | SEC-003 | codex | needs_validation | 2026-10-12T08:39:51.786Z | [Báo cáo](reports/SEC-003-2026-10-12T08-35-04-095Z.md) |
 | SEC-005 | codex | needs_validation | 2026-10-12T16:29:14.725Z | [Báo cáo](reports/SEC-005-2026-10-12T16-24-03-985Z.md) |
@@ -24,3 +25,4 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 | SEC-009 | claude | needs_validation | 2026-10-02T19:48:53.541Z | [Báo cáo](reports/SEC-009-2026-10-02T19-48-13-253Z.md) |
 | SEC-011 | claude | needs_validation | 2026-10-03T01:05:35.784Z | [Báo cáo](reports/SEC-011-2026-10-03T01-04-56-070Z.md) |
 | TRF-001 | claude | needs_validation | 2026-10-04T15:04:03.271Z | [Báo cáo](reports/TRF-001-2026-10-04T14-59-42-545Z.md) |
+| TRF-002 | claude | needs_validation | 2026-10-14T04:48:34.771Z | [Báo cáo](reports/TRF-002-2026-10-14T04-44-05-164Z.md) |

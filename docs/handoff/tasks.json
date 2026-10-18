@@ -1591,6 +1591,30 @@
         "vitest.integration.config.ts": "596a0f7c9010af7130c04e529ca20b4ea1112f4c8efd939eaa2043c33a56b281"
       },
       "latestReport": null
+    },
+    "TRF-002": {
+      "id": "TRF-002",
+      "title": "Validation-only after Docker Linux engine restoration",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-14T04:43:41.407Z",
+      "updatedAt": "2026-10-14T04:48:34.771Z",
+      "baseCommit": "7c7d70aa4e48f1d46c79abd4e141337b422e4f43",
+      "branch": "feature/TRF-002-recommendations",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/TRF-002-2026-10-14T04-44-05-164Z.md"
+    },
+    "SEC-001": {
+      "id": "SEC-001",
+      "title": "Admin read-only Audit Log viewer over existing immutable audit helper and RLS",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-15T09:36:54.437Z",
+      "updatedAt": "2026-10-15T09:51:21.970Z",
+      "baseCommit": "a41cdeb07d2de2ff31d968446068364d9b6826ca",
+      "branch": "feature/SEC-001-audit-viewer",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/SEC-001-2026-10-15T09-46-34-135Z.md"
     }
   }
 }
