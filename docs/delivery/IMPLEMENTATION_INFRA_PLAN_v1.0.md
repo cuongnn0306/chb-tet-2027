@@ -292,6 +292,14 @@ Tách:
 
 Không copy nhầm production service secret vào Preview.
 
+## INF-013 — Local integration of reviewed task branches
+
+- Compose the reviewed local SEC-001 branch (including TRF-002), ORD-014, SEC-004, COM-001 and COM-002 on an isolated feature worktree.
+- Preserve each task's source, immutable reports, and registry status. Resolve only integration conflicts; do not promote `needs_validation` tasks or alter historical reports.
+- Keep INF-008's repository runner and scheduler disabled and its reserved implementation scope separate until structured lifetime handoff.
+- Record the combined source diff and ownership, run the normal task pipeline with the shared local DB lease, and retain current-head CI, browser/mobile, staging, and Owner acceptance as separate release gates.
+- This task creates local integration evidence; it does not authorize merging into `develop` or deployment.
+
 ---
 
 # E01 — AUTH, ROLE, MASTER DATA
