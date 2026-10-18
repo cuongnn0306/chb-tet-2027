@@ -1615,6 +1615,18 @@
       "branch": "feature/SEC-001-audit-viewer",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/SEC-001-2026-10-15T09-46-34-135Z.md"
+    },
+    "ORD-014": {
+      "id": "ORD-014",
+      "title": "Validation-only after stale local DB blocker removal",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-14T10:54:45.763Z",
+      "updatedAt": "2026-10-14T10:59:29.448Z",
+      "baseCommit": "bed0ad80cb6ce55860106529c1b688b99abb867c",
+      "branch": "codex/ord-014-claude-print",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/ORD-014-2026-10-14T10-55-07-304Z.md"
     }
   }
 }

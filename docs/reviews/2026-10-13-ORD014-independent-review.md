@@ -1,0 +1,9 @@
+# ORD-014 independent review — 13/10/2026
+
+Report `ORD-014-2026-10-13T08-17-23-445Z.json` is a closed needs_validation attempt. Seven non-DB checks pass; DB reset, pgTAP and integration are not_run with the explicit local blocker. Full governed digest `143aca7402da3ca54735fa7e5a135111a0814abc312e14c7b6e94b4c3c9a4313` matches the report; page hash is `37bc2bc9796e58de198152f6e1135febdefdd5019fc954067f8e85c2c9c5de0d`.
+
+Independent static review found no actionable issue. Outer component reads only AuthContext and route params before access/missing-ID gates; services and query mount only in active, nonempty-ID content. User/role/order identity scopes both query and remount. Existing `['order', orderId]` prefix invalidations still reach the new key. Loading/error/missing-ID paths are finite. All content from `const data = order.data` through the end of the print article exactly matches baseline60cdcd6: customer/business fields, quantities, money, sorting, statuses, print CSS and button behavior are preserved. RLS/service authorization remains unchanged.
+
+CLI exit0/is_error=false, delivered stdin, one terminal result as last event and zero live children were inspected separately. Bash `cp` was denied by the narrow shell allowlist; Claude used already-authorized Read/Write to integrate the staged source and completed the full allowed pipeline. Preserve denial history; no broader shell permission or bypass, and no claim that the denied command ran. An initial read of the not-yet-created plan was harmless; task:finish exit1 is the expected needs_validation outcome.
+
+Limits: static review only. Actual account switching, observer counts, browser/mobile rendering, printed output, real authentication/RLS, staging and Owner acceptance remain pending. No Done or merge authorization. No schema, calculation, order mutation or printed business content change. Source stayed unchanged after validation; reports remain immutable.
