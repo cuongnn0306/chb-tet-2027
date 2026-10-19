@@ -1,3 +1,4 @@
+import { Blob as NodeBlob } from 'node:buffer'
 import { expect, it } from 'vitest'
 import { zipSync, strToU8 } from 'fflate'
 import readExcelFile from 'read-excel-file/node'
@@ -35,7 +36,8 @@ it('rejects excess columns, booleans, multiline cells and oversized sheets', () 
 })
 it('decodes a real zipped xlsx sheet into the existing import validator', async () => {
   const cells = ['HN-BEP', 'TT-1200', 'B01', '01/01/2027', '01/03/2027', '100']
-  const workbook = new Blob([
+  // read-excel-file/node is typed against Node's Blob; the DOM Blob of this project's lib is not assignable to it.
+  const workbook = new NodeBlob([
     zipSync({
       'xl/workbook.xml': strToU8(
         '<workbook xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Ton" sheetId="1" r:id="rId1"/></sheets></workbook>',
