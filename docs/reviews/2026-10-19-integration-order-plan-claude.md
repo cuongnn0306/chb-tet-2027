@@ -160,3 +160,21 @@ Registry cuối cùng: 36 bản ghi (25 lúc bắt đầu), 0 bản ghi bị đ�
 3. **INF-008 orchestration**: 1 trong 33 test (`native model wrapper ...`) cần `pwsh` (PowerShell 7), máy này chỉ có Windows PowerShell 5.1. Lane tự báo `pipeline 95/95` trên môi trường của Codex nên không tái hiện được ở đây. Vì vậy em không đưa nó vào nhánh chính: nhánh `integration/wave-2` không có lane này và có pipeline xanh. Cấu hình mặc định của lane: `enabled=false`, `allowPublish=false`, `allowMergeDevelop=false`; workflow `ai-scheduler.yml` có `cron` mỗi 2 giờ chỉ chạy `plan`/`simulate` (chỉ đọc) và job `recover` bị chặn bởi `AI_ORCHESTRATION_ENABLED`. Cần quyết định của Owner (quyền Claude Code cho tổ chức, `pwsh`, runner) trước khi dùng.
 
 Chưa làm: Bước 6 (phân loại `codex-cus-006`, `codex-sec-008`), dọn worktree snapshot, CI trên đầu mới, review độc lập, mobile, staging, nghiệm thu Owner. Các ref `refs/archive/2026-10-19/*` được giữ nguyên.
+
+## 9. Bước 6: phân loại và tích hợp công việc chưa commit (19/10/2026)
+
+Phương pháp: với từng đường dẫn thay đổi trong ref lưu trữ, so ba bản (snapshot, nền `9548886`, nhánh tích hợp): giống hệt, áp dụng sạch (nhánh tích hợp chưa đổi so với nền), file mới, hoặc cả hai bên cùng đổi (bỏ qua file sinh ra và tài liệu review).
+
+| Snapshot                                                    | Giống hệt | Áp dụng sạch | File mới | Cả hai cùng đổi | Quyết định                                                                                                                                                                                                  |
+| ----------------------------------------------------------- | --------- | ------------ | -------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `codex-cus-006` (cô lập tài khoản/cache, lịch giao DEL-010) | 4         | 21           | 28       | 14              | **Đã merge** (`209c135`): 18 task, 26 file nguồn và test (+453/−42 dòng). 14 file xung đột: hạ tầng và các trang đã làm lại ở lane mới giữ bản tích hợp; `DeliveryBoardPage` giữ cả hai import.             |
+| `codex-sec-008`                                             | 2         | 0            | 12       | 15              | **AUTH-002 đã phục hồi** (`091899d`, nối vào route/menu bằng 3 dòng). Bản SEC-001 cạnh tranh (`audit.ts`, `AuditLogPage` riêng, route `/admin/audit`), tài liệu SEC-010 trùng, plan INF-008: **không lấy**. |
+| `parallel-coordinator`                                      | 22        | 0            | 8        | 20              | **Chỉ lấy tài liệu SEC-005** (`d146eeb`). Bản cũ của pipeline, workflow, delivery, Edge Function: đã bị bản commit thay thế. Script `claude-coordinator`/`claude-worker`: bản đầu, **không lấy**.           |
+| `claude-sec-004`                                            | 26        | 0            | 5        | 22              | Không lấy gì: SEC-004 đã nằm trong INF-013; còn lại là bản cũ và script điều phối.                                                                                                                          |
+| `inf008-integration`                                        | 52        | 0            | 0        | 12              | Không lấy gì: mọi file khác biệt là bản cũ của file đã được commit.                                                                                                                                         |
+
+Hệ quả cho nhánh `integration/wave-2` (đầu sau Bước 6 là `7c77e62` cộng báo cáo): registry 55 bản ghi; 597 test unit; không migration mới (cây vẫn 39 migration).
+
+**Đính chính:** các summary Đợt A và B của báo cáo `INF-014-…05-41-05-268Z` và `INF-014-…05-56-11-001Z` ghi 33 và 35 migration; số đúng lúc đó là 37 và 39 (31 tại `2df547e` cộng 6 của INF-013, cộng 2 của PRD-001 và RET-001). Con số 33 được mang từ cây gốc ngày 05/10. Báo cáo là bất biến nên đính chính ở đây; kết quả `db reset`, pgTAP và integration không bị ảnh hưởng.
+
+Kiểm tra khói trên trình duyệt cho phần giao diện mới: [2026-10-19-INF014-step6-browser-smoke.md](2026-10-19-INF014-step6-browser-smoke.md). Đây không phải nghiệm thu.
