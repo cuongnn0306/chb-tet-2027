@@ -1680,6 +1680,18 @@
       "branch": "codex/rpt-001-kpi-definitions",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/RPT-001-2026-10-14T05-58-23-962Z.md"
+    },
+    "SEC-010": {
+      "id": "SEC-010",
+      "title": "Integrate and refresh backup restore runbook from reviewed Claude attempt",
+      "agent": "codex",
+      "status": "needs_validation",
+      "startedAt": "2026-10-12T02:38:11.323Z",
+      "updatedAt": "2026-10-12T02:42:38.451Z",
+      "baseCommit": "2df547eb543c7fdbb372739e0fcadfb106800462",
+      "branch": "",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/SEC-010-2026-10-12T02-39-27-809Z.md"
     }
   }
 }
