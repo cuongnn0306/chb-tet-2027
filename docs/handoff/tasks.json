@@ -1668,6 +1668,18 @@
         "vitest.integration.config.ts": "596a0f7c9010af7130c04e529ca20b4ea1112f4c8efd939eaa2043c33a56b281"
       },
       "latestReport": null
+    },
+    "RPT-001": {
+      "id": "RPT-001",
+      "title": "Validation-only after Docker Linux engine restoration",
+      "agent": "codex",
+      "status": "needs_validation",
+      "startedAt": "2026-10-14T05:57:52.067Z",
+      "updatedAt": "2026-10-14T06:03:31.556Z",
+      "baseCommit": "af1615c0681cb132bc7d125e5c7f75cc85da6286",
+      "branch": "codex/rpt-001-kpi-definitions",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/RPT-001-2026-10-14T05-58-23-962Z.md"
     }
   }
 }
