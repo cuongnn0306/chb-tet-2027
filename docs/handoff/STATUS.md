@@ -14,7 +14,7 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 | INF-006 | codex | needs_validation | 2026-10-12T20:54:27.932Z | [Báo cáo](reports/INF-006-2026-10-12T20-49-47-053Z.md) |
 | INF-008 | codex | needs_validation | 2026-10-12T08:23:24.841Z | [Báo cáo](reports/INF-008-2026-10-12T08-18-12-173Z.md) |
 | INF-013 | codex | needs_validation | 2026-10-19T04:45:23.342Z | [Báo cáo](reports/INF-013-2026-10-19T04-39-22-754Z.md) |
-| INF-014 | claude | needs_validation | 2026-10-19T05:46:17.411Z | [Báo cáo](reports/INF-014-2026-10-19T05-41-05-268Z.md) |
+| INF-014 | claude | needs_validation | 2026-10-19T06:01:37.489Z | [Báo cáo](reports/INF-014-2026-10-19T05-56-11-001Z.md) |
 | INV-006 | codex | needs_validation | 2026-10-12T22:54:10.863Z | [Báo cáo](reports/INV-006-2026-10-12T22-48-53-561Z.md) |
 | INV-007 | codex | needs_validation | 2026-10-14T09:58:29.990Z | [Báo cáo](reports/INV-007-2026-10-14T09-52-49-120Z.md) |
 | INV-009 | claude | needs_validation | 2026-10-15T08:15:40.808Z | [Báo cáo](reports/INV-009-2026-10-15T08-10-11-825Z.md) |

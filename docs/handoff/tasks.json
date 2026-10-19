@@ -1374,18 +1374,15 @@
     },
     "INF-014": {
       "id": "INF-014",
-      "title": "Local integration wave 2 (reviewed lanes, recovered work, INF-008 orchestration disabled)",
+      "title": "INF-014 wave B: recovered PRD-002, RPT-012, PRD-001, RET-001",
       "agent": "claude",
       "status": "needs_validation",
-      "startedAt": "2026-10-19T05:26:19.707Z",
-      "updatedAt": "2026-10-19T05:46:17.411Z",
-      "baseCommit": "10e3bb8840632e4cfebe6ed32dda6f7f704dba83",
+      "startedAt": "2026-10-19T05:55:38.803Z",
+      "updatedAt": "2026-10-19T06:01:37.489Z",
+      "baseCommit": "b151d82a6666e76db2634365e42f2ba16322fee0",
       "branch": "integration/wave-2",
-      "preExistingChanges": [
-        "docs/delivery/IMPLEMENTATION_INFRA_PLAN_v1.0.md",
-        "docs/exec-plans/active/INF-014-local-integration-wave-2.md"
-      ],
-      "latestReport": "docs/handoff/reports/INF-014-2026-10-19T05-41-05-268Z.md"
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/INF-014-2026-10-19T05-56-11-001Z.md"
     },
     "RPT-001": {
       "id": "RPT-001",
