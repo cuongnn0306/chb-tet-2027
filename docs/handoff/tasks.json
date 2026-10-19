@@ -1558,6 +1558,31 @@
         "tests/unit/transfers/transfers.test.ts"
       ],
       "latestReport": "docs/handoff/reports/TRF-001-2026-10-04T14-59-42-545Z.md"
+    },
+    "PRD-001": {
+      "id": "PRD-001",
+      "title": "Generate database types for new future_committed_demand RPC under shared DB lease and revalidate",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-06T08:05:39.406Z",
+      "updatedAt": "2026-10-06T08:12:34.875Z",
+      "baseCommit": "2df547eb543c7fdbb372739e0fcadfb106800462",
+      "branch": "",
+      "preExistingChanges": [
+        "docs/exec-plans/active/PRD-001-future-demand.md",
+        "docs/handoff/STATUS.md",
+        "docs/handoff/reports/PRD-001-2026-10-06T04-51-34-074Z.json",
+        "docs/handoff/reports/PRD-001-2026-10-06T04-51-34-074Z.md",
+        "docs/handoff/reports/PRD-001-2026-10-06T07-58-54-646Z.json",
+        "docs/handoff/reports/PRD-001-2026-10-06T07-58-54-646Z.md",
+        "docs/handoff/tasks.json",
+        "src/domain/production/committed-demand.ts",
+        "src/services/production-demand.service.ts",
+        "supabase/migrations/20261006044000_prd001_future_committed_demand.sql",
+        "tests/integration/production-demand.test.ts",
+        "tests/unit/domain/committed-demand.test.ts"
+      ],
+      "latestReport": "docs/handoff/reports/PRD-001-2026-10-06T08-06-29-998Z.md"
     }
   }
 }

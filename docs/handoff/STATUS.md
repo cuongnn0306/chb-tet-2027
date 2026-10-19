@@ -9,6 +9,7 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 | DEL-012 | claude | needs_validation | 2026-10-02T07:15:45.320Z | [Báo cáo](reports/DEL-012-2026-10-02T07-12-39-997Z.md) |
 | INF-008 | claude | needs_validation | 2026-10-04T03:20:28.474Z | [Báo cáo](reports/INF-008-2026-10-04T03-16-56-295Z.md) |
 | PAY-007 | claude | needs_validation | 2026-10-02T05:15:55.060Z | [Báo cáo](reports/PAY-007-2026-10-02T05-13-01-317Z.md) |
+| PRD-001 | claude | needs_validation | 2026-10-06T08:12:34.875Z | [Báo cáo](reports/PRD-001-2026-10-06T08-06-29-998Z.md) |
 | RES-005 | claude | needs_validation | 2026-10-04T07:55:23.348Z | [Báo cáo](reports/RES-005-2026-10-04T07-51-14-326Z.md) |
 | SEC-006 | claude | needs_validation | 2026-10-02T16:12:26.841Z | [Báo cáo](reports/SEC-006-2026-10-02T16-11-40-849Z.md) |
 | SEC-007 | claude | needs_validation | 2026-10-02T04:08:15.181Z | [Báo cáo](reports/SEC-007-2026-10-02T04-05-07-915Z.md) |

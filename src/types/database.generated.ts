@@ -914,6 +914,11 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"future_committed_demand":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "committed_qty": number,"date_basis": string,"earliest_candidate_date": string,"latest_candidate_date": string,"needed_date": string,"order_count": number,"product_id": string
+            }[]
+                           },
 "import_opening_stock":
 { Args: { "p_dry_run"?: boolean,"p_rows": Json }; Returns: Json
                            },
