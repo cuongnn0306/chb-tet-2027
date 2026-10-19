@@ -300,6 +300,13 @@ Không copy nhầm production service secret vào Preview.
 - Record the combined source diff and ownership, run the normal task pipeline with the shared local DB lease, and retain current-head CI, browser/mobile, staging, and Owner acceptance as separate release gates.
 - This task creates local integration evidence; it does not authorize merging into `develop` or deployment.
 
+## INF-014 — Local integration wave 2 (remaining reviewed lanes and recovered work)
+
+- Continue from the INF-013 head on a separate local branch: compose RPT-001, SEC-010, SEC-008, INF-006, INV-009, INV-007 and INV-006; then add PRD-002, RPT-012, PRD-001 and RET-001 recovered from the archived uncommitted worktree snapshots; keep the INF-008 orchestration lane last and disabled.
+- Preserve every task's source, immutable reports and registry status. Resolve only generated-registry conflicts by semantic union; regenerate `database.generated.ts` and `package-lock.json` with their tools, never by hand.
+- Run the normal task pipeline with the shared local DB lease on each wave; retain current-head CI, browser/mobile, staging, independent review and Owner acceptance as separate release gates.
+- This task creates local integration evidence; it does not authorize pushing, opening a PR, merging into `develop`/`main` or deployment.
+
 ---
 
 # E01 — AUTH, ROLE, MASTER DATA
