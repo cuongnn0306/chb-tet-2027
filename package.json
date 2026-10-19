@@ -30,6 +30,7 @@
     "task:status": "node scripts/task-pipeline.mjs status"
   },
   "dependencies": {
+    "@excel.js/exceljs": "0.15.0",
     "@supabase/supabase-js": "^2.117.2",
     "@tanstack/react-query": "^5.104.0",
     "react": "^19.3.0",
