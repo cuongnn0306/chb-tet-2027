@@ -1374,15 +1374,15 @@
     },
     "INF-014": {
       "id": "INF-014",
-      "title": "INF-014 wave B: recovered PRD-002, RPT-012, PRD-001, RET-001",
+      "title": "INF-014 step 6: account-scope work, DEL-010 calendar and AUTH-002 recovered",
       "agent": "claude",
       "status": "needs_validation",
-      "startedAt": "2026-10-19T05:55:38.803Z",
-      "updatedAt": "2026-10-19T06:01:37.489Z",
-      "baseCommit": "b151d82a6666e76db2634365e42f2ba16322fee0",
+      "startedAt": "2026-10-19T06:55:19.382Z",
+      "updatedAt": "2026-10-19T07:02:11.918Z",
+      "baseCommit": "7c77e628dfe073706976f08db89f93e56869a31d",
       "branch": "integration/wave-2",
       "preExistingChanges": [],
-      "latestReport": "docs/handoff/reports/INF-014-2026-10-19T05-56-11-001Z.md"
+      "latestReport": "docs/handoff/reports/INF-014-2026-10-19T06-56-12-858Z.md"
     },
     "RPT-001": {
       "id": "RPT-001",
