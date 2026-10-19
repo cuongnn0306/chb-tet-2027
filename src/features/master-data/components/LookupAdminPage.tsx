@@ -30,7 +30,14 @@ interface Props {
 }
 
 /** Admin screen for simple code/name/sort-order lists (sales channels, lead sources). */
-export function LookupAdminPage({ table, title, description, noun, deactivationWarning, cacheKey }: Props) {
+export function LookupAdminPage({
+  table,
+  title,
+  description,
+  noun,
+  deactivationWarning,
+  cacheKey,
+}: Props) {
   const crud = useMemo(() => createCrudService(getSupabase(), table, 'sort_order'), [table])
   return (
     <ResourceAdminPage<LookupRow>
