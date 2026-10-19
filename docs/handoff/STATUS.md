@@ -12,7 +12,7 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 | DEL-012 | claude | needs_validation | 2026-10-02T07:15:45.320Z | [Báo cáo](reports/DEL-012-2026-10-02T07-12-39-997Z.md) |
 | INF-002 | codex | validated_local | 2026-10-11T09:28:58.731Z | [Báo cáo](reports/INF-002-2026-10-11T09-24-05-187Z.md) |
 | INF-008 | codex | needs_validation | 2026-10-12T08:23:24.841Z | [Báo cáo](reports/INF-008-2026-10-12T08-18-12-173Z.md) |
-| INF-013 | codex | needs_validation | 2026-10-18T02:33:18.825Z | [Báo cáo](reports/INF-013-2026-10-18T02-29-35-879Z.md) |
+| INF-013 | codex | needs_validation | 2026-10-19T04:45:23.342Z | [Báo cáo](reports/INF-013-2026-10-19T04-39-22-754Z.md) |
 | ORD-014 | claude | needs_validation | 2026-10-14T10:59:29.448Z | [Báo cáo](reports/ORD-014-2026-10-14T10-55-07-304Z.md) |
 | PAY-007 | claude | needs_validation | 2026-10-02T05:15:55.060Z | [Báo cáo](reports/PAY-007-2026-10-02T05-13-01-317Z.md) |
 | RES-005 | claude | needs_validation | 2026-10-04T07:55:23.348Z | [Báo cáo](reports/RES-005-2026-10-04T07-51-14-326Z.md) |
