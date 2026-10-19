@@ -12,6 +12,7 @@ export const ROUTES = {
   deliveryPrint: (id: string) => `/deliveries/${id}/print`,
   deliveryIssue: (id: string) => `/deliveries/${id}/issue`,
   auditLog: '/audit-log',
+  profileDefaults: '/admin/profile-defaults',
   transfers: '/transfers',
   transferNew: '/transfers/new',
   transferDetail: (id: string) => `/transfers/${id}`,

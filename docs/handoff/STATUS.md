@@ -4,6 +4,7 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 
 | Task | Agent | Trạng thái | Cập nhật (UTC) | Báo cáo |
 | --- | --- | --- | --- | --- |
+| AUTH-002 | codex | needs_validation | 2026-10-03T17:20:21.750Z | [Báo cáo](reports/AUTH-002-2026-10-03T17-19-35-271Z.md) |
 | AUTH-003 | codex | needs_validation | 2026-10-03T22:17:36.269Z | [Báo cáo](reports/AUTH-003-2026-10-03T22-16-52-351Z.md) |
 | COM-001 | codex | needs_validation | 2026-10-12T18:49:32.966Z | [Báo cáo](reports/COM-001-2026-10-12T18-43-51-739Z.md) |
 | COM-002 | claude | needs_validation | 2026-10-17T16:04:34.230Z | [Báo cáo](reports/COM-002-2026-10-17T15-59-21-397Z.md) |

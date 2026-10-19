@@ -48,6 +48,7 @@ const MAIN_NAV: MainNavItem[] = [
   },
   { to: ROUTES.inventoryImport, label: 'Nhập tồn đầu kỳ', visible: (role) => role === 'ADMIN' },
   { to: ROUTES.paymentReview, label: 'Thanh toán cần xử lý', visible: (role) => role === 'ADMIN' },
+  { to: ROUTES.profileDefaults, label: 'Mặc định người dùng', visible: (role) => role === 'ADMIN' },
   {
     to: ROUTES.auditLog,
     label: 'Audit Log',

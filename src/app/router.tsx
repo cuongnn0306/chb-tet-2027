@@ -8,6 +8,7 @@ import { MovementHistoryPage } from '@/features/inventory/pages/MovementHistoryP
 import { DeliveryBoardPage } from '@/features/deliveries/pages/DeliveryBoardPage'
 import { DeliveryPrintPage } from '@/features/deliveries/pages/DeliveryPrintPage'
 import { PaymentReviewPage } from '@/features/payments/pages/PaymentReviewPage'
+import { ProfileDefaultsPage } from '@/features/profiles/ProfileDefaultsPage'
 import { TransferDetailPage } from '@/features/transfers/pages/TransferDetailPage'
 import { TransferListPage } from '@/features/transfers/pages/TransferListPage'
 import { TransferRequestPage } from '@/features/transfers/pages/TransferRequestPage'
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
             children: [
               { path: ROUTES.inventoryImport, element: <ImportOpeningStockPage /> },
               { path: ROUTES.paymentReview, element: <PaymentReviewPage /> },
+              { path: ROUTES.profileDefaults, element: <ProfileDefaultsPage /> },
             ],
           },
           {
