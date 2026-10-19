@@ -1,32 +1,62 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { DateTimeText } from '@/components/shared/MoneyText'
-import { EmptyState, ErrorState, LoadingState } from '@/components/shared/PageState'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  NoPermissionState,
+} from '@/components/shared/PageState'
 import { Button } from '@/components/ui/Button'
 import { SelectField } from '@/components/ui/fields'
+import type { RoleCode } from '@/domain/auth/roles'
 import {
+  LEDGER_VIEW_ROLES,
   MOVEMENT_TYPES,
   MOVEMENT_TYPE_LABELS,
   type MovementType,
 } from '@/domain/inventory/movements'
+import { useAuth } from '@/features/auth/auth-context'
 import { getSupabase } from '@/lib/supabase'
 import { MOVEMENT_PAGE_SIZE } from '@/services/inventory.service'
 import { createLookupService } from '@/services/lookups.service'
 import { useInventoryService } from '../hooks/useInventoryService'
 
-/** INV-009: the inventory ledger, newest first (Admin and Warehouse). Rows are immutable. */
+/**
+ * INV-009: the inventory ledger, newest first (Admin and Warehouse). Rows are immutable.
+ * Query-bearing content mounts only for an active allowed account and is keyed by account + role,
+ * so another identity never sees cached rows or inherits filters/page.
+ */
 export function MovementHistoryPage() {
+  const { access } = useAuth()
+
+  if (access.status === 'loading') return <LoadingState />
+  if (
+    access.status !== 'active' ||
+    !(LEDGER_VIEW_ROLES as readonly string[]).includes(access.user.roleCode)
+  ) {
+    return <NoPermissionState />
+  }
+
+  const { id, roleCode } = access.user
+  return <MovementHistoryContent key={`${id}:${roleCode}`} userId={id} roleCode={roleCode} />
+}
+
+function MovementHistoryContent({ userId, roleCode }: { userId: string; roleCode: RoleCode }) {
   const inventory = useInventoryService()
   const lookups = useMemo(() => createLookupService(getSupabase()), [])
   const [productId, setProductId] = useState('')
   const [type, setType] = useState<'' | MovementType>('')
   const [page, setPage] = useState(0)
 
-  const products = useQuery({ queryKey: ['inventory-products'], queryFn: () => lookups.products() })
+  // Prefixes stay `inventory-products` / `inventory-movements` so prefix invalidation still works.
+  const products = useQuery({
+    queryKey: ['inventory-products', userId, roleCode],
+    queryFn: () => lookups.products(),
+  })
   const list = useQuery({
-    queryKey: ['inventory-movements', productId, type, page],
+    queryKey: ['inventory-movements', userId, roleCode, productId, type, page],
     queryFn: () => inventory.listMovements({ productId: productId || undefined, type, page }),
-    placeholderData: (previous) => previous,
   })
 
   const rows = list.data ?? []

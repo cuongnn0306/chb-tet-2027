@@ -15,6 +15,7 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 | INF-008 | codex | needs_validation | 2026-10-12T08:23:24.841Z | [Báo cáo](reports/INF-008-2026-10-12T08-18-12-173Z.md) |
 | INF-013 | codex | needs_validation | 2026-10-19T04:45:23.342Z | [Báo cáo](reports/INF-013-2026-10-19T04-39-22-754Z.md) |
 | INF-014 | claude | in_progress | 2026-10-19T05:26:19.707Z | Đang thực hiện |
+| INV-009 | claude | needs_validation | 2026-10-15T08:15:40.808Z | [Báo cáo](reports/INV-009-2026-10-15T08-10-11-825Z.md) |
 | ORD-014 | claude | needs_validation | 2026-10-14T10:59:29.448Z | [Báo cáo](reports/ORD-014-2026-10-14T10-55-07-304Z.md) |
 | PAY-007 | claude | needs_validation | 2026-10-02T05:15:55.060Z | [Báo cáo](reports/PAY-007-2026-10-02T05-13-01-317Z.md) |
 | RES-005 | claude | needs_validation | 2026-10-04T07:55:23.348Z | [Báo cáo](reports/RES-005-2026-10-04T07-51-14-326Z.md) |

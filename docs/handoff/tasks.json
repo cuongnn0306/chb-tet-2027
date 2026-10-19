@@ -1724,6 +1724,18 @@
         "supabase/tests/seed_samples.test.sql"
       ],
       "latestReport": "docs/handoff/reports/INF-006-2026-10-12T20-49-47-053Z.md"
+    },
+    "INV-009": {
+      "id": "INV-009",
+      "title": "Validation-only retry after Docker Linux recovery; no source changes",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-15T08:09:50.582Z",
+      "updatedAt": "2026-10-15T08:15:40.808Z",
+      "baseCommit": "9b9827a2cd5c3e306078958b8de8c8d69de68962",
+      "branch": "codex/inv-009-claude-scope",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/INV-009-2026-10-15T08-10-11-825Z.md"
     }
   }
 }
