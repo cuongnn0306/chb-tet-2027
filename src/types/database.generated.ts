@@ -626,6 +626,74 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"return_items": {
+                  Row: {
+                    "batch_id": string | null,"id": string,"inspection_result": string | null,"order_item_id": string,"product_id": string,"quantity": number,"return_id": string
+                  }
+                  Insert: {
+                    "batch_id"?: string | null,"id"?: string,"inspection_result"?: string | null,"order_item_id": string,"product_id": string,"quantity": number,"return_id": string
+                  }
+                  Update: {
+                    "batch_id"?: string | null,"id"?: string,"inspection_result"?: string | null,"order_item_id"?: string,"product_id"?: string,"quantity"?: number,"return_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "return_items_batch_id_fkey"
+      columns: ["batch_id"]
+isOneToOne: false
+      referencedRelation: "product_batches"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "return_items_order_item_id_fkey"
+      columns: ["order_item_id"]
+isOneToOne: false
+      referencedRelation: "order_items"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "return_items_product_id_fkey"
+      columns: ["product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "return_items_return_id_fkey"
+      columns: ["return_id"]
+isOneToOne: false
+      referencedRelation: "returns"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"returns": {
+                  Row: {
+                    "created_at": string,"created_by": string,"id": string,"inspected_at": string | null,"inspected_by": string | null,"order_id": string,"reason": string,"return_code": string,"status": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"created_by": string,"id"?: string,"inspected_at"?: string | null,"inspected_by"?: string | null,"order_id": string,"reason": string,"return_code": string,"status"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string,"id"?: string,"inspected_at"?: string | null,"inspected_by"?: string | null,"order_id"?: string,"reason"?: string,"return_code"?: string,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "returns_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "returns_inspected_by_fkey"
+      columns: ["inspected_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "returns_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"roles": {
                   Row: {
                     "code": string,"created_at": string,"description": string | null,"id": string,"name": string,"permissions": NonNullable<Json>
@@ -1037,6 +1105,9 @@ isOneToOne: false
       } },
 "release_expired_reservations":
 { Args: Record<PropertyKey, never>; Returns: number
+                           },
+"request_return":
+{ Args: { "p_items": Json,"p_order_id": string,"p_reason": string }; Returns: Json
                            },
 "request_transfer":
 { Args: { "p_destination_location_id": string,"p_items": Json,"p_reason": string,"p_source_location_id": string }; Returns: Json

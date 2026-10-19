@@ -1558,6 +1558,31 @@
         "tests/unit/transfers/transfers.test.ts"
       ],
       "latestReport": "docs/handoff/reports/TRF-001-2026-10-04T14-59-42-545Z.md"
+    },
+    "RET-001": {
+      "id": "RET-001",
+      "title": "Validation-only RET-001 local DB and generated types after Docker recovery",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-06T08:21:52.423Z",
+      "updatedAt": "2026-10-06T08:28:10.445Z",
+      "baseCommit": "2df547eb543c7fdbb372739e0fcadfb106800462",
+      "branch": "",
+      "preExistingChanges": [
+        "docs/exec-plans/active/RET-001-return-request.md",
+        "docs/handoff/STATUS.md",
+        "docs/handoff/reports/RET-001-2026-10-06T05-11-31-282Z.json",
+        "docs/handoff/reports/RET-001-2026-10-06T05-11-31-282Z.md",
+        "docs/handoff/reports/RET-001-2026-10-06T05-15-08-606Z.json",
+        "docs/handoff/reports/RET-001-2026-10-06T05-15-08-606Z.md",
+        "docs/handoff/tasks.json",
+        "src/domain/returns/request.ts",
+        "src/services/returns.service.ts",
+        "supabase/migrations/20261006052000_ret001_return_request.sql",
+        "tests/integration/return-request.test.ts",
+        "tests/unit/domain/return-request.test.ts"
+      ],
+      "latestReport": "docs/handoff/reports/RET-001-2026-10-06T08-22-06-647Z.md"
     }
   }
 }
