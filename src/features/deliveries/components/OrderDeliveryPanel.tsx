@@ -1,3 +1,4 @@
+import { useAuth } from '@/features/auth/auth-context'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router'
@@ -52,10 +53,14 @@ export function OrderDeliveryPanel({
   isAdmin = false,
   onChanged,
 }: Props) {
+  const { access } = useAuth()
+  const scope =
+    access.status === 'active' ? JSON.stringify([access.user.id, access.user.roleCode]) : null
   const service = useDeliveryService()
   const deliveries = useQuery({
-    queryKey: ['order-deliveries', orderId],
+    queryKey: ['order-deliveries', orderId, scope],
     queryFn: () => service.listForOrder(orderId),
+    enabled: scope !== null,
   })
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<OrderDelivery | null>(null)

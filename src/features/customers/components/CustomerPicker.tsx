@@ -1,3 +1,5 @@
+import { customerQueryScope } from '@/domain/customers/query-scope'
+import { useAuth } from '@/features/auth/auth-context'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -22,6 +24,8 @@ interface Props {
  * customer. A new customer's phone triggers the non-blocking duplicate suggestion.
  */
 export function CustomerPicker({ value, onChange, error }: Props) {
+  const { access } = useAuth()
+  const scope = customerQueryScope(access)
   const service = useCustomerService()
   const [text, setText] = useState('')
   const [creating, setCreating] = useState(false)
@@ -29,9 +33,9 @@ export function CustomerPicker({ value, onChange, error }: Props) {
   const enabled = debounced.trim().length >= 2
 
   const matches = useQuery({
-    queryKey: ['customer-picker', debounced.trim()],
+    queryKey: ['customer-picker', scope, debounced.trim()],
     queryFn: () => service.search({ query: debounced.trim(), limit: 8 }),
-    enabled,
+    enabled: scope !== null && enabled,
   })
 
   const history = useCustomerHistory((matches.data ?? []).map((c) => c.id))

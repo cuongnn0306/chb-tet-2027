@@ -1,3 +1,5 @@
+import { useAuth } from '@/features/auth/auth-context'
+import { LoadingState, NoPermissionState } from '@/components/shared/PageState'
 import {
   LOCATION_TYPES,
   LOCATION_TYPE_LABELS,
@@ -37,13 +39,19 @@ const optional = (value: string | boolean | undefined) => {
 }
 
 export function LocationsPage() {
+  const { access } = useAuth()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active' || access.user.roleCode !== 'ADMIN') return <NoPermissionState />
+  return <LocationsContent key={access.user.id} accountId={access.user.id} />
+}
+function LocationsContent({ accountId }: { accountId: string }) {
   const crud = useCrud('locations', 'code')
   return (
     <ResourceAdminPage<Location>
       title="Địa điểm"
       description="Bếp tổng, văn phòng, cửa hàng CHB và cơ sở nhượng quyền."
       noun="địa điểm"
-      queryKey="locations"
+      queryKey={JSON.stringify(['locations', accountId])}
       load={crud.list}
       save={(id, payload) =>
         id ? crud.update(id, payload) : crud.create(payload as Parameters<typeof crud.create>[0])

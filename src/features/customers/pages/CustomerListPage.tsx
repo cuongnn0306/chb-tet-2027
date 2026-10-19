@@ -1,3 +1,4 @@
+import { customerQueryScope } from '@/domain/customers/query-scope'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/PageState'
@@ -29,6 +30,7 @@ export function CustomerListPage() {
   const service = useCustomerService()
   const queryClient = useQueryClient()
   const { access } = useAuth()
+  const scope = customerQueryScope(access)
   const me = access.status === 'active' ? access.user : null
 
   const [search, setSearch] = useState('')
@@ -40,7 +42,7 @@ export function CustomerListPage() {
   const debouncedSearch = useDebouncedValue(search)
 
   const list = useQuery({
-    queryKey: ['customers', debouncedSearch, type, includeArchived, page],
+    queryKey: ['customers', scope, debouncedSearch, type, includeArchived, page],
     queryFn: () =>
       service.search({
         query: debouncedSearch,
@@ -50,7 +52,7 @@ export function CustomerListPage() {
         limit: CUSTOMER_PAGE_SIZE + 1,
         offset: page * CUSTOMER_PAGE_SIZE,
       }),
-    placeholderData: (previous) => previous,
+    enabled: scope !== null,
   })
 
   const refresh = () => void queryClient.invalidateQueries({ queryKey: ['customers'] })

@@ -1,10 +1,15 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { StatusBadge } from '@/components/shared/StatusBadge'
-import { EmptyState, ErrorState, LoadingState } from '@/components/shared/PageState'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  NoPermissionState,
+} from '@/components/shared/PageState'
 import { Button } from '@/components/ui/Button'
 import { SelectField } from '@/components/ui/fields'
-import { businessDate, expiryStatus } from '@/domain/inventory/movements'
+import { BATCH_VIEW_ROLES, businessDate, expiryStatus } from '@/domain/inventory/movements'
 import { useAuth } from '@/features/auth/auth-context'
 import { formatDate } from '@/lib/date'
 import { describeDbError } from '@/lib/db-errors'
@@ -21,6 +26,18 @@ import { useInventoryService } from '../hooks/useInventoryService'
 
 /** INV-008: stock per batch, with the Admin/Warehouse actions (INV-001, 005, 010, 011). */
 export function BatchStockPage() {
+  const { access } = useAuth()
+  if (access.status === 'loading') return <LoadingState />
+  if (
+    access.status !== 'active' ||
+    !(BATCH_VIEW_ROLES as readonly string[]).includes(access.user.roleCode)
+  )
+    return <NoPermissionState />
+  const scope = JSON.stringify([access.user.id, access.user.roleCode])
+  return <BatchStockContent key={scope} queryScope={scope} />
+}
+
+function BatchStockContent({ queryScope }: { queryScope: string }) {
   const inventory = useInventoryService()
   const lookups = useMemo(() => createLookupService(getSupabase()), [])
   const queryClient = useQueryClient()
@@ -41,7 +58,7 @@ export function BatchStockPage() {
   >(null)
 
   const catalog = useQuery({
-    queryKey: ['inventory-batch-catalog'],
+    queryKey: ['inventory-batch-catalog', queryScope],
     queryFn: async () => {
       const [locations, products, batches] = await Promise.all([
         lookups.locations(),
@@ -52,7 +69,7 @@ export function BatchStockPage() {
     },
   })
   const balances = useQuery({
-    queryKey: ['inventory-balances', locationId, productId],
+    queryKey: ['inventory-balances', queryScope, locationId, productId],
     queryFn: () =>
       inventory.listBalances({
         locationId: locationId || undefined,

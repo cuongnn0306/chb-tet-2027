@@ -21,6 +21,7 @@ const FIELDS: FieldConfig[] = [
 ]
 
 interface Props {
+  cacheKey?: string
   table: LookupTable
   title: string
   description: string
@@ -29,14 +30,14 @@ interface Props {
 }
 
 /** Admin screen for simple code/name/sort-order lists (sales channels, lead sources). */
-export function LookupAdminPage({ table, title, description, noun, deactivationWarning }: Props) {
+export function LookupAdminPage({ table, title, description, noun, deactivationWarning, cacheKey }: Props) {
   const crud = useMemo(() => createCrudService(getSupabase(), table, 'sort_order'), [table])
   return (
     <ResourceAdminPage<LookupRow>
       title={title}
       description={description}
       noun={noun}
-      queryKey={table}
+      queryKey={cacheKey ?? table}
       load={() => crud.list() as Promise<LookupRow[]>}
       save={(id, payload) =>
         id ? crud.update(id, payload) : crud.create(payload as Parameters<typeof crud.create>[0])

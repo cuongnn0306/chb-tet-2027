@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { ROUTES } from '@/app/routes'
 import { MoneyText } from '@/components/shared/MoneyText'
-import { ErrorState, LoadingState } from '@/components/shared/PageState'
+import { ErrorState, LoadingState, NoPermissionState } from '@/components/shared/PageState'
 import { Button } from '@/components/ui/Button'
 import { CheckboxField, SelectField, TextAreaField } from '@/components/ui/fields'
 import { TextField } from '@/components/ui/TextField'
@@ -24,6 +24,15 @@ import { useOrderService } from '../hooks/useOrderService'
 
 /** Create (/orders/new) or edit a draft (/orders/:id/edit). Fastest path: customer, products, qty, save. */
 export function OrderFormPage() {
+  const { access } = useAuth()
+  const { orderId } = useParams()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active') return <NoPermissionState />
+  const scope = JSON.stringify([access.user.id, access.user.roleCode])
+  return <OrderFormContent key={JSON.stringify([scope, orderId ?? null])} scope={scope} />
+}
+
+function OrderFormContent({ scope }: { scope: string }) {
   const { orderId } = useParams()
   const navigate = useNavigate()
   const service = useOrderService()
@@ -34,7 +43,7 @@ export function OrderFormPage() {
   const isAdmin = me?.roleCode === 'ADMIN'
 
   const catalog = useQuery({
-    queryKey: ['order-form-catalog'],
+    queryKey: ['order-form-catalog', scope],
     queryFn: async () => {
       const [products, attribution, profiles] = await Promise.all([
         lookups.activeProducts(),
@@ -46,7 +55,7 @@ export function OrderFormPage() {
   })
 
   const existing = useQuery({
-    queryKey: ['order-draft', orderId],
+    queryKey: ['order-draft', orderId, scope],
     enabled: Boolean(orderId),
     queryFn: async () => {
       const order = await service.get(orderId as string)
@@ -93,7 +102,8 @@ export function OrderFormPage() {
 
   return (
     <OrderFormBody
-      key={orderId ?? 'new'}
+      scope={scope}
+      key={JSON.stringify([scope, orderId ?? null])}
       catalog={catalog.data}
       draft={
         existing.data?.order
@@ -120,6 +130,7 @@ type Catalog = {
 }
 
 interface BodyProps {
+  scope: string
   catalog: Catalog
   draft: {
     order: NonNullable<Awaited<ReturnType<ReturnType<typeof useOrderService>['get']>>>
@@ -133,6 +144,7 @@ interface BodyProps {
 }
 
 function OrderFormBody({
+  scope,
   catalog,
   draft,
   defaults,
@@ -174,7 +186,7 @@ function OrderFormBody({
   )
   const debouncedItems = useDebouncedValue(quoteItems, 300)
   const quote = useQuery({
-    queryKey: ['order-quote', JSON.stringify(debouncedItems), ownerId],
+    queryKey: ['order-quote', JSON.stringify(debouncedItems), ownerId, scope],
     enabled: debouncedItems.length > 0,
     queryFn: () => service.quote(debouncedItems, ownerId || null),
     placeholderData: (previous) => previous,
@@ -182,7 +194,7 @@ function OrderFormBody({
 
   // RES-009: warn (never block) when the chosen location cannot cover the lines, and say where to get stock.
   const stockCheck = useQuery({
-    queryKey: ['order-form-stock', locationId, JSON.stringify(debouncedItems)],
+    queryKey: ['order-form-stock', locationId, JSON.stringify(debouncedItems), scope],
     enabled: debouncedItems.length > 0 && locationId !== '',
     queryFn: () => service.checkStock(locationId, debouncedItems),
     placeholderData: (previous) => previous,

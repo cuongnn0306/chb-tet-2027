@@ -1,3 +1,5 @@
+import { useAuth } from '@/features/auth/auth-context'
+import { LoadingState, NoPermissionState } from '@/components/shared/PageState'
 import {
   normalizeCode,
   parsePercent,
@@ -45,13 +47,19 @@ const FIELDS: FieldConfig[] = [
 ]
 
 export function ProductsPage() {
+  const { access } = useAuth()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active' || access.user.roleCode !== 'ADMIN') return <NoPermissionState />
+  return <ProductsContent key={access.user.id} accountId={access.user.id} />
+}
+function ProductsContent({ accountId }: { accountId: string }) {
   const crud = useCrud('products', 'sku')
   return (
     <ResourceAdminPage<Product>
       title="Sản phẩm"
       description="Danh sách SKU, giá niêm yết và % hoa hồng mặc định."
       noun="sản phẩm"
-      queryKey="products"
+      queryKey={JSON.stringify(['products', accountId])}
       load={crud.list}
       save={(id, payload) =>
         id ? crud.update(id, payload) : crud.create(payload as Parameters<typeof crud.create>[0])

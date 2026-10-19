@@ -1,6 +1,7 @@
+import { useAuth } from '@/features/auth/auth-context'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { ErrorState, LoadingState } from '@/components/shared/PageState'
+import { ErrorState, LoadingState, NoPermissionState } from '@/components/shared/PageState'
 import { parsePercent, validateCommissionRule } from '@/domain/master-data/validation'
 import { formatDate } from '@/lib/date'
 import { getSupabase } from '@/lib/supabase'
@@ -15,10 +16,16 @@ const labelOf = (options: Option[], id: string | null) =>
   options.find((option) => option.value === id)?.label ?? ''
 
 export function CommissionRulesPage() {
+  const { access } = useAuth()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active' || access.user.roleCode !== 'ADMIN') return <NoPermissionState />
+  return <CommissionRulesContent key={access.user.id} accountId={access.user.id} />
+}
+function CommissionRulesContent({ accountId }: { accountId: string }) {
   const crud = useCrud('commission_rules', 'effective_from')
   const lookups = useMemo(() => createLookupService(getSupabase()), [])
   const lists = useQuery({
-    queryKey: ['commission-rule-options'],
+    queryKey: ['commission-rule-options', accountId],
     queryFn: async () => {
       const [profiles, roles, products] = await Promise.all([
         lookups.profiles(),
@@ -81,7 +88,7 @@ export function CommissionRulesPage() {
       title="Quy tắc hoa hồng"
       description="Thứ tự ưu tiên: nhân viên + sản phẩm, nhân viên, vai trò + sản phẩm, vai trò, % mặc định của sản phẩm."
       noun="quy tắc hoa hồng"
-      queryKey="commission_rules"
+      queryKey={JSON.stringify(['commission_rules', accountId])}
       load={crud.list}
       save={(id, payload) =>
         id ? crud.update(id, payload) : crud.create(payload as Parameters<typeof crud.create>[0])

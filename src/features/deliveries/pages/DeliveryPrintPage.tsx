@@ -1,8 +1,9 @@
+import { useAuth } from '@/features/auth/auth-context'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router'
 import { ROUTES } from '@/app/routes'
 import { MoneyText } from '@/components/shared/MoneyText'
-import { ErrorState, LoadingState } from '@/components/shared/PageState'
+import { ErrorState, LoadingState, NoPermissionState } from '@/components/shared/PageState'
 import { Button } from '@/components/ui/Button'
 import {
   DELIVERY_METHOD_LABELS,
@@ -17,11 +18,27 @@ import { useDeliveryService } from '../hooks/useDeliveryService'
  * (what the warehouse must pick, batch by batch, earliest expiry first).
  */
 export function DeliveryPrintPage({ mode }: { mode: 'note' | 'issue' }) {
+  const { access } = useAuth()
+  const { deliveryId = '' } = useParams()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active') return <NoPermissionState />
+  const scope = JSON.stringify([access.user.id, access.user.roleCode])
+  return (
+    <DeliveryPrintContent
+      key={JSON.stringify([scope, deliveryId, mode])}
+      scope={scope}
+      mode={mode}
+    />
+  )
+}
+
+function DeliveryPrintContent({ scope, mode }: { scope: string; mode: 'note' | 'issue' }) {
   const { deliveryId = '' } = useParams()
   const service = useDeliveryService()
   const detail = useQuery({
-    queryKey: ['delivery-detail', deliveryId],
+    queryKey: ['delivery-detail', deliveryId, scope],
     queryFn: () => service.detail(deliveryId),
+    enabled: deliveryId !== '',
   })
 
   if (detail.isPending) return <LoadingState />

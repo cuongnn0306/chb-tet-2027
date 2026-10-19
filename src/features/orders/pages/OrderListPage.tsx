@@ -2,7 +2,12 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { ROUTES } from '@/app/routes'
-import { EmptyState, ErrorState, LoadingState } from '@/components/shared/PageState'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  NoPermissionState,
+} from '@/components/shared/PageState'
 import { DateTimeText, MoneyText } from '@/components/shared/MoneyText'
 import { Button } from '@/components/ui/Button'
 import { SelectField } from '@/components/ui/fields'
@@ -20,9 +25,15 @@ import { OrderStatusBadge } from '../components/OrderStatusBadge'
 import { useOrderService } from '../hooks/useOrderService'
 
 export function OrderListPage() {
-  const service = useOrderService()
   const { access } = useAuth()
-  const isAdmin = access.status === 'active' && access.user.roleCode === 'ADMIN'
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active') return <NoPermissionState />
+  const scope = JSON.stringify([access.user.id, access.user.roleCode])
+  return <OrderListContent key={scope} scope={scope} isAdmin={access.user.roleCode === 'ADMIN'} />
+}
+
+function OrderListContent({ scope, isAdmin }: { scope: string; isAdmin: boolean }) {
+  const service = useOrderService()
 
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<'' | OrderStatus>('')
@@ -30,7 +41,7 @@ export function OrderListPage() {
   const debouncedSearch = useDebouncedValue(search)
 
   const list = useQuery({
-    queryKey: ['orders', debouncedSearch, status, page],
+    queryKey: ['orders', scope, debouncedSearch, status, page],
     queryFn: () => service.list({ query: debouncedSearch, status, page }),
     placeholderData: (previous) => previous,
   })
