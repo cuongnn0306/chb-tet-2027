@@ -1736,6 +1736,18 @@
       "branch": "codex/inv-009-claude-scope",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/INV-009-2026-10-15T08-10-11-825Z.md"
+    },
+    "INV-007": {
+      "id": "INV-007",
+      "title": "Validation-only after Docker Linux engine restoration",
+      "agent": "codex",
+      "status": "needs_validation",
+      "startedAt": "2026-10-14T06:33:12.764Z",
+      "updatedAt": "2026-10-14T09:58:29.990Z",
+      "baseCommit": "b26a24a171ddd37a5044fdec427c63d04764c3e8",
+      "branch": "codex/inv-007-empty-state",
+      "preExistingChanges": [],
+      "latestReport": "docs/handoff/reports/INV-007-2026-10-14T09-52-49-120Z.md"
     }
   }
 }

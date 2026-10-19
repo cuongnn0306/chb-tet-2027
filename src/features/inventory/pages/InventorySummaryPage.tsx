@@ -1,7 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { EmptyState, ErrorState, LoadingState } from '@/components/shared/PageState'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  NoPermissionState,
+} from '@/components/shared/PageState'
 import { SelectField } from '@/components/ui/fields'
+import type { ActiveUser } from '@/domain/auth/access'
 import { BATCH_VIEW_ROLES } from '@/domain/inventory/movements'
 import { useAuth } from '@/features/auth/auth-context'
 import { getSupabase } from '@/lib/supabase'
@@ -13,16 +19,23 @@ import { useInventoryService } from '../hooks/useInventoryService'
  * and Production also see the technical counters (PRD B2.1: progressive disclosure).
  */
 export function InventorySummaryPage() {
+  const { access } = useAuth()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active') return <NoPermissionState />
+
+  const queryScope = JSON.stringify([access.user.id, access.user.roleCode])
+  return <InventorySummaryContent key={queryScope} user={access.user} queryScope={queryScope} />
+}
+
+function InventorySummaryContent({ user, queryScope }: { user: ActiveUser; queryScope: string }) {
   const inventory = useInventoryService()
   const lookups = useMemo(() => createLookupService(getSupabase()), [])
-  const { access } = useAuth()
-  const user = access.status === 'active' ? access.user : null
-  const detailed = user !== null && (BATCH_VIEW_ROLES as readonly string[]).includes(user.roleCode)
+  const detailed = (BATCH_VIEW_ROLES as readonly string[]).includes(user.roleCode)
 
-  const [locationId, setLocationId] = useState(user?.defaultLocationId ?? '')
+  const [locationId, setLocationId] = useState(user.defaultLocationId ?? '')
 
   const catalog = useQuery({
-    queryKey: ['inventory-catalog'],
+    queryKey: ['inventory-catalog', queryScope],
     queryFn: async () => {
       const [locations, products] = await Promise.all([
         lookups.locations(),
@@ -33,7 +46,7 @@ export function InventorySummaryPage() {
   })
 
   const summary = useQuery({
-    queryKey: ['inventory-summary', locationId],
+    queryKey: ['inventory-summary', queryScope, locationId],
     queryFn: () => inventory.summary(locationId),
     enabled: locationId !== '',
   })
@@ -80,7 +93,13 @@ export function InventorySummaryPage() {
         </ErrorState>
       ) : null}
 
-      {summary.isSuccess ? (
+      {summary.isSuccess && catalog.data.products.length === 0 ? (
+        <EmptyState title="Chưa có sản phẩm để hiển thị tồn kho">
+          Vui lòng liên hệ quản trị viên để kiểm tra danh mục sản phẩm.
+        </EmptyState>
+      ) : null}
+
+      {summary.isSuccess && catalog.data.products.length > 0 ? (
         <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-slate-600">
