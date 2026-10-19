@@ -20,6 +20,7 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 | INV-009 | claude | needs_validation | 2026-10-15T08:15:40.808Z | [Báo cáo](reports/INV-009-2026-10-15T08-10-11-825Z.md) |
 | ORD-014 | claude | needs_validation | 2026-10-14T10:59:29.448Z | [Báo cáo](reports/ORD-014-2026-10-14T10-55-07-304Z.md) |
 | PAY-007 | claude | needs_validation | 2026-10-02T05:15:55.060Z | [Báo cáo](reports/PAY-007-2026-10-02T05-13-01-317Z.md) |
+| PRD-001 | claude | needs_validation | 2026-10-06T08:12:34.875Z | [Báo cáo](reports/PRD-001-2026-10-06T08-06-29-998Z.md) |
 | PRD-002 | claude | needs_validation | 2026-10-05T16:29:50.379Z | [Báo cáo](reports/PRD-002-2026-10-05T16-29-15-718Z.md) |
 | RES-005 | claude | needs_validation | 2026-10-04T07:55:23.348Z | [Báo cáo](reports/RES-005-2026-10-04T07-51-14-326Z.md) |
 | RES-010 | codex | needs_validation | 2026-10-11T15:51:18.931Z | [Báo cáo](reports/RES-010-2026-10-11T15-48-48-068Z.md) |
