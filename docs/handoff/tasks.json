@@ -1704,6 +1704,26 @@
       "branch": "",
       "preExistingChanges": [],
       "latestReport": "docs/handoff/reports/SEC-008-2026-10-12T16-42-28-287Z.md"
+    },
+    "INF-006": {
+      "id": "INF-006",
+      "title": "Retry seed fixture validation after correcting Admin context in pgTAP reconciliation assertion",
+      "agent": "codex",
+      "status": "needs_validation",
+      "startedAt": "2026-10-12T20:49:42.798Z",
+      "updatedAt": "2026-10-12T20:54:27.932Z",
+      "baseCommit": "60cdcd6e7e24b7601167fdb63a3987aa72cfe921",
+      "branch": "",
+      "preExistingChanges": [
+        "docs/exec-plans/active/INF-006-seed-samples.md",
+        "docs/handoff/STATUS.md",
+        "docs/handoff/reports/INF-006-2026-10-12T20-44-14-250Z.json",
+        "docs/handoff/reports/INF-006-2026-10-12T20-44-14-250Z.md",
+        "docs/handoff/tasks.json",
+        "supabase/seed.sql",
+        "supabase/tests/seed_samples.test.sql"
+      ],
+      "latestReport": "docs/handoff/reports/INF-006-2026-10-12T20-49-47-053Z.md"
     }
   }
 }
