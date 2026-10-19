@@ -24,6 +24,7 @@ Sinh bằng `npm run task:start` / `npm run task:finish`. Không sửa tay bản
 | PRD-002 | claude | needs_validation | 2026-10-05T16:29:50.379Z | [Báo cáo](reports/PRD-002-2026-10-05T16-29-15-718Z.md) |
 | RES-005 | claude | needs_validation | 2026-10-04T07:55:23.348Z | [Báo cáo](reports/RES-005-2026-10-04T07-51-14-326Z.md) |
 | RES-010 | codex | needs_validation | 2026-10-11T15:51:18.931Z | [Báo cáo](reports/RES-010-2026-10-11T15-48-48-068Z.md) |
+| RET-001 | claude | needs_validation | 2026-10-06T08:28:10.445Z | [Báo cáo](reports/RET-001-2026-10-06T08-22-06-647Z.md) |
 | RPT-001 | codex | needs_validation | 2026-10-14T06:03:31.556Z | [Báo cáo](reports/RPT-001-2026-10-14T05-58-23-962Z.md) |
 | RPT-012 | claude | needs_validation | 2026-10-06T07:56:14.429Z | [Báo cáo](reports/RPT-012-2026-10-06T07-51-42-495Z.md) |
 | SEC-001 | claude | needs_validation | 2026-10-15T09:51:21.970Z | [Báo cáo](reports/SEC-001-2026-10-15T09-46-34-135Z.md) |
