@@ -1526,6 +1526,28 @@
         "tests/unit/domain/production-need.test.ts"
       ],
       "latestReport": "docs/handoff/reports/PRD-002-2026-10-05T16-29-15-718Z.md"
+    },
+    "RPT-012": {
+      "id": "RPT-012",
+      "title": "Validation retry after SEC-003 showed local DB lease/reset/pgTAP/integration recovered; no source edits",
+      "agent": "claude",
+      "status": "needs_validation",
+      "startedAt": "2026-10-06T07:51:07.463Z",
+      "updatedAt": "2026-10-06T07:56:14.429Z",
+      "baseCommit": "2df547eb543c7fdbb372739e0fcadfb106800462",
+      "branch": "",
+      "preExistingChanges": [
+        "docs/exec-plans/active/RPT-012-xlsx-export.md",
+        "docs/handoff/STATUS.md",
+        "docs/handoff/reports/RPT-012-2026-10-06T07-19-18-438Z.json",
+        "docs/handoff/reports/RPT-012-2026-10-06T07-19-18-438Z.md",
+        "docs/handoff/tasks.json",
+        "package-lock.json",
+        "package.json",
+        "src/lib/report-xlsx-export.ts",
+        "tests/unit/lib/report-xlsx-export.test.ts"
+      ],
+      "latestReport": "docs/handoff/reports/RPT-012-2026-10-06T07-51-42-495Z.md"
     }
   }
 }
