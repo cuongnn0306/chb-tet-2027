@@ -1,0 +1,9 @@
+# DEL-005 resumed attempt: initial review
+
+Dispatch DEL-005-1791051976010-c4941508, exact session c72f5823-5960-4bc8-b2bc-90f0f8aed57a. Exit0/is_error false, two denied compound Bash inspection commands, no permission bypass established. One final result last, stdin delivered, streams complete, malformed0/liveChildren0. Report DEL-005-2026-10-03T18-30-17-742Z source fingerprints match. All checks including DB reset/pgTAP/integration pass except format. No Done.
+
+Review blockers: actual migration 20261003080000_delivery_source_allocation.sql differs from reserved160000 name; test deliveries-source-allocation.test.ts differs from reserved delivery-source-allocation.test.ts; OrderDetailPage.tsx outside declared scope. Preserve files; reservation must be explicitly reviewed before next dispatch. Generated database types not regenerated after schema change. Plan/summary prose predates validation and contradicts actual validation table; old report immutable. Private batch binder behavior replaced despite claimed unchanged contracts; full SQL/binding/accounting review pending. Browser/mobile/staging acceptance pending.
+
+Next: inspect exact baseline delta and allocation SQL/tests in manageable sections; review scope expansion, then same-session scoped correction for formatting/types/evidence through fresh task:start/finish as previous attempt finished. Do not start RES005 yet.
+
+Follow-up review: actual filename/button scope expansion accepted as direct DEL005 work, retained without destructive renaming. Potential stale attribution after changing source A→B→A requires regression; historic attribution can outlive released reservations. Same-session correction dispatched c10269a6 with fresh attempt, three owned format files and truthful evidence. Generated types remain pipeline-owned generation blocker; no direct DB/gen command allowed.

@@ -1,0 +1,3 @@
+# Post-reset resume evidence
+
+At12:11:43Z resumed exact INF008 session488a98ae-2f8c-4daf-a25b-5f1ce36503c2 using verified frozen runner hashes and DB blocker. Dispatch INF-008-1791029502865-f68de541 returned runnerPID5052, but PID then absent and runtime contained only baseline/config/prompt. No process.json, events or result. Frozen controller status at12:12:08Z records worker_lost. No actual provider response: quota availability remains unverified, but immediate failure is launcher lifetime. Preserve reservation; no repeated sandbox dispatch, duplicate task:start or DB reset. Inspect full process lifetime/baseline before recovering reservation for external-terminal resume.

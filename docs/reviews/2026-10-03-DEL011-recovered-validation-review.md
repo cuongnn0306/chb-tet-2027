@@ -1,0 +1,7 @@
+# Follow-up review evidence — 2026-10-03T13:45Z
+
+Latest DEL011 report13-35-53 is needs_validation. Independently inspected report check exit codes and current source hashes: zero mismatches. App checks, pipeline, local DB reset, pgTAP and integration recorded pass; format fails six coordinator docs/state files. This supersedes prior Docker-blocked evidence for this root validation attempt only; isolated SEC001/SEC008 DB remain pending.
+
+Change explains actual root DB failure SQLSTATE25P01: top-level LOCK TABLE replaced by locking inside migration preflight DO. Related regression fixture now supplies required cancelled_reason. Existing tests use explicit BEGIN/ROLLBACK for historical-upgrade fixture; these do not by themselves establish lock lifetime through all statements in the actual CLI migration runner. Before release, review migration-runner transaction boundaries against the comment promising locks retained through backfill and RPC replacement. No release/Done certification here.
+
+Root registry has no in_progress attempt, but external Claude process ownership/session is not yet reconciled with historical worker_lost controller. Do not dispatch duplicate or take over existing changes. Next: establish current executor/session evidence, finish scoped staging review, verify migration atomic upgrade guarantee, and coordinate fresh validation after any source changes. Preserve all report history.

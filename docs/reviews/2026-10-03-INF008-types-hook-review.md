@@ -1,0 +1,7 @@
+# INF-008 types hook review
+
+Actual runner exit0/is_errorfalse, no denials, one final result last, complete streams/stdin, malformed0/liveChildren0. New report C:/Users/HP/.codex/worktrees/codex-sec-008/chb-ban-hang/docs/handoff/reports/INF-008-2026-10-03T23-46-46-357Z.json source fingerprints match. Pipeline/lint/typecheck/tests/build/env pass; format fails193files; DB checks not_run via inherited preservation blocker. Quota availability verified by actual successful implementation/finish.
+
+Lease/reset gating, generation snapshot isolation, atomic rename and post-generation app rechecks present. Naming deviations scripts/db-types.mjs and INF008-generated-types.md accepted as equivalent task-local helper/plan, unchanged historical scopes retained. No integration into root.
+
+Correction required before approval: rejectGeneratedTypes only searches export type Database and NUL/credential patterns; malformed TypeScript containing that phrase can overwrite previous valid file, then postgen typecheck fails. Requirement says invalid CLI output must preserve previous file. Validate syntax before installation and whitelist expected type-only top-level generated declarations; test malformed Database declaration and executable extra statement keep previous bytes. Mock arbitrary invalid output alone does not cover this. New task attempt needed before edits, fresh report after correction. Real generation/browser/staging pending; not Done.

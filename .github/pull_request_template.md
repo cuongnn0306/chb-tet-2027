@@ -4,6 +4,12 @@
 
 ## Summary
 
+## Shared task report
+
+<!-- Link docs/handoff/reports/<TASK-ID>-<timestamp>.md; run task:finish and commit its MD + JSON and STATUS/tasks.json with the code. -->
+
+- [ ] Fresh `validated_local` report matches the proposed source; staging/mobile/review limitations are explicit
+
 ## Checklist
 
 - [ ] Read relevant PRD / Tech Design sections; no new business rules invented

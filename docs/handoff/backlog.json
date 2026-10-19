@@ -1,0 +1,1321 @@
+{
+  "version": 1,
+  "date": "2026-10-02",
+  "head": "9548886547e79a5eb21898e287f1303f4bd2fbe9",
+  "branch": "feature/DEL-001-deliveries",
+  "source": "docs/delivery/IMPLEMENTATION_INFRA_PLAN_v1.0.md",
+  "tasks": [
+    {
+      "id": "INF-001",
+      "title": "Tạo GitHub repository",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "partial",
+      "evidence": "GitHub repository và main/develop tồn tại; 18 PR OPEN; API private=false trái spec; main protected=true, develop protected=false; required checks/bypass chưa review đầy đủ."
+    },
+    {
+      "id": "INF-002",
+      "title": "Khởi tạo React + TypeScript",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "implemented_unreleased",
+      "evidence": "Vite/React/TS strict/lint/format/unit/build; local baseline pass, historical CI pass."
+    },
+    {
+      "id": "INF-003",
+      "title": "Cài Supabase CLI",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "implemented_unreleased",
+      "evidence": "Supabase CLI dependency có trong package-lock."
+    },
+    {
+      "id": "INF-004",
+      "title": "Chạy Supabase local",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "implemented_unreleased",
+      "evidence": "Docker Desktop khởi động thành công; local Supabase start pass trong phiên review; historical CI stack pass."
+    },
+    {
+      "id": "INF-005",
+      "title": "Setup migration baseline",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "implemented_unreleased",
+      "evidence": "23 migrations; db reset --local pass sau khi khởi động Docker; 111 pgTAP và 231 integration pass."
+    },
+    {
+      "id": "INF-006",
+      "title": "Setup seed",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "partial",
+      "evidence": "Seed roles/test accounts/master/customers có; chưa có đầy đủ UAT orders/batches/returns dataset."
+    },
+    {
+      "id": "INF-007",
+      "title": "`.env.example`",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "implemented_unreleased",
+      "evidence": "Client/function env examples có, không có real env tracked; check:env còn giới hạn RV-11."
+    },
+    {
+      "id": "INF-008",
+      "title": "CI foundation",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "partial",
+      "evidence": "Historical CI green; task-report pipeline mới thêm trong phiên này chưa push; staging CI dependency thiếu RV-10."
+    },
+    {
+      "id": "INF-009",
+      "title": "Tạo Supabase Staging",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "external_not_verified",
+      "evidence": "Staging workflow/runbook có; STAGING_CONFIGURED/account/env/project chưa xác minh."
+    },
+    {
+      "id": "INF-010",
+      "title": "Tạo Supabase Production",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "external_not_verified",
+      "evidence": "Production deploy workflow placeholder; account/backup/secrets chưa xác minh."
+    },
+    {
+      "id": "INF-011",
+      "title": "Tạo Vercel Project",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "external_not_verified",
+      "evidence": "Vercel/domain/deploy/config chưa xác minh ngoài runbooks."
+    },
+    {
+      "id": "INF-012",
+      "title": "Environment Variables",
+      "epic": "E00",
+      "epicName": "PROJECT FOUNDATION & INFRA",
+      "status": "partial",
+      "evidence": "Env separation documented, local config có; remote env chưa xác minh."
+    },
+    {
+      "id": "AUTH-001",
+      "title": "Supabase Auth",
+      "epic": "E01",
+      "epicName": "AUTH, ROLE, MASTER DATA",
+      "status": "partial",
+      "evidence": "Email login/session/inactive guard có; PRD phone login còn deferred; mobile/staging chưa kiểm chứng."
+    },
+    {
+      "id": "AUTH-002",
+      "title": "Profiles",
+      "epic": "E01",
+      "epicName": "AUTH, ROLE, MASTER DATA",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E01; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "AUTH-003",
+      "title": "Roles & permission helper",
+      "epic": "E01",
+      "epicName": "AUTH, ROLE, MASTER DATA",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E01; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "AUTH-004",
+      "title": "RLS baseline",
+      "epic": "E01",
+      "epicName": "AUTH, ROLE, MASTER DATA",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E01; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "MD-001",
+      "title": "Locations CRUD",
+      "epic": "E01",
+      "epicName": "AUTH, ROLE, MASTER DATA",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E01; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "MD-002",
+      "title": "Sales Channels CRUD",
+      "epic": "E01",
+      "epicName": "AUTH, ROLE, MASTER DATA",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E01; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "MD-003",
+      "title": "Lead Sources CRUD",
+      "epic": "E01",
+      "epicName": "AUTH, ROLE, MASTER DATA",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E01; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "MD-004",
+      "title": "Product CRUD",
+      "epic": "E01",
+      "epicName": "AUTH, ROLE, MASTER DATA",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E01; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "MD-005",
+      "title": "Commission Rule CRUD",
+      "epic": "E01",
+      "epicName": "AUTH, ROLE, MASTER DATA",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E01; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "MD-006",
+      "title": "Safety Stock CRUD",
+      "epic": "E01",
+      "epicName": "AUTH, ROLE, MASTER DATA",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E01; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "MD-007",
+      "title": "App Settings CRUD",
+      "epic": "E01",
+      "epicName": "AUTH, ROLE, MASTER DATA",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E01; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "CUS-001",
+      "title": "Customer schema",
+      "epic": "E02",
+      "epicName": "CUSTOMER",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E02; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "CUS-002",
+      "title": "Customer create/edit",
+      "epic": "E02",
+      "epicName": "CUSTOMER",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E02; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "CUS-003",
+      "title": "Phone normalization",
+      "epic": "E02",
+      "epicName": "CUSTOMER",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E02; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "CUS-004",
+      "title": "Duplicate suggestion",
+      "epic": "E02",
+      "epicName": "CUSTOMER",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E02; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "CUS-005",
+      "title": "Customer history",
+      "epic": "E02",
+      "epicName": "CUSTOMER",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E02; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "CUS-006",
+      "title": "Customer list/search/filter",
+      "epic": "E02",
+      "epicName": "CUSTOMER",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E02; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-001",
+      "title": "Orders schema",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-002",
+      "title": "Order code generator",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-003",
+      "title": "Order Items",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-004",
+      "title": "Pricing calculator",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-005",
+      "title": "Commission ceiling validation",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-006",
+      "title": "Create draft order",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-007",
+      "title": "Submit order",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-008",
+      "title": "Order state transition service",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-009",
+      "title": "Cancel logic",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-010",
+      "title": "Void logic Admin",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-011",
+      "title": "Order list",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-012",
+      "title": "Order detail",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-013",
+      "title": "Order timeline",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "ORD-014",
+      "title": "Print order",
+      "epic": "E03",
+      "epicName": "ORDER CORE",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E03; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "INV-001",
+      "title": "Batch schema",
+      "epic": "E04",
+      "epicName": "INVENTORY LEDGER & BATCH",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E04; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "INV-002",
+      "title": "Inventory movement schema",
+      "epic": "E04",
+      "epicName": "INVENTORY LEDGER & BATCH",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E04; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "INV-003",
+      "title": "Balance projection/cache",
+      "epic": "E04",
+      "epicName": "INVENTORY LEDGER & BATCH",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E04; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "INV-004",
+      "title": "No-negative transaction function",
+      "epic": "E04",
+      "epicName": "INVENTORY LEDGER & BATCH",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E04; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "INV-005",
+      "title": "Initial stock manual entry",
+      "epic": "E04",
+      "epicName": "INVENTORY LEDGER & BATCH",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E04; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "INV-006",
+      "title": "Initial stock Excel import",
+      "epic": "E04",
+      "epicName": "INVENTORY LEDGER & BATCH",
+      "status": "partial",
+      "evidence": "Paste/CSV import atomic+dry-run; chưa native .xlsx upload theo task gốc."
+    },
+    {
+      "id": "INV-007",
+      "title": "Inventory summary",
+      "epic": "E04",
+      "epicName": "INVENTORY LEDGER & BATCH",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E04; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "INV-008",
+      "title": "Inventory batch detail",
+      "epic": "E04",
+      "epicName": "INVENTORY LEDGER & BATCH",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E04; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "INV-009",
+      "title": "Inventory movements history",
+      "epic": "E04",
+      "epicName": "INVENTORY LEDGER & BATCH",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E04; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "INV-010",
+      "title": "Manual adjustment",
+      "epic": "E04",
+      "epicName": "INVENTORY LEDGER & BATCH",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E04; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "INV-011",
+      "title": "Sample/Gift/Damage flows",
+      "epic": "E04",
+      "epicName": "INVENTORY LEDGER & BATCH",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E04; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "RES-001",
+      "title": "Temporary reservation",
+      "epic": "E05",
+      "epicName": "RESERVATION, FEFO, ALLOCATION",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E05; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "RES-002",
+      "title": "Reservation TTL setting",
+      "epic": "E05",
+      "epicName": "RESERVATION, FEFO, ALLOCATION",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E05; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "RES-003",
+      "title": "Auto expiry job",
+      "epic": "E05",
+      "epicName": "RESERVATION, FEFO, ALLOCATION",
+      "status": "partial",
+      "evidence": "pg_cron/lazy release/admin RPC có; migration catch cron failure, remote scheduled job chưa xác minh."
+    },
+    {
+      "id": "RES-004",
+      "title": "Demand commitment",
+      "epic": "E05",
+      "epicName": "RESERVATION, FEFO, ALLOCATION",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E05; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "RES-005",
+      "title": "Allocation lead time",
+      "epic": "E05",
+      "epicName": "RESERVATION, FEFO, ALLOCATION",
+      "status": "partial",
+      "evidence": "Setting tồn tại; delivery-date allocation job/lead-time enforcement chưa làm."
+    },
+    {
+      "id": "RES-006",
+      "title": "FEFO engine",
+      "epic": "E05",
+      "epicName": "RESERVATION, FEFO, ALLOCATION",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E05; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "RES-007",
+      "title": "Physical allocation",
+      "epic": "E05",
+      "epicName": "RESERVATION, FEFO, ALLOCATION",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E05; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "RES-008",
+      "title": "Multi-batch allocation",
+      "epic": "E05",
+      "epicName": "RESERVATION, FEFO, ALLOCATION",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E05; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "RES-009",
+      "title": "Shortage signal",
+      "epic": "E05",
+      "epicName": "RESERVATION, FEFO, ALLOCATION",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E05; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "RES-010",
+      "title": "Suggested source location",
+      "epic": "E05",
+      "epicName": "RESERVATION, FEFO, ALLOCATION",
+      "status": "partial",
+      "evidence": "Suggestions có; ORDER BY cột 5 sai expiry (RV-08); ít split chưa chứng minh."
+    },
+    {
+      "id": "PAY-001",
+      "title": "Payment schema",
+      "epic": "E06",
+      "epicName": "PAYMENT & SEPAY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E06; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "PAY-002",
+      "title": "Manual payment",
+      "epic": "E06",
+      "epicName": "PAYMENT & SEPAY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E06; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "PAY-003",
+      "title": "Deposit policy engine",
+      "epic": "E06",
+      "epicName": "PAYMENT & SEPAY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E06; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "PAY-004",
+      "title": "Payment code per order",
+      "epic": "E06",
+      "epicName": "PAYMENT & SEPAY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E06; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "PAY-005",
+      "title": "VietQR display",
+      "epic": "E06",
+      "epicName": "PAYMENT & SEPAY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E06; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "PAY-006",
+      "title": "SePay Test Mode setup",
+      "epic": "E06",
+      "epicName": "PAYMENT & SEPAY",
+      "status": "external_not_verified",
+      "evidence": "SePay setup runbook có; real staging Test Mode chưa có evidence."
+    },
+    {
+      "id": "PAY-007",
+      "title": "Webhook endpoint",
+      "epic": "E06",
+      "epicName": "PAYMENT & SEPAY",
+      "status": "partial",
+      "evidence": "Edge/RPC/key auth có, HMAC provider mismatch RV-01, account/payload validation gaps RV-02."
+    },
+    {
+      "id": "PAY-008",
+      "title": "Payment deduplication",
+      "epic": "E06",
+      "epicName": "PAYMENT & SEPAY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E06; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "PAY-009",
+      "title": "Realtime order payment update",
+      "epic": "E06",
+      "epicName": "PAYMENT & SEPAY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E06; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "PAY-010",
+      "title": "Refund/void payment",
+      "epic": "E06",
+      "epicName": "PAYMENT & SEPAY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E06; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "DEL-001",
+      "title": "Delivery schema",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "partial",
+      "evidence": "Schema/code có; code count concurrency/99+ cần regression RV-09."
+    },
+    {
+      "id": "DEL-002",
+      "title": "Delivery Items",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E07; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "DEL-003",
+      "title": "Validate total item quantities",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E07; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "DEL-004",
+      "title": "Delivery builder in order form",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "partial",
+      "evidence": "Builder ở detail, thiếu order-form flow so với yêu cầu gốc."
+    },
+    {
+      "id": "DEL-005",
+      "title": "Source location selection",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "partial",
+      "evidence": "Chọn kho xuất có; UI/RPC allocation chưa hoàn chỉnh theo từng kho/delivery RV-06."
+    },
+    {
+      "id": "DEL-006",
+      "title": "Delivery status state machine",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E07; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "DEL-007",
+      "title": "Today view",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E07; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "DEL-008",
+      "title": "Tomorrow view",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E07; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "DEL-009",
+      "title": "7-day view",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E07; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "DEL-010",
+      "title": "Calendar view",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "partial",
+      "evidence": "31-day grouped list; Calendar View chưa có evidence accepted."
+    },
+    {
+      "id": "DEL-011",
+      "title": "Dispatch transaction",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "partial",
+      "evidence": "Atomic SALE_OUT at DELIVERED có; batch pick/reverse delivery/expiry gaps RV-04/05."
+    },
+    {
+      "id": "DEL-012",
+      "title": "Failed delivery",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "partial",
+      "evidence": "Fail+reason/keep reservation có; chưa bảo vệ footprint FAILED RV-03."
+    },
+    {
+      "id": "DEL-013",
+      "title": "Reschedule",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E07; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "DEL-014",
+      "title": "Print delivery note",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "implemented_unreleased",
+      "evidence": "Code/migrations/tests + ExecPlan E07; CI HEAD green lịch sử; PR còn OPEN, staging/mobile chưa xác minh."
+    },
+    {
+      "id": "DEL-015",
+      "title": "Print warehouse issue note",
+      "epic": "E07",
+      "epicName": "MULTI-DELIVERY",
+      "status": "partial",
+      "evidence": "Issue note FEFO slice có; không binding batch theo delivery RV-04."
+    },
+    {
+      "id": "TRF-001",
+      "title": "Transfer request",
+      "epic": "E08",
+      "epicName": "TRANSFER",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "TRF-002",
+      "title": "Recommendation engine",
+      "epic": "E08",
+      "epicName": "TRANSFER",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "TRF-003",
+      "title": "Admin approval",
+      "epic": "E08",
+      "epicName": "TRANSFER",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "TRF-004",
+      "title": "Batch allocation transfer",
+      "epic": "E08",
+      "epicName": "TRANSFER",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "TRF-005",
+      "title": "Dispatch",
+      "epic": "E08",
+      "epicName": "TRANSFER",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "TRF-006",
+      "title": "In-transit state",
+      "epic": "E08",
+      "epicName": "TRANSFER",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "TRF-007",
+      "title": "Receive",
+      "epic": "E08",
+      "epicName": "TRANSFER",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "TRF-008",
+      "title": "Reject/cancel",
+      "epic": "E08",
+      "epicName": "TRANSFER",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "TRF-009",
+      "title": "Print transfer note",
+      "epic": "E08",
+      "epicName": "TRANSFER",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "PRD-001",
+      "title": "Future committed demand aggregation",
+      "epic": "E09",
+      "epicName": "PRODUCTION PLANNING",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "PRD-002",
+      "title": "Production need calculator",
+      "epic": "E09",
+      "epicName": "PRODUCTION PLANNING",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "PRD-003",
+      "title": "Suggested plan",
+      "epic": "E09",
+      "epicName": "PRODUCTION PLANNING",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "PRD-004",
+      "title": "Approve plan",
+      "epic": "E09",
+      "epicName": "PRODUCTION PLANNING",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "PRD-005",
+      "title": "Production run",
+      "epic": "E09",
+      "epicName": "PRODUCTION PLANNING",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "PRD-006",
+      "title": "Start run",
+      "epic": "E09",
+      "epicName": "PRODUCTION PLANNING",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "PRD-007",
+      "title": "Complete run",
+      "epic": "E09",
+      "epicName": "PRODUCTION PLANNING",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "PRD-008",
+      "title": "Create batch",
+      "epic": "E09",
+      "epicName": "PRODUCTION PLANNING",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "PRD-009",
+      "title": "Production IN inventory",
+      "epic": "E09",
+      "epicName": "PRODUCTION PLANNING",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "PRD-010",
+      "title": "Production dashboard",
+      "epic": "E09",
+      "epicName": "PRODUCTION PLANNING",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "PRD-011",
+      "title": "Shortage alerts",
+      "epic": "E09",
+      "epicName": "PRODUCTION PLANNING",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RET-001",
+      "title": "Return request",
+      "epic": "E10",
+      "epicName": "RETURN / EXCHANGE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RET-002",
+      "title": "Receive pending inspection",
+      "epic": "E10",
+      "epicName": "RETURN / EXCHANGE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RET-003",
+      "title": "Inspection",
+      "epic": "E10",
+      "epicName": "RETURN / EXCHANGE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RET-004",
+      "title": "Restock",
+      "epic": "E10",
+      "epicName": "RETURN / EXCHANGE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RET-005",
+      "title": "Damage",
+      "epic": "E10",
+      "epicName": "RETURN / EXCHANGE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RET-006",
+      "title": "Revenue adjustment",
+      "epic": "E10",
+      "epicName": "RETURN / EXCHANGE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RET-007",
+      "title": "Commission adjustment",
+      "epic": "E10",
+      "epicName": "RETURN / EXCHANGE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RET-008",
+      "title": "Exchange workflow",
+      "epic": "E10",
+      "epicName": "RETURN / EXCHANGE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "COM-001",
+      "title": "Commission rule resolution",
+      "epic": "E11",
+      "epicName": "COMMISSION",
+      "status": "partial",
+      "evidence": "private.resolve_commission_rate đã có 5-level priority phục vụ ORD-005; chưa module commission/snapshot lifecycle."
+    },
+    {
+      "id": "COM-002",
+      "title": "Estimated commission",
+      "epic": "E11",
+      "epicName": "COMMISSION",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "COM-003",
+      "title": "Eligible commission",
+      "epic": "E11",
+      "epicName": "COMMISSION",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "COM-004",
+      "title": "Discount deduction",
+      "epic": "E11",
+      "epicName": "COMMISSION",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "COM-005",
+      "title": "Return deduction",
+      "epic": "E11",
+      "epicName": "COMMISSION",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "COM-006",
+      "title": "User commission screen",
+      "epic": "E11",
+      "epicName": "COMMISSION",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "COM-007",
+      "title": "Admin commission screen",
+      "epic": "E11",
+      "epicName": "COMMISSION",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "COM-008",
+      "title": "Finalize campaign commission",
+      "epic": "E11",
+      "epicName": "COMMISSION",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "COM-009",
+      "title": "Export Excel",
+      "epic": "E11",
+      "epicName": "COMMISSION",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-001",
+      "title": "KPI definitions",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-002",
+      "title": "Admin dashboard",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-003",
+      "title": "Sales by channel",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-004",
+      "title": "Sales by source",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-005",
+      "title": "Sales by salesperson",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-006",
+      "title": "Sales by location",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-007",
+      "title": "SKU report",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-008",
+      "title": "Customer report",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-009",
+      "title": "Inventory turnover",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-010",
+      "title": "Cancellation report",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-011",
+      "title": "Production report",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "RPT-012",
+      "title": "Excel export engine",
+      "epic": "E12",
+      "epicName": "DASHBOARD & REPORTS",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "SEC-001",
+      "title": "Audit helper",
+      "epic": "E13",
+      "epicName": "AUDIT, SECURITY, HARDENING",
+      "status": "partial",
+      "evidence": "private.audit_row_change/helper immutable có; Audit Log UX còn thiếu."
+    },
+    {
+      "id": "SEC-002",
+      "title": "Audit destructive actions",
+      "epic": "E13",
+      "epicName": "AUDIT, SECURITY, HARDENING",
+      "status": "partial",
+      "evidence": "Audit master/order/inventory/payment/delivery có; event review thiếu RV-12; E08+ chưa có."
+    },
+    {
+      "id": "SEC-003",
+      "title": "RLS test suite",
+      "epic": "E13",
+      "epicName": "AUDIT, SECURITY, HARDENING",
+      "status": "partial",
+      "evidence": "RLS integration tests E01–E07 có; epics sau chưa có; local chưa rerun."
+    },
+    {
+      "id": "SEC-004",
+      "title": "Secret scan",
+      "epic": "E13",
+      "epicName": "AUDIT, SECURITY, HARDENING",
+      "status": "partial",
+      "evidence": "Ignore env/check-env có; full secret/history/mode scan chưa có RV-11."
+    },
+    {
+      "id": "SEC-005",
+      "title": "XSS/input sanitation review",
+      "epic": "E13",
+      "epicName": "AUDIT, SECURITY, HARDENING",
+      "status": "partial",
+      "evidence": "React escaping/input validators có; chưa security review/test toàn diện."
+    },
+    {
+      "id": "SEC-006",
+      "title": "Rate-limit sensitive endpoint",
+      "epic": "E13",
+      "epicName": "AUDIT, SECURITY, HARDENING",
+      "status": "not_started",
+      "evidence": "Không thấy rate/body limit sensitive webhook RV-13."
+    },
+    {
+      "id": "SEC-007",
+      "title": "Webhook authentication verification",
+      "epic": "E13",
+      "epicName": "AUDIT, SECURITY, HARDENING",
+      "status": "partial",
+      "evidence": "API-key/fail-closed có; HMAC contract sai và không timestamp RV-01."
+    },
+    {
+      "id": "SEC-008",
+      "title": "Webhook idempotency",
+      "epic": "E13",
+      "epicName": "AUDIT, SECURITY, HARDENING",
+      "status": "partial",
+      "evidence": "PAY-008 provider-id uniqueness/concurrent duplicate tests có; E13/staging acceptance chưa xác minh."
+    },
+    {
+      "id": "SEC-009",
+      "title": "Error logging",
+      "epic": "E13",
+      "epicName": "AUDIT, SECURITY, HARDENING",
+      "status": "partial",
+      "evidence": "DB error mapping/Edge error codes có; centralized errors/correlation/alert chưa đầy đủ."
+    },
+    {
+      "id": "SEC-010",
+      "title": "Backup/restore runbook",
+      "epic": "E13",
+      "epicName": "AUDIT, SECURITY, HARDENING",
+      "status": "partial",
+      "evidence": "Production runbook nêu backup/restore; chưa dedicated recovery runbook/rehearsal evidence."
+    },
+    {
+      "id": "SEC-011",
+      "title": "Admin access review",
+      "epic": "E13",
+      "epicName": "AUDIT, SECURITY, HARDENING",
+      "status": "partial",
+      "evidence": "Repo public, main protected=true, develop protected=false; Admin platform access/MFA/required checks/bypass chưa review đầy đủ RV-14."
+    },
+    {
+      "id": "UAT-001",
+      "title": "Test dataset",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "partial",
+      "evidence": "Seed giả có 6 roles/multiple products/locations; complete cross-module dataset chưa có."
+    },
+    {
+      "id": "UAT-002",
+      "title": "Concurrency test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "partial",
+      "evidence": "Local integration inventory/reservation concurrency + CI có; staging UAT chưa chạy."
+    },
+    {
+      "id": "UAT-003",
+      "title": "Reservation expiry test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "partial",
+      "evidence": "Reservation expiry integration/pgTAP có; staging scheduled job UAT chưa chạy."
+    },
+    {
+      "id": "UAT-004",
+      "title": "FEFO test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "partial",
+      "evidence": "FEFO integration/pgTAP có; delivery-expiry/reverse-pick regression thiếu."
+    },
+    {
+      "id": "UAT-005",
+      "title": "Multi-delivery test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "partial",
+      "evidence": "16 delivery integration tests/CI có; full mobile+multi-source UAT chưa chạy."
+    },
+    {
+      "id": "UAT-006",
+      "title": "Transfer test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "UAT-007",
+      "title": "Production test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "UAT-008",
+      "title": "SePay webhook test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "external_not_verified",
+      "evidence": "Local historical smoke có; real SePay Test Mode/staging chưa có evidence."
+    },
+    {
+      "id": "UAT-009",
+      "title": "Duplicate webhook test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "partial",
+      "evidence": "Concurrent duplicate webhook tests có; staging provider replay verification chưa có."
+    },
+    {
+      "id": "UAT-010",
+      "title": "Return/commission test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "UAT-011",
+      "title": "Mobile usability test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "UAT-012",
+      "title": "Role permission test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "partial",
+      "evidence": "Current role/RLS tests có; full-system UAT roles chưa đủ."
+    },
+    {
+      "id": "UAT-013",
+      "title": "Export reconciliation",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "not_started",
+      "evidence": "Không tìm thấy module đầy đủ trong source/migrations tại baseline."
+    },
+    {
+      "id": "UAT-014",
+      "title": "Production smoke test",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "external_not_verified",
+      "evidence": "Chưa có production smoke evidence."
+    },
+    {
+      "id": "UAT-015",
+      "title": "Go-live approval",
+      "epic": "E14",
+      "epicName": "UAT & GO-LIVE",
+      "status": "external_not_verified",
+      "evidence": "Chưa có go-live approval."
+    }
+  ]
+}

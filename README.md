@@ -58,3 +58,19 @@ Nhánh: `feature/*` → `develop` (staging) → `main` (production).
 - Kế hoạch triển khai: [docs/delivery/IMPLEMENTATION_INFRA_PLAN_v1.0.md](docs/delivery/IMPLEMENTATION_INFRA_PLAN_v1.0.md)
 - Quy tắc cho agent/dev: [AGENTS.md](AGENTS.md)
 - Runbooks: [docs/runbooks/](docs/runbooks/)
+
+## Bàn giao Codex / Claude
+
+- Review ngày 02/10/2026: [code, bảo mật, tiến độ](docs/reviews/2026-10-02-project-review.md).
+- Tiến độ baseline: [PROJECT_PROGRESS](docs/handoff/PROJECT_PROGRESS.md).
+- Prompt tiếp tục: [CLAUDE_CONTINUE_PROMPT](docs/handoff/CLAUDE_CONTINUE_PROMPT.md).
+- Quy trình mỗi task: [WORKFLOW](docs/handoff/WORKFLOW.md); trạng thái chung: [STATUS](docs/handoff/STATUS.md).
+
+```bash
+npm run task:start -- SEC-007 claude "Sửa xác thực webhook"
+# Triển khai và điền tmp/SEC-007-summary.json theo docs/handoff/summary.example.json
+npm run task:finish -- SEC-007 tmp/SEC-007-summary.json
+```
+
+Mỗi attempt sinh báo cáo Markdown + JSON tự ghi kết quả checks. `needs_validation`
+không phải Done; `validated_local` còn cần review/mobile/staging. Xem WORKFLOW để retry và commit báo cáo.
