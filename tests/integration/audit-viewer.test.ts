@@ -23,6 +23,17 @@ let updateAuditId: string
 
 const svc = () => serviceClient()
 
+/**
+ * `created_at` is a Postgres timestamptz with microsecond precision, and the listing orders by it.
+ * `Date.parse` keeps milliseconds only, so two rows written within the same millisecond looked tied
+ * to this test while the database had (correctly) ordered them by their microseconds.
+ */
+function microseconds(value: string): number {
+  const fraction = /\.(\d+)/.exec(value)?.[1] ?? ''
+  const wholeSeconds = Date.parse(value.replace(/\.\d+/, ''))
+  return wholeSeconds * 1000 + Number(fraction.padEnd(6, '0').slice(0, 6))
+}
+
 /** Vietnam calendar day `offset` days from today, `YYYY-MM-DD`. */
 function vietnamDay(offset: number): string {
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(
@@ -186,7 +197,7 @@ describe('Admin reads the audit trail', () => {
     for (let i = 1; i < seen.length; i += 1) {
       const previous = seen[i - 1]
       const current = seen[i]
-      const byTime = Date.parse(previous.created_at) - Date.parse(current.created_at)
+      const byTime = microseconds(previous.created_at) - microseconds(current.created_at)
       expect(byTime >= 0).toBe(true)
       if (byTime === 0) expect(previous.id > current.id).toBe(true)
     }
