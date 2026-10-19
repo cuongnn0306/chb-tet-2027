@@ -1,3 +1,6 @@
+import { useAuth } from '@/features/auth/auth-context'
+import { LoadingState, NoPermissionState } from '@/components/shared/PageState'
+import { customerQueryScope } from '@/domain/customers/query-scope'
 import { useMutation } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -28,7 +31,17 @@ interface Props {
   existingLabel?: string
 }
 
-export function CustomerForm({
+export function CustomerForm(props: Props) {
+  const { access } = useAuth()
+  if (access.status === 'loading') return <LoadingState />
+  const scope = customerQueryScope(access)
+  if (!scope) return <NoPermissionState />
+  return (
+    <CustomerFormContent key={JSON.stringify([scope, props.customer?.id ?? null])} {...props} />
+  )
+}
+
+function CustomerFormContent({
   customer,
   onCancel,
   onSaved,

@@ -50,6 +50,18 @@ describe('resolveAccess', () => {
     )
   })
 
+  it('rejects another account profile before exposing its role or inactive name', () => {
+    for (const isActive of [true, false]) {
+      expect(
+        resolveAccess({
+          ...base,
+          userId: 'u2',
+          profile: { ...profile, roleCode: 'ADMIN', isActive },
+        }),
+      ).toEqual({ status: 'no_profile' })
+    }
+  })
+
   it('grants access to an active user with a valid role', () => {
     const state = resolveAccess(base)
     expect(state.status).toBe('active')

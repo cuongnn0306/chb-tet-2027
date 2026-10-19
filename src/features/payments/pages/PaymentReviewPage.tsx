@@ -1,9 +1,15 @@
+import { useAuth } from '@/features/auth/auth-context'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { ROUTES } from '@/app/routes'
 import { DateTimeText, MoneyText } from '@/components/shared/MoneyText'
-import { EmptyState, ErrorState, LoadingState } from '@/components/shared/PageState'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  NoPermissionState,
+} from '@/components/shared/PageState'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
@@ -16,13 +22,24 @@ import { usePaymentService } from '../hooks/usePaymentService'
 
 /** Admin work queue: transfers that were not credited automatically, and payments waiting for confirmation. */
 export function PaymentReviewPage() {
+  const { access } = useAuth()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active' || access.user.roleCode !== 'ADMIN') return <NoPermissionState />
+  const scope = JSON.stringify([access.user.id, access.user.roleCode])
+  return <PaymentReviewContent key={scope} scope={scope} />
+}
+
+function PaymentReviewContent({ scope }: { scope: string }) {
   const service = usePaymentService()
   const queryClient = useQueryClient()
   const events = useQuery({
-    queryKey: ['payment-events-attention'],
+    queryKey: ['payment-events-attention', scope],
     queryFn: () => service.listEventsNeedingAttention(),
   })
-  const pending = useQuery({ queryKey: ['payments-pending'], queryFn: () => service.listPending() })
+  const pending = useQuery({
+    queryKey: ['payments-pending', scope],
+    queryFn: () => service.listPending(),
+  })
   const [assigning, setAssigning] = useState<PaymentEvent | null>(null)
   const [dismissing, setDismissing] = useState<PaymentEvent | null>(null)
   const [notice, setNotice] = useState<string | null>(null)

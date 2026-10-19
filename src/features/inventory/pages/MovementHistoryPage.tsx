@@ -1,14 +1,21 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { DateTimeText } from '@/components/shared/MoneyText'
-import { EmptyState, ErrorState, LoadingState } from '@/components/shared/PageState'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  NoPermissionState,
+} from '@/components/shared/PageState'
 import { Button } from '@/components/ui/Button'
 import { SelectField } from '@/components/ui/fields'
 import {
+  LEDGER_VIEW_ROLES,
   MOVEMENT_TYPES,
   MOVEMENT_TYPE_LABELS,
   type MovementType,
 } from '@/domain/inventory/movements'
+import { useAuth } from '@/features/auth/auth-context'
 import { getSupabase } from '@/lib/supabase'
 import { MOVEMENT_PAGE_SIZE } from '@/services/inventory.service'
 import { createLookupService } from '@/services/lookups.service'
@@ -16,18 +23,33 @@ import { useInventoryService } from '../hooks/useInventoryService'
 
 /** INV-009: the inventory ledger, newest first (Admin and Warehouse). Rows are immutable. */
 export function MovementHistoryPage() {
+  const { access } = useAuth()
+  const allowed =
+    access.status === 'active' &&
+    (LEDGER_VIEW_ROLES as readonly string[]).includes(access.user.roleCode)
+  const queryScope =
+    allowed && access.status === 'active'
+      ? JSON.stringify([access.user.id, access.user.roleCode])
+      : null
   const inventory = useInventoryService()
   const lookups = useMemo(() => createLookupService(getSupabase()), [])
   const [productId, setProductId] = useState('')
   const [type, setType] = useState<'' | MovementType>('')
   const [page, setPage] = useState(0)
 
-  const products = useQuery({ queryKey: ['inventory-products'], queryFn: () => lookups.products() })
-  const list = useQuery({
-    queryKey: ['inventory-movements', productId, type, page],
-    queryFn: () => inventory.listMovements({ productId: productId || undefined, type, page }),
-    placeholderData: (previous) => previous,
+  const products = useQuery({
+    queryKey: ['inventory-products', queryScope],
+    queryFn: () => lookups.products(),
+    enabled: allowed,
   })
+  const list = useQuery({
+    queryKey: ['inventory-movements', queryScope, productId, type, page],
+    queryFn: () => inventory.listMovements({ productId: productId || undefined, type, page }),
+    enabled: allowed,
+  })
+
+  if (access.status === 'loading') return <LoadingState />
+  if (!allowed) return <NoPermissionState />
 
   const rows = list.data ?? []
   const visible = rows.slice(0, MOVEMENT_PAGE_SIZE)

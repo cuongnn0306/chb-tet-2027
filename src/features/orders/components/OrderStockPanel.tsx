@@ -1,3 +1,4 @@
+import { useAuth } from '@/features/auth/auth-context'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { DateTimeText } from '@/components/shared/MoneyText'
@@ -31,6 +32,9 @@ interface Props {
 
 /** RES-001/007/009/010: what is held for the order, what is missing, where to get it, and FEFO allocation. */
 export function OrderStockPanel({ orderId, orderCode, status, canAllocate, onAllocated }: Props) {
+  const { access } = useAuth()
+  const scope =
+    access.status === 'active' ? JSON.stringify([access.user.id, access.user.roleCode]) : null
   const service = useOrderService()
   const queryClient = useQueryClient()
   const [allocating, setAllocating] = useState(false)
@@ -39,9 +43,9 @@ export function OrderStockPanel({ orderId, orderCode, status, canAllocate, onAll
 
   const enabled = ACTIVE_STATUSES.includes(status)
   const stock = useQuery({
-    queryKey: ['order-stock', orderId, status],
+    queryKey: ['order-stock', orderId, status, scope],
     queryFn: () => service.stockStatus(orderId),
-    enabled,
+    enabled: enabled && scope !== null,
   })
 
   const allocate = useMutation({

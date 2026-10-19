@@ -1,3 +1,4 @@
+import { useAuth } from '@/features/auth/auth-context'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
 import { DateTimeText, MoneyText } from '@/components/shared/MoneyText'
@@ -88,6 +89,9 @@ interface Props {
 }
 
 export function OrderPaymentPanel({ orderId, status, isAdmin, onChanged }: Props) {
+  const { access } = useAuth()
+  const scope =
+    access.status === 'active' ? JSON.stringify([access.user.id, access.user.roleCode]) : null
   const service = usePaymentService()
   const queryClient = useQueryClient()
   const [recording, setRecording] = useState(false)
@@ -96,12 +100,14 @@ export function OrderPaymentPanel({ orderId, status, isAdmin, onChanged }: Props
   const [copied, setCopied] = useState<string | null>(null)
 
   const instructions = useQuery({
-    queryKey: ['payment-instructions', orderId, status],
+    queryKey: ['payment-instructions', orderId, status, scope],
     queryFn: () => service.instructions(orderId),
+    enabled: scope !== null,
   })
   const payments = useQuery({
-    queryKey: ['order-payments', orderId],
+    queryKey: ['order-payments', orderId, scope],
     queryFn: () => service.list(orderId),
+    enabled: scope !== null,
   })
 
   const refresh = () => {

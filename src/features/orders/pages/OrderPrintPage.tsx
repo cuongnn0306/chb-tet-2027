@@ -1,8 +1,9 @@
+import { useAuth } from '@/features/auth/auth-context'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router'
 import { ROUTES } from '@/app/routes'
 import { MoneyText } from '@/components/shared/MoneyText'
-import { ErrorState, LoadingState } from '@/components/shared/PageState'
+import { ErrorState, LoadingState, NoPermissionState } from '@/components/shared/PageState'
 import { Button } from '@/components/ui/Button'
 import { customerDisplayName } from '@/domain/customers/validation'
 import { ORDER_STATUS_LABELS, isOrderStatus } from '@/domain/orders/state-machine'
@@ -11,9 +12,19 @@ import { useOrderService } from '../hooks/useOrderService'
 
 /** ORD-014: print-friendly order sheet. The app header and buttons are hidden when printing. */
 export function OrderPrintPage() {
+  const { access } = useAuth()
+  const scope =
+    access.status === 'active' ? JSON.stringify([access.user.id, access.user.roleCode]) : null
   const { orderId = '' } = useParams()
   const service = useOrderService()
-  const order = useQuery({ queryKey: ['order', orderId], queryFn: () => service.get(orderId) })
+  const order = useQuery({
+    queryKey: ['order', orderId, scope],
+    queryFn: () => service.get(orderId),
+    enabled: scope !== null && orderId !== '',
+  })
+
+  if (access.status === 'loading') return <LoadingState />
+  if (!scope) return <NoPermissionState />
 
   if (order.isPending) return <LoadingState />
   if (order.isError || !order.data) {

@@ -1,6 +1,7 @@
+import { useAuth } from '@/features/auth/auth-context'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { ErrorState, LoadingState } from '@/components/shared/PageState'
+import { ErrorState, LoadingState, NoPermissionState } from '@/components/shared/PageState'
 import { parseInteger, validateSafetyStock } from '@/domain/master-data/validation'
 import { getSupabase } from '@/lib/supabase'
 import type { RowOf } from '@/services/crud.service'
@@ -14,10 +15,16 @@ const labelOf = (options: Option[], id: string) =>
   options.find((option) => option.value === id)?.label ?? ''
 
 export function SafetyStockPage() {
+  const { access } = useAuth()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active' || access.user.roleCode !== 'ADMIN') return <NoPermissionState />
+  return <SafetyStockContent key={access.user.id} accountId={access.user.id} />
+}
+function SafetyStockContent({ accountId }: { accountId: string }) {
   const crud = useCrud('safety_stock_rules', 'updated_at')
   const lookups = useMemo(() => createLookupService(getSupabase()), [])
   const lists = useQuery({
-    queryKey: ['safety-stock-options'],
+    queryKey: ['safety-stock-options', accountId],
     queryFn: async () => {
       const [locations, products] = await Promise.all([lookups.locations(), lookups.products()])
       return { locations, products }
@@ -68,7 +75,7 @@ export function SafetyStockPage() {
       title="Tồn an toàn"
       description="Mức tồn tối thiểu cần giữ lại theo từng địa điểm và sản phẩm."
       noun="mức tồn an toàn"
-      queryKey="safety_stock_rules"
+      queryKey={JSON.stringify(['safety_stock_rules', accountId])}
       load={async () => {
         const rows = await crud.list()
         const key = (r: Rule) =>

@@ -17,12 +17,14 @@ export function InventorySummaryPage() {
   const lookups = useMemo(() => createLookupService(getSupabase()), [])
   const { access } = useAuth()
   const user = access.status === 'active' ? access.user : null
+  const queryScope = user === null ? null : JSON.stringify([user.id, user.roleCode])
   const detailed = user !== null && (BATCH_VIEW_ROLES as readonly string[]).includes(user.roleCode)
 
   const [locationId, setLocationId] = useState(user?.defaultLocationId ?? '')
 
   const catalog = useQuery({
-    queryKey: ['inventory-catalog'],
+    queryKey: ['inventory-catalog', queryScope],
+    enabled: queryScope !== null,
     queryFn: async () => {
       const [locations, products] = await Promise.all([
         lookups.locations(),
@@ -33,9 +35,9 @@ export function InventorySummaryPage() {
   })
 
   const summary = useQuery({
-    queryKey: ['inventory-summary', locationId],
+    queryKey: ['inventory-summary', queryScope, locationId],
     queryFn: () => inventory.summary(locationId),
-    enabled: locationId !== '',
+    enabled: queryScope !== null && locationId !== '',
   })
 
   if (catalog.isPending) return <LoadingState />

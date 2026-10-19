@@ -1,6 +1,7 @@
+import { useAuth } from '@/features/auth/auth-context'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
-import { ErrorState, LoadingState } from '@/components/shared/PageState'
+import { ErrorState, LoadingState, NoPermissionState } from '@/components/shared/PageState'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
 import { SelectField, TextAreaField } from '@/components/ui/fields'
@@ -19,9 +20,16 @@ import { useCrud } from '../hooks/useCrud'
 type Setting = RowOf<'app_settings'>
 
 export function SettingsPage() {
+  const { access } = useAuth()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active' || access.user.roleCode !== 'ADMIN') return <NoPermissionState />
+  return <SettingsContent key={access.user.id} accountId={access.user.id} />
+}
+
+function SettingsContent({ accountId }: { accountId: string }) {
   const crud = useCrud('app_settings', 'key')
   const queryClient = useQueryClient()
-  const list = useQuery({ queryKey: ['app_settings'], queryFn: crud.list })
+  const list = useQuery({ queryKey: ['app_settings', accountId], queryFn: crud.list })
   const [editing, setEditing] = useState<SettingDefinition | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 

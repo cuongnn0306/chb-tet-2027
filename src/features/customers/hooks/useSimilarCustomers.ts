@@ -1,3 +1,5 @@
+import { customerQueryScope } from '@/domain/customers/query-scope'
+import { useAuth } from '@/features/auth/auth-context'
 import { useQuery } from '@tanstack/react-query'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { MIN_DUPLICATE_PHONE_LENGTH, normalizePhone } from '@/lib/phone'
@@ -13,6 +15,8 @@ export function useSimilarCustomers(params: {
   taxCode: string
   excludeId?: string
 }): Customer[] {
+  const { access } = useAuth()
+  const scope = customerQueryScope(access)
   const service = useCustomerService()
   const debouncedPhone = useDebouncedValue(params.phone)
   const debouncedTax = useDebouncedValue(params.taxCode)
@@ -22,14 +26,20 @@ export function useSimilarCustomers(params: {
   const usableTax = debouncedTax.trim() !== ''
 
   const query = useQuery({
-    queryKey: ['similar-customers', phoneDigits, debouncedTax.trim(), params.excludeId ?? null],
+    queryKey: [
+      'similar-customers',
+      scope,
+      phoneDigits,
+      debouncedTax.trim(),
+      params.excludeId ?? null,
+    ],
     queryFn: () =>
       service.findSimilar({
         phone: usablePhone ? debouncedPhone : undefined,
         taxCode: usableTax ? debouncedTax : undefined,
         excludeId: params.excludeId,
       }),
-    enabled: usablePhone || usableTax,
+    enabled: scope !== null && (usablePhone || usableTax),
   })
   return query.data ?? []
 }

@@ -3,9 +3,15 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { ROUTES } from '@/app/routes'
 import { MoneyText } from '@/components/shared/MoneyText'
-import { EmptyState, ErrorState, LoadingState } from '@/components/shared/PageState'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  NoPermissionState,
+} from '@/components/shared/PageState'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/Button'
+import { monthBounds, shiftMonth } from '@/domain/deliveries/calendar'
 import {
   BOARD_RANGES,
   BOARD_RANGE_LABELS,
@@ -25,6 +31,7 @@ import { useAuth } from '@/features/auth/auth-context'
 import { describeDbError } from '@/lib/db-errors'
 import { formatDate } from '@/lib/date'
 import type { ScheduleRow } from '@/services/deliveries.service'
+import { DeliveryCalendarView } from '../components/DeliveryCalendarView'
 import { DeliveryActionDialog, RescheduleDialog } from '../components/DeliveryDialogs'
 import { useDeliveryService } from '../hooks/useDeliveryService'
 
@@ -38,6 +45,14 @@ function dayHeading(isoDate: string, today: string): string {
 
 /** DEL-007..010: what must be delivered today / tomorrow / the next 7 days / this month. */
 export function DeliveryBoardPage() {
+  const { access } = useAuth()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active') return <NoPermissionState />
+  const scope = JSON.stringify([access.user.id, access.user.roleCode])
+  return <DeliveryBoardContent key={scope} scope={scope} />
+}
+
+function DeliveryBoardContent({ scope }: { scope: string }) {
   const service = useDeliveryService()
   const queryClient = useQueryClient()
   const { access } = useAuth()
@@ -45,14 +60,16 @@ export function DeliveryBoardPage() {
   const isWarehouseStaff = role === 'ADMIN' || role === 'WAREHOUSE'
   const today = vietnamToday()
   const [range, setRange] = useState<BoardRange>('today')
+  const [calendarMonth, setCalendarMonth] = useState(today.slice(0, 7))
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState(today)
   const [onlyOpen, setOnlyOpen] = useState(true)
   const [acting, setActing] = useState<{ row: ScheduleRow; action: DeliveryAction } | null>(null)
   const [rescheduling, setRescheduling] = useState<ScheduleRow | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
-  const { from, to } = boardRange(range, today)
+  const { from, to } = range === 'month' ? monthBounds(calendarMonth) : boardRange(range, today)
   const schedule = useQuery({
-    queryKey: ['delivery-schedule', from, to],
+    queryKey: ['delivery-schedule', from, to, scope],
     queryFn: () => service.schedule(from, to),
   })
 
@@ -64,6 +81,13 @@ export function DeliveryBoardPage() {
     void queryClient.invalidateQueries({ queryKey: ['order-deliveries'] })
   }
   const totalQty = rows.reduce((sum, r) => sum + Number(r.total_quantity), 0)
+  const visibleRows =
+    range === 'month' ? rows.filter((row) => row.scheduled_date === selectedCalendarDate) : rows
+  const moveMonth = (offset: number) => {
+    const next = shiftMonth(calendarMonth, offset)
+    setCalendarMonth(next)
+    setSelectedCalendarDate(`${next}-01`)
+  }
 
   return (
     <section className="flex flex-col gap-4">
@@ -121,7 +145,7 @@ export function DeliveryBoardPage() {
           {describeDbError(schedule.error as { code?: string; message?: string })}
         </ErrorState>
       ) : null}
-      {schedule.isSuccess && rows.length === 0 ? (
+      {schedule.isSuccess && range !== 'month' && rows.length === 0 ? (
         <EmptyState title="Không có đợt giao nào trong khoảng này">
           Chọn khoảng thời gian khác hoặc bỏ lọc "Ẩn đợt đã giao / đã hủy".
         </EmptyState>
@@ -132,7 +156,30 @@ export function DeliveryBoardPage() {
         </p>
       ) : null}
 
-      {groupByDate(rows).map(([day, list]) => (
+      {schedule.isSuccess && range === 'month' ? (
+        <>
+          <DeliveryCalendarView
+            month={calendarMonth}
+            selectedDate={selectedCalendarDate}
+            today={today}
+            rows={rows}
+            onSelectDate={setSelectedCalendarDate}
+            onPreviousMonth={() => moveMonth(-1)}
+            onNextMonth={() => moveMonth(1)}
+            onToday={() => {
+              setCalendarMonth(today.slice(0, 7))
+              setSelectedCalendarDate(today)
+            }}
+          />
+          {visibleRows.length === 0 ? (
+            <EmptyState title={`Không có đợt giao ngày ${formatDate(selectedCalendarDate)}`}>
+              Chọn ngày khác trên lịch hoặc bỏ lọc "Ẩn đợt đã giao / đã hủy".
+            </EmptyState>
+          ) : null}
+        </>
+      ) : null}
+
+      {groupByDate(visibleRows).map(([day, list]) => (
         <div key={day} className="flex flex-col gap-2">
           <h2 className="font-semibold text-slate-900">{dayHeading(day, today)}</h2>
           {list.map((row) => {

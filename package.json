@@ -22,14 +22,20 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:types": "bash scripts/generate-db-types.sh",
-    "test:db": "supabase test db"
+    "test:db": "supabase test db",
+    "test:pipeline": "node --test tests/pipeline/*.test.mjs",
+    "task:start": "node scripts/task-pipeline.mjs start",
+    "task:finish": "node scripts/task-pipeline.mjs finish",
+    "task:verify": "node scripts/task-pipeline.mjs verify",
+    "task:status": "node scripts/task-pipeline.mjs status"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
     "@tanstack/react-query": "^5.104.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-router": "^7.18.4"
+    "react-router": "^7.18.4",
+    "read-excel-file": "9.3.10"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -40,7 +40,7 @@ export function resolveAccess(snapshot: AuthSnapshot): AccessState {
   if (!snapshot.profileLoaded) return { status: 'loading' }
 
   const { profile } = snapshot
-  if (!profile) return { status: 'no_profile' }
+  if (!profile || profile.id !== snapshot.userId) return { status: 'no_profile' }
   if (!profile.isActive) return { status: 'inactive', fullName: profile.fullName }
   if (!isRoleCode(profile.roleCode)) return { status: 'no_profile' }
   return { status: 'active', user: { ...profile, roleCode: profile.roleCode } }

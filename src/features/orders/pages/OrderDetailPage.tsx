@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { ROUTES } from '@/app/routes'
 import { DateTimeText, MoneyText } from '@/components/shared/MoneyText'
-import { ErrorState, LoadingState } from '@/components/shared/PageState'
+import { ErrorState, LoadingState, NoPermissionState } from '@/components/shared/PageState'
 import { customerDisplayName } from '@/domain/customers/validation'
 import { availableActions, isEditable, type OrderAction } from '@/domain/orders/state-machine'
 import { useAuth } from '@/features/auth/auth-context'
@@ -18,6 +18,15 @@ import { OrderTimeline } from '../components/OrderTimeline'
 import { useOrderService } from '../hooks/useOrderService'
 
 export function OrderDetailPage() {
+  const { access } = useAuth()
+  const { orderId = '' } = useParams()
+  if (access.status === 'loading') return <LoadingState />
+  if (access.status !== 'active') return <NoPermissionState />
+  const scope = JSON.stringify([access.user.id, access.user.roleCode])
+  return <OrderDetailContent key={JSON.stringify([scope, orderId])} scope={scope} />
+}
+
+function OrderDetailContent({ scope }: { scope: string }) {
   const { orderId = '' } = useParams()
   const service = useOrderService()
   const queryClient = useQueryClient()
@@ -28,9 +37,12 @@ export function OrderDetailPage() {
   const [action, setAction] = useState<OrderAction | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
-  const order = useQuery({ queryKey: ['order', orderId], queryFn: () => service.get(orderId) })
+  const order = useQuery({
+    queryKey: ['order', orderId, scope],
+    queryFn: () => service.get(orderId),
+  })
   const history = useQuery({
-    queryKey: ['order-history', orderId],
+    queryKey: ['order-history', orderId, scope],
     queryFn: () => service.history(orderId),
   })
 
